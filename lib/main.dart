@@ -3,9 +3,13 @@ import 'dart:developer';
 import 'package:climbing_notes/database.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'routes.dart';
+// import 'package:system_theme/system_theme.dart';
 
-void main() {
+void main() async {
+  // TODO, use system_theme when android build is fixed https://github.com/bdlukaa/system_theme/pull/35
+  // WidgetsFlutterBinding.ensureInitialized();
+  // SystemTheme.fallbackColor = Colors.lightGreen.shade600;
+  // await SystemTheme.accentColor.load();
   runApp(const ClimbingNotes());
 }
 
@@ -30,7 +34,7 @@ class ClimbingNotesMaterialApp extends StatelessWidget {
         title: 'Climbing Notes',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.lightGreen.shade600,
+              seedColor: Colors.lightGreen.shade600, //SystemTheme.accentColor.accent,
               brightness: Brightness.light),
           useMaterial3: true,
         ),
