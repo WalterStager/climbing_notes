@@ -1,6 +1,7 @@
 import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'builders.dart';
 import 'data_structures.dart';
 import 'package:climbing_notes/utility.dart';
@@ -162,10 +163,16 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
             const SizedBox(height: 8),
             FloatingActionButton(
               heroTag: "addFloatBtn",
-              onPressed: () => (Navigator.push(
+              onPressed: () => (
+                Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => AddAscentPage(route: route)))),
+                  PageTransition(
+                    duration: const Duration(milliseconds: 500),
+                      type: PageTransitionType.leftToRight,
+                      child: AddAscentPage(route: route),
+                  ),
+                ),
+              ),
               tooltip: 'Add ascent',
               child: const Icon(Icons.add),
             ),

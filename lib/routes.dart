@@ -3,6 +3,7 @@ import 'package:climbing_notes/utility.dart';
 import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'ascents.dart';
 import 'builders.dart';
 import 'data_structures.dart';
@@ -97,10 +98,16 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
         buildRoutesTableCell(Icon(getFinishIcon(data.id)),
             (context) => AscentsPage(route: data)),
         InkWell(
-          onTap: () => (Navigator.push(
+          onTap: () => (
+            Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => AddAscentPage(route: data)))),
+              PageTransition(
+                duration: const Duration(milliseconds: 500),
+                type: PageTransitionType.leftToRight,
+                child: AddAscentPage(route: data),
+              ),
+            ),
+          ),
           child: const Icon(Icons.add_box_rounded),
         )
       ].map(padCell).toList(),
@@ -204,20 +211,25 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            FloatingActionButton(
-              heroTag: "clearFloatBtn",
-              onPressed: () => (queryInfo = DBRoute("", "", "", null, null, null, null, null, null)),
-              tooltip: 'Clear',
-              child: const Icon(Icons.clear),
-            ),
-            const SizedBox(height: 8),
+            // FloatingActionButton(
+            //   heroTag: "clearFloatBtn",
+            //   onPressed: () => (queryInfo = DBRoute("", "", "", null, null, null, null, null, null)),
+            //   tooltip: 'Clear',
+            //   child: const Icon(Icons.clear),
+            // ),
+            // const SizedBox(height: 8),
             FloatingActionButton(
               heroTag: "addFloatBtn",
-              onPressed: () => (Navigator.push(
+              onPressed: () => (
+                Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          AddRoutePage(providedRoute: queryInfo)))),
+                  PageTransition(
+                    duration: const Duration(milliseconds: 500),
+                    type: PageTransitionType.leftToRight,
+                    child: AddRoutePage(providedRoute: queryInfo),
+                  ),
+                ),
+              ),
               tooltip: 'Add route',
               child: const Icon(Icons.add),
             ),

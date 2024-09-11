@@ -2,6 +2,7 @@ import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:climbing_notes/data_structures.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 const EdgeInsetsGeometry inputSectionElementPadding =
     EdgeInsets.only(top: 4.0, bottom: 4.0);
@@ -34,15 +35,25 @@ Drawer buildDrawer(BuildContext context) {
         ListTile(
           leading: const Icon(Icons.home),
           title: const Text("Routes"),
-          onTap: () => (Navigator.popUntil(context, ModalRoute.withName('/'))),
+          onTap: () => (
+            Navigator.popUntil(
+              context, ModalRoute.withName('/'),
+            )
+          ),
         ),
         ListTile(
           leading: const Icon(Icons.add),
           title: const Text("Add route"),
           onTap: () => {
             Navigator.pop(context),
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const AddRoutePage())),
+            Navigator.push(
+              context,
+              PageTransition(
+                duration: const Duration(milliseconds: 500),
+                type: PageTransitionType.leftToRight,
+                child: const AddRoutePage(),
+              ),
+            ),
           },
         ),
         ListTile(
@@ -58,9 +69,13 @@ Drawer buildDrawer(BuildContext context) {
           onTap: () => {
             Navigator.pop(context),
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const DatabaseViewPage())),
+              context,
+              PageTransition(
+                duration: const Duration(milliseconds: 500),
+                type: PageTransitionType.leftToRight,
+                child: const DatabaseViewPage(),
+              ),
+            ),
           },
         ),
       ],

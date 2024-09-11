@@ -1,6 +1,7 @@
 import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'builders.dart';
 import 'ascents.dart';
 import 'data_structures.dart';
@@ -76,9 +77,13 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
           onTap: () => {
             Navigator.pop(context),
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AddAscentPage(route: data))),
+              context,
+              PageTransition(
+                duration: const Duration(milliseconds: 500),
+                type: PageTransitionType.leftToRight,
+                child: AddAscentPage(route: data),
+              ),
+            ),
           },
           child: const Icon(Icons.add_box_rounded),
         )
@@ -211,8 +216,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                 }),
                 InputRow("Set date:",
                     inputType: TextInputType.datetime,
-                    initialValue: route.date,
-                    onChanged: (String? value) {
+                    initialValue: route.date, onChanged: (String? value) {
                   setState(() {
                     route.date = value;
                     updateTableData();
@@ -220,7 +224,8 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                 }),
                 InputRow("Grade:",
                     inputType: TextInputType.text,
-                    initialValue: "${route.grade_num ?? ""}${route.grade_let ?? ""}",
+                    initialValue:
+                        "${route.grade_num ?? ""}${route.grade_let ?? ""}",
                     onChanged: (String? value) {
                   setState(() {
                     if (value == null) {
