@@ -89,7 +89,7 @@ class DatabaseService {
     return await db?.rawQuery(q, routeIds);
   }
 
-  Future<List<DBRoute>?> queryRoutes(DBRoute routeInfo) async {
+  Future<List<DBRoute>?> queryRoutes(SmallDateFormat format, DBRoute routeInfo) async {
     checkDB();
     List<String> queryElements = List<String>.empty(growable: true);
     List<Object?> queryParameters = List<Object>.empty(growable: true);
@@ -100,7 +100,7 @@ class DatabaseService {
       DateTime? likelySetDate;
       String? canBePromoted = routeInfo.date;
       if (canBePromoted != null) {
-        likelySetDate = likelyTimeFromTimeDisplay(canBePromoted);
+        likelySetDate = likelyTimeFromTimeDisplay(format, canBePromoted);
         if (likelySetDate != null) {
             queryOrderClause = "abs(julianday(date) - julianday('${likelySetDate.toUtc().toIso8601String()}'))";
         }

@@ -1,6 +1,7 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'dart:io';
+import 'package:climbing_notes/data_structures.dart';
 import 'package:climbing_notes/database.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -108,6 +109,7 @@ class AppServices extends InheritedWidget {
 
   final DatabaseService dbs = DatabaseService();
   final RouteObserver<ModalRoute<void>> robs = RouteObserver<ModalRoute<void>>();
+  final AppSettings settings = AppSettings();
 
   @override
   bool updateShouldNotify(AppServices oldWidget) {
@@ -123,4 +125,9 @@ class AppServices extends InheritedWidget {
     assert(as != null, 'No AppServices found in context');
     return as!;
   }
+}
+
+
+class AppSettings {
+  SmallDateFormat dateFormat = SmallDateFormat.mmdd;
 }

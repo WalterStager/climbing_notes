@@ -173,7 +173,7 @@ class DropdownRow extends StatelessWidget {
         children: [
           Text(
             "Color:",
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           Padding(
             padding: inputBoxPadding,
@@ -253,7 +253,7 @@ class InputRowState extends State<StatefulWidget> {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           Expanded(
             child: Padding(
@@ -292,7 +292,7 @@ class ClimbingNotesLabel extends StatelessWidget {
         children: [
           Text(
             text,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
         ],
       ),
@@ -358,12 +358,12 @@ class CheckboxRow extends StatelessWidget {
         children: [
           Text(
             label1,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           Checkbox(value: initialValue1, onChanged: onChanged1),
           Text(
             label2,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           Checkbox(value: initialValue2, onChanged: onChanged2),
         ],

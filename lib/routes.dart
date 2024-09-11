@@ -46,7 +46,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
   }
 
   void updateTableData() async {
-    List<DBRoute>? r = await AppServices.of(context).dbs.queryRoutes(queryInfo);
+    List<DBRoute>? r = await AppServices.of(context).dbs.queryRoutes(AppServices.of(context).settings.dateFormat, queryInfo);
 
     setState(() {
       matchingRoutes = r;
@@ -86,7 +86,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
       children: [
         buildRoutesTableCell(
             Text(data.rope.toString()), (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(Text(timeDisplayFromTimestamp(data.date)),
+        buildRoutesTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, data.date)),
             (context) => AscentsPage(route: data)),
         buildRoutesTableCell(
             Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let)
@@ -212,13 +212,13 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            // FloatingActionButton(
-            //   heroTag: "clearFloatBtn",
-            //   onPressed: () => (queryInfo = DBRoute("", "", "", null, null, null, null, null, null)),
-            //   tooltip: 'Clear',
-            //   child: const Icon(Icons.clear),
-            // ),
-            // const SizedBox(height: 8),
+            FloatingActionButton(
+              heroTag: "clearFloatBtn",
+              onPressed: () => (queryInfo = DBRoute("", "", "", null, null, null, null, null, null)),
+              tooltip: 'Clear',
+              child: const Icon(Icons.clear),
+            ),
+            const SizedBox(height: 8),
             FloatingActionButton(
               heroTag: "addFloatBtn",
               onPressed: () => (
@@ -227,7 +227,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                   PageTransition(
                     duration: const Duration(milliseconds: 500),
                     type: PageTransitionType.leftToRight,
-                    child: AddRoutePage(providedRoute: queryInfo),
+                    child: AddRoutePage(providedRoute: DBRoute.of(queryInfo)),
                   ),
                 ),
               ),

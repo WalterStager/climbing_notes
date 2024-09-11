@@ -54,7 +54,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
   TableRow buildAscentsTableRow(DBAscent data) {
     return TableRow(
       children: [
-        buildAscentsTableCell(Text(timeDisplayFromTimestamp(data.date)), null),
+        buildAscentsTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, data.date)), null),
         buildAscentsTableCell(
             Icon(intToBool(data.finished) ?? false ? Icons.check : Icons.close),
             null),
@@ -129,7 +129,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                 ),
                 InputRow(
                   "Set date:",
-                  initialValue: timeDisplayFromTimestamp(route.date),
+                  initialValue: timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, route.date),
                   locked: true,
                 ),
                 InputRow(

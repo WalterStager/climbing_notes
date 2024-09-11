@@ -41,6 +41,11 @@ enum RouteColor {
   }
 }
 
+enum SmallDateFormat {
+  mmdd,
+  ddmm
+}
+
 class RouteGrade {
   int afterDecimal;
   String letter;
@@ -83,6 +88,20 @@ class DBRoute {
   //     notes,
   //   ];
   // }
+
+  factory DBRoute.of(DBRoute original) {
+    return DBRoute(
+      original.id,
+      original.created,
+      original.updated,
+      original.rope,
+      original.date,
+      original.color,
+      original.grade_num,
+      original.grade_let,
+      original.notes,
+    );
+  }
 
   factory DBRoute.fromMap(Map<String, Object?> map) {
     return DBRoute(

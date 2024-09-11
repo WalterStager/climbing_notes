@@ -52,7 +52,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   }
 
   void updateTableData() async {
-    List<DBRoute>? r1 = await AppServices.of(context).dbs.queryRoutes(route);
+    List<DBRoute>? r1 = await AppServices.of(context).dbs.queryRoutes(AppServices.of(context).settings.dateFormat, route);
     setState(() {
       matchingRoutes = r1;
     });
@@ -91,7 +91,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
       children: [
         buildRoutesTableCell(
             Text(data.rope.toString()), (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(Text(timeDisplayFromTimestamp(data.date)),
+        buildRoutesTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, data.date)),
             (context) => AscentsPage(route: data)),
         buildRoutesTableCell(
             Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let)
@@ -195,9 +195,14 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
       errorPopup("Date is not set.");
       return;
     }
-    likelySetDate = likelyTimeFromTimeDisplay(canBePromoted);
+    likelySetDate = likelyTimeFromTimeDisplay(AppServices.of(context).settings.dateFormat, canBePromoted);
     if (likelySetDate == null) {
       errorPopup("Invalid date.");
+      return;
+    }
+
+    if (likelySetDate.isAfter(DateTime.now())) {
+      errorPopup("Date cannot be in the future.");
       return;
     }
 
