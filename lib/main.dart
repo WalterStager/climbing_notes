@@ -31,7 +31,7 @@ class ClimbingNotesMaterialApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.lightGreen.shade600,
-              brightness: Brightness.dark),
+              brightness: Brightness.light),
           useMaterial3: true,
         ),
         home: LoadingScreen(),
@@ -48,26 +48,44 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class LoadingScreenState extends State<LoadingScreen> {
-  bool dbsLoaded = false;
-  bool dbsLoadStarted = false;
+  Future<void>? dbFuture;
+  Future<void>? delay;
+
+  @override
+  void initState() {
+
+    super.initState();
+  }
 
   Future<void> startDatabaseService() async {
     await AppServices.of(context).dbs.start();
-    setState(() {
-      dbsLoaded = true;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!dbsLoadStarted) {
-      dbsLoadStarted = true;
-      startDatabaseService();
+    if (!AppServices.of(context).dbs.startedLoad) {
+      dbFuture = startDatabaseService();
+      delay = Future.delayed(Duration(milliseconds:2300));
     }
-    return Container(
-      child: dbsLoaded ? const RoutesPage() : LoadingAnimationWidget.dotsTriangle(
-                    color: Colors.lightGreen.shade600, size: 200),
-        );
+
+    List<Future<void>> futures = [dbFuture, delay].whereType<Future<void>>().toList();
+
+    return FutureBuilder(
+      future: Future.wait(futures),
+      builder: (innerContext, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return const RoutesPage();
+        }
+        else {
+          // TODO modify this animation
+          // 1. return a future so that you can end the loading screen in sync with the animation cycle
+          // 2. make the background color sync with theme (currently its always black, "people" who use light theme still deserve consistency)
+          // 3. add app name below animation
+          return LoadingAnimationWidget.dotsTriangle(
+                    color: Theme.of(context).colorScheme.primary, size: 200);
+        }
+      }
+    );
   }
 }
 

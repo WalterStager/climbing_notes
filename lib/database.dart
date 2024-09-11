@@ -29,15 +29,15 @@ const String dbFileName = "climbing_notes.db";
 
 class DatabaseService {
   Database? db;
-  // bool loaded = false;
+  bool startedLoad = false;
   PackageInfo? pi;
 
   DatabaseService();
 
   Future<void> start() async {
+    startedLoad = true;
     db = await openDatabase(dbFileName);
     await createTables();
-    // loaded = true;
   }
 
   void checkDB() {
