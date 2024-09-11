@@ -1,9 +1,11 @@
 // ignore: unused_import
 import 'dart:developer';
+import 'dart:io';
 import 'package:climbing_notes/database.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:climbing_notes/routes.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:system_theme/system_theme.dart';
 
 void main() async {
@@ -11,6 +13,13 @@ void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
   // SystemTheme.fallbackColor = Colors.lightGreen.shade600;
   // await SystemTheme.accentColor.load();
+
+  // initalization necessary for windows
+  if (Platform.isWindows) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
+
   runApp(const ClimbingNotes());
 }
 
