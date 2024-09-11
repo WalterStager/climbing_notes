@@ -101,40 +101,36 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context, "Ascents"),
+      appBar: const ClimbingNotesAppBar(pageTitle: "Ascents"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
             Column(
               children: <Widget>[
-                buildLockedInputRow(
-                  context,
+                InputRow(
                   "Rope #:",
-                  route.rope.toString(),
+                  initialValue: route.rope.toString(),
+                  locked: true,
                 ),
-                buildLockedInputRow(
-                  context,
+                InputRow(
                   "Set date:",
-                  timeDisplayFromTimestamp(route.date),
+                  initialValue: timeDisplayFromTimestamp(route.date),
+                  locked: true,
                 ),
-                buildLockedInputRow(
-                  context,
+                InputRow(
                   "Grade:",
-                  RouteGrade.fromDBValues(route.grade_num, route.grade_let)
+                  initialValue: RouteGrade.fromDBValues(route.grade_num, route.grade_let)
                       .toString(),
+                  locked: true,
                 ),
-                buildLockedDropdownRow(
-                  context,
-                  RouteColor.fromString(route.color ?? ""),
+                DropdownRow(
+                  initialValue: RouteColor.fromString(route.color ?? ""),
+                  locked: true,
                 ),
-                buildLabel(
-                  context,
-                  "Notes:",
-                ),
-                buildLockedNotes(
-                  context,
-                  route.notes ?? "",
+                const ClimbingNotesLabel("Notes:"),
+                Notes(
+                  initialValue: route.notes ?? "",
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -179,7 +175,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
           ],
         ),
       ),
-      drawer: buildDrawer(context),
+      drawer: const ClimbingNotesDrawer(),
     );
   }
 }

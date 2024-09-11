@@ -70,8 +70,12 @@ class _DatabaseViewState extends State<DatabaseViewPage> with RouteAware {
 
   void updateTables() async {
     // DatabaseTable? r1 = await AppServices.of(context).dbs.query("sqlite_schema", 100, 0);
-    DatabaseTable? r2 = await AppServices.of(context).dbs.queryRecentlyUpdated("Routes", 100, 0);
-    DatabaseTable? r3 = await AppServices.of(context).dbs.queryRecentlyUpdated("Ascents", 100, 0);
+    DatabaseTable? r2 = await AppServices.of(context)
+        .dbs
+        .queryRecentlyUpdated("Routes", 100, 0);
+    DatabaseTable? r3 = await AppServices.of(context)
+        .dbs
+        .queryRecentlyUpdated("Ascents", 100, 0);
     // setState(() {
     //   tables[0] = r1;
     // });
@@ -86,7 +90,7 @@ class _DatabaseViewState extends State<DatabaseViewPage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context, "Database View"),
+      appBar: const ClimbingNotesAppBar(pageTitle: "Database View"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: buildDatabaseViewTables(),
@@ -114,7 +118,7 @@ class _DatabaseViewState extends State<DatabaseViewPage> with RouteAware {
           ],
         ),
       ),
-      drawer: buildDrawer(context),
+      drawer: const ClimbingNotesDrawer(),
     );
   }
 }

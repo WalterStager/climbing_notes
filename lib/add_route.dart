@@ -198,7 +198,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context, "Add Route"),
+      appBar: const ClimbingNotesAppBar(pageTitle: "Add Route"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -239,40 +239,36 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                     updateTableData();
                   });
                 }),
-                buildDropdownRow(
-                    context, RouteColor.fromString(route.color ?? ""),
-                    (RouteColor? value) {
-                  setState(() {
-                    route.color =
-                        value == RouteColor.nocolor ? null : value?.string;
-                    updateTableData();
-                  });
-                }),
-                buildLabel(
-                  context,
-                  "Route notes:",
+                DropdownRow(
+                  initialValue: RouteColor.fromString(route.color ?? ""),
+                  onSelected: (RouteColor? value) {
+                    setState(() {
+                      route.color =
+                          value == RouteColor.nocolor ? null : value?.string;
+                      updateTableData();
+                    });
+                  },
                 ),
-                buildNotes(context),
-                buildCheckboxRow(
-                  context,
-                  intToBool(ascent.finished) ?? false,
-                  intToBool(ascent.rested) ?? false,
-                  (newValue) {
+                const ClimbingNotesLabel("Route notes:"),
+                const Notes(),
+                CheckboxRow(
+                  "Finished:",
+                  "Rested:",
+                  initialValue1: intToBool(ascent.finished) ?? false,
+                  initialValue2: intToBool(ascent.rested) ?? false,
+                  onChanged1:(newValue) {
                     setState(
                       () => (ascent.finished = boolToInt(newValue)),
                     );
                   },
-                  (newValue) {
+                  onChanged2:(newValue) {
                     setState(
                       () => (ascent.rested = boolToInt(newValue)),
                     );
                   },
                 ),
-                buildLabel(
-                  context,
-                  "Ascent notes:",
-                ),
-                buildNotes(context),
+                const ClimbingNotesLabel("Ascent notes:"),
+                const Notes(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(
@@ -308,7 +304,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
           ],
         ),
       ),
-      drawer: buildDrawer(context),
+      drawer: const ClimbingNotesDrawer(),
     );
   }
 }

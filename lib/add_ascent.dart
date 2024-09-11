@@ -115,58 +115,55 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context, "Add Ascent"),
+      appBar: const ClimbingNotesAppBar(pageTitle: "Add Ascent"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
             Column(
               children: <Widget>[
-                buildLockedInputRow(
-                  context,
+                InputRow(
                   "Rope #:",
-                  route.rope.toString(),
+                  initialValue: route.rope.toString(),
+                  locked: true,
                 ),
-                buildLockedInputRow(
-                  context,
+                InputRow(
                   "Set date:",
-                  timeDisplayFromTimestamp(route.date),
+                  initialValue: timeDisplayFromTimestamp(route.date),
+                  locked: true,
                 ),
-                buildLockedInputRow(
-                  context,
+                InputRow(
                   "Grade:",
-                  RouteGrade.fromDBValues(route.grade_num, route.grade_let)
+                  initialValue: RouteGrade.fromDBValues(route.grade_num, route.grade_let)
                       .toString(),
+                  locked: true,
                 ),
-                buildLockedDropdownRow(
-                  context,
-                  RouteColor.fromString(route.color ?? ""),
+                DropdownRow(
+                  initialValue: RouteColor.fromString(route.color ?? ""),
+                  locked: true,
                 ),
-                buildLabel(
-                  context,
-                  "Route notes:",
-                ),
-                buildLockedNotes(
-                  context,
-                  route.notes ?? "",
-                ),
-                buildCheckboxRow(
-                  context,
-                  intToBool(ascent.finished) ?? false,
-                  intToBool(ascent.rested) ?? false,
-                  (newValue) {
+                const ClimbingNotesLabel("Route notes:"),
+                Notes(
+                  initialValue: route.notes ?? "",
+                  locked: true),
+                CheckboxRow(
+                  "Finished:",
+                  "Rested:",
+                  initialValue1: intToBool(ascent.finished) ?? false,
+                  initialValue2: intToBool(ascent.rested) ?? false,
+                  onChanged1: (newValue) {
                     setState(
                       () => (ascent.finished = boolToInt(newValue)),
                     );
                   },
-                  (newValue) {
+                  onChanged2: (newValue) {
                     setState(
                       () => (ascent.rested = boolToInt(newValue)),
                     );
                   },
                 ),
-                buildLabel(context, "Ascent notes:"),
-                buildNotes(context),
+                const ClimbingNotesLabel("Ascent notes:"),
+                const Notes(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(
@@ -201,7 +198,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
           ],
         ),
       ),
-      drawer: buildDrawer(context),
+      drawer: const ClimbingNotesDrawer(),
     );
   }
 }

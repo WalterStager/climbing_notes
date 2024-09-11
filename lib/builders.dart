@@ -8,121 +8,108 @@ const EdgeInsetsGeometry inputSectionElementPadding =
     EdgeInsets.only(top: 4.0, bottom: 4.0);
 const EdgeInsetsGeometry inputBoxPadding = EdgeInsets.only(left: 8.0);
 
-Drawer buildDrawer(BuildContext context) {
-  return Drawer(
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: <Widget>[
-        DrawerHeader(
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              border: const Border(bottom: BorderSide(width: 3.0))),
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Row(
-              children: [
-                SizedBox(height: 50, width: 50, child: getThemeIcon(context)),
-                Text("Climbing Notes",
-                    style: TextStyle(
-                        fontSize:
-                            Theme.of(context).textTheme.titleLarge?.fontSize,
-                        color: contrastingThemeTextColor(context))),
-              ],
-            ),
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.home),
-          title: const Text("Routes"),
-          onTap: () => (
-            Navigator.popUntil(
-              context, ModalRoute.withName('/'),
-            )
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.add),
-          title: const Text("Add route"),
-          onTap: () => {
-            Navigator.pop(context),
-            Navigator.push(
-              context,
-              PageTransition(
-                duration: const Duration(milliseconds: 500),
-                type: PageTransitionType.leftToRight,
-                child: const AddRoutePage(),
+class ClimbingNotesDrawer extends StatelessWidget {
+  const ClimbingNotesDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                border: const Border(bottom: BorderSide(width: 3.0))),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Row(
+                children: [
+                  SizedBox(height: 50, width: 50, child: getThemeIcon(context)),
+                  Text("Climbing Notes",
+                      style: TextStyle(
+                          fontSize:
+                              Theme.of(context).textTheme.titleLarge?.fontSize,
+                          color: contrastingThemeTextColor(context))),
+                ],
               ),
             ),
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.settings),
-          title: const Text("Settings"),
-          onTap: () => {
-            Navigator.pop(context),
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.account_tree_sharp),
-          title: const Text("DB View"),
-          onTap: () => {
-            Navigator.pop(context),
-            Navigator.push(
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text("Routes"),
+            onTap: () => (Navigator.popUntil(
               context,
-              PageTransition(
-                duration: const Duration(milliseconds: 500),
-                type: PageTransitionType.leftToRight,
-                child: const DatabaseViewPage(),
+              ModalRoute.withName('/'),
+            )),
+          ),
+          ListTile(
+            leading: const Icon(Icons.add),
+            title: const Text("Add route"),
+            onTap: () => {
+              Navigator.pop(context),
+              Navigator.push(
+                context,
+                PageTransition(
+                  duration: const Duration(milliseconds: 500),
+                  type: PageTransitionType.leftToRight,
+                  child: const AddRoutePage(),
+                ),
               ),
-            ),
-          },
-        ),
-      ],
-    ),
-  );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text("Settings"),
+            onTap: () => {
+              Navigator.pop(context),
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_tree_sharp),
+            title: const Text("DB View"),
+            onTap: () => {
+              Navigator.pop(context),
+              Navigator.push(
+                context,
+                PageTransition(
+                  duration: const Duration(milliseconds: 500),
+                  type: PageTransitionType.leftToRight,
+                  child: const DatabaseViewPage(),
+                ),
+              ),
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-AppBar buildAppBar(BuildContext context, String pageTitle) {
-  return AppBar(
-    backgroundColor: Theme.of(context).colorScheme.primary,
-    actionsIconTheme: IconThemeData(color: contrastingThemeTextColor(context)),
-    iconTheme: IconThemeData(color: contrastingThemeTextColor(context)),
-    title: Text(pageTitle,
-        style: TextStyle(color: contrastingThemeTextColor(context))),
-  );
+class ClimbingNotesAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String pageTitle;
+  @override
+  final Size preferredSize;
+
+  const ClimbingNotesAppBar({super.key, required this.pageTitle}): preferredSize = const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      actionsIconTheme:
+          IconThemeData(color: contrastingThemeTextColor(context)),
+      iconTheme: IconThemeData(color: contrastingThemeTextColor(context)),
+      title: Text(pageTitle,
+          style: TextStyle(color: contrastingThemeTextColor(context))),
+    );
+  }
 }
 
-// Widget buildfloatingActionButtons(BuildContext context, {bool? backButton}) {
-//   return Align(
-//     alignment: Alignment.bottomRight,
-//     child: Column(
-//       mainAxisAlignment: MainAxisAlignment.end,
-//       children: <Widget>[
-//         Visibility(
-//           visible: backButton ?? false,
-//           child: FloatingActionButton(
-//             heroTag: "backFloatBtn",
-//             onPressed: () => {
-//               Navigator.pop(context),
-//             },
-//             tooltip: 'Back',
-//             child: const Icon(Icons.arrow_back_rounded),
-//           ),
-//         ),
-//         const SizedBox(height: 8),
-//         FloatingActionButton(
-//           heroTag: "addFloatBtn",
-//           onPressed: () => (Navigator.push(context,
-//               MaterialPageRoute(builder: (context) => const AddRoutePage()))),
-//           tooltip: 'Add route',
-//           child: const Icon(Icons.add),
-//         ),
-//       ],
-//     ),
-//   );
-// }
-
+// gets a color which is
+//    a little bit darker than surface in light theme
+//    a little bit lighter than surface in dark theme
 Color contrastingSurface(BuildContext context) {
   Color surface = Theme.of(context).colorScheme.surface;
   const modifier = 50;
@@ -143,7 +130,7 @@ Color contrastingSurface(BuildContext context) {
   }
 }
 
-// inverted for now
+// inverted for now, since I'm using icon against theme primary color rather than surface
 Image getThemeIcon(BuildContext context) {
   if (Theme.of(context).colorScheme.brightness == Brightness.dark) {
     return Image.asset("icon.png");
@@ -170,92 +157,48 @@ Color contrastingThemeTextColor(BuildContext context) {
   }
 }
 
-Widget buildLockedDropdownRow(BuildContext context, RouteColor value) {
-  return Padding(
-    padding: inputSectionElementPadding,
-    child: Row(
-      children: [
-        Text(
-          "Color:",
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Padding(
-          padding: inputBoxPadding,
-          child: DropdownMenu<RouteColor>(
-              enabled: false,
-              initialSelection: value,
+class DropdownRow extends StatelessWidget {
+  final RouteColor initialValue;
+  final Function(RouteColor?)? onSelected;
+  final bool? locked;
+
+  const DropdownRow(
+      {super.key, required this.initialValue, this.onSelected, this.locked});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: inputSectionElementPadding,
+      child: Row(
+        children: [
+          Text(
+            "Color:",
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          Padding(
+            padding: inputBoxPadding,
+            child: DropdownMenu<RouteColor>(
+              enabled: !(locked ?? false),
+              initialSelection: initialValue,
               inputDecorationTheme: InputDecorationTheme(
+                border: const OutlineInputBorder(),
                 disabledBorder: OutlineInputBorder(
                     borderSide:
                         BorderSide(color: Theme.of(context).disabledColor)),
               ),
-              textStyle: TextStyle(color: Theme.of(context).disabledColor),
+              textStyle: (locked ?? false) ? TextStyle(color: Theme.of(context).disabledColor) : null,
               dropdownMenuEntries: RouteColor.values
                   .map<DropdownMenuEntry<RouteColor>>((RouteColor value) {
                 return DropdownMenuEntry<RouteColor>(
                     value: value, label: value.string);
-              }).toList()),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget buildDropdownRow(BuildContext context, RouteColor initialValue,
-    Function(RouteColor?)? callback) {
-  return Padding(
-    padding: inputSectionElementPadding,
-    child: Row(
-      children: [
-        Text(
-          "Color:",
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Padding(
-          padding: inputBoxPadding,
-          child: DropdownMenu<RouteColor>(
-            initialSelection: initialValue,
-            dropdownMenuEntries: RouteColor.values
-                .map<DropdownMenuEntry<RouteColor>>((RouteColor value) {
-              return DropdownMenuEntry<RouteColor>(
-                  value: value, label: value.string);
-            }).toList(),
-            onSelected: callback,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget buildLockedInputRow(BuildContext context, String label, String shownText,
-    {int? maxLength}) {
-  return Padding(
-    padding: inputSectionElementPadding,
-    child: Row(
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Expanded(
-          child: Padding(
-            padding: inputBoxPadding,
-            child: TextField(
-              enabled: false,
-              readOnly: true,
-              controller: TextEditingController(text: shownText),
-              maxLength: maxLength,
-              decoration: InputDecoration(
-                  disabledBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Theme.of(context).disabledColor))),
+              }).toList(),
+              onSelected: onSelected,
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class InputRow extends StatefulWidget {
@@ -264,9 +207,15 @@ class InputRow extends StatefulWidget {
   final int? maxLength;
   final ValueChanged<String?>? onChanged;
   final String? initialValue;
+  final bool? locked;
 
   const InputRow(this.label,
-      {this.inputType, this.maxLength, this.onChanged, this.initialValue});
+      {super.key,
+      this.inputType,
+      this.maxLength,
+      this.onChanged,
+      this.initialValue,
+      this.locked});
 
   @override
   State<StatefulWidget> createState() => InputRowState(
@@ -275,6 +224,7 @@ class InputRow extends StatefulWidget {
         maxLength: maxLength,
         onChanged: onChanged,
         initialValue: initialValue,
+        locked: locked,
       );
 }
 
@@ -284,11 +234,16 @@ class InputRowState extends State<StatefulWidget> {
   int? maxLength;
   ValueChanged<String?>? onChanged;
   String? initialValue;
-  TextEditingController _controller;
+  TextEditingController controller;
+  bool? locked;
 
   InputRowState(this.label,
-      {this.inputType, this.maxLength, this.onChanged, this.initialValue})
-      : _controller = TextEditingController(text: initialValue);
+      {this.inputType,
+      this.maxLength,
+      this.onChanged,
+      this.initialValue,
+      this.locked})
+      : controller = TextEditingController(text: initialValue);
 
   @override
   Widget build(BuildContext context) {
@@ -304,10 +259,16 @@ class InputRowState extends State<StatefulWidget> {
             child: Padding(
               padding: inputBoxPadding,
               child: TextField(
-                controller: _controller,
+                enabled: !(locked ?? false),
+                readOnly: (locked ?? false),
+                controller: controller,
                 onChanged: onChanged,
                 maxLength: maxLength,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    disabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Theme.of(context).disabledColor))),
                 keyboardType: inputType ?? TextInputType.text,
               ),
             ),
@@ -318,68 +279,98 @@ class InputRowState extends State<StatefulWidget> {
   }
 }
 
-Widget buildLabel(BuildContext context, String text) {
-  return Padding(
-    padding: const EdgeInsets.all(0.0),
-    child: Row(
-      children: [
-        Text(
-          text,
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-      ],
-    ),
-  );
-}
+class ClimbingNotesLabel extends StatelessWidget {
+  final String text;
 
-Widget buildLockedNotes(BuildContext context, String notes) {
-  return Padding(
-    padding: inputSectionElementPadding,
-    child: Container(
-      decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).disabledColor),
-          borderRadius: BorderRadius.circular(4.0)),
-      constraints: const BoxConstraints(
-        minWidth: double.infinity,
-        maxWidth: double.infinity,
+  const ClimbingNotesLabel(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: Row(
+        children: [
+          Text(
+            text,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(8),
-      child: Text(
-        notes,
-        style: TextStyle(color: Theme.of(context).disabledColor),
+    );
+  }
+}
+
+class Notes extends StatefulWidget {
+  final bool? locked;
+  final String? initialValue;
+
+  const Notes({super.key, this.locked, this.initialValue});
+
+  @override
+  State<StatefulWidget> createState() => NotesState(
+    locked: locked,
+    initialValue: initialValue,
+  );
+
+}
+
+class NotesState extends State<Notes> {
+  bool? locked;
+  String? initialValue;
+  TextEditingController controller;
+
+  NotesState({this.locked, this.initialValue}) :  controller = TextEditingController(text: initialValue);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: inputSectionElementPadding,
+      child: TextField(
+        enabled: !(locked ?? false),
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).disabledColor)),
+        ),
+        minLines: 1,
+        controller: controller,
+        style: (locked ?? false) ? TextStyle(color: Theme.of(context).disabledColor) : null,
       ),
-    ),
-  );
+    );
+  }
+
 }
 
-Widget buildNotes(BuildContext context) {
-  return const Padding(
-    padding: inputSectionElementPadding,
-    child: TextField(
-      decoration: InputDecoration(border: OutlineInputBorder()),
-    ),
-  );
-}
+class CheckboxRow extends StatelessWidget {
+  final String label1;
+  final String label2;
+  final bool? initialValue1;
+  final bool? initialValue2;
+  final ValueChanged<bool?>? onChanged1;
+  final ValueChanged<bool?>? onChanged2;
 
-Widget buildCheckboxRow(BuildContext context, bool finValue, bool restValue,
-    ValueChanged<bool?> finCallback, ValueChanged<bool?> restCallback) {
-  return Padding(
-    padding: const EdgeInsets.only(top: 0, bottom: 0),
-    child: Row(
-      children: [
-        Text(
-          "Finished:",
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Checkbox(value: finValue, onChanged: finCallback),
-        Text(
-          "Rested:",
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Checkbox(value: restValue, onChanged: restCallback),
-      ],
-    ),
-  );
+  const CheckboxRow(this.label1, this.label2, {super.key, this.initialValue1, this.initialValue2, this.onChanged1, this.onChanged2});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 0, bottom: 0),
+      child: Row(
+        children: [
+          Text(
+            label1,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          Checkbox(value: initialValue1, onChanged: onChanged1),
+          Text(
+            label2,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          Checkbox(value: initialValue2, onChanged: onChanged2),
+        ],
+      ),
+    );
+  }
+
 }
 
 Padding padCell(Widget cellContents) {

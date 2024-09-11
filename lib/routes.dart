@@ -150,7 +150,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context, "Routes"),
+      appBar: const ClimbingNotesAppBar(pageTitle: "Routes"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -186,15 +186,16 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                     updateTableData();
                   });
                 }),
-                buildDropdownRow(
-                    context, RouteColor.fromString(queryInfo.color ?? ""),
-                    (RouteColor? value) {
-                  setState(() {
-                    queryInfo.color =
-                        value == RouteColor.nocolor ? null : value?.string;
-                    updateTableData();
-                  });
-                }),
+                DropdownRow(
+                    initialValue: RouteColor.fromString(queryInfo.color ?? ""),
+                    onSelected: (RouteColor? value) {
+                      setState(() {
+                        queryInfo.color =
+                            value == RouteColor.nocolor ? null : value?.string;
+                        updateTableData();
+                      });
+                    },
+                  ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(
@@ -236,7 +237,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
           ],
         ),
       ),
-      drawer: buildDrawer(context),
+      drawer: const ClimbingNotesDrawer(),
     );
   }
 }
