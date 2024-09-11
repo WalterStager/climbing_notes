@@ -18,6 +18,7 @@ class AddRoutePage extends StatefulWidget {
 
 class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   List<DBRoute>? matchingRoutes;
+  Map<String, bool>? finishedRoutes;
   DBRoute route = DBRoute("", "", "", null, null, null, null, null, null);
   DBAscent ascent = DBAscent(0, "", "", "", null, null, null, null);
 
@@ -55,6 +56,34 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
     setState(() {
       matchingRoutes = r1;
     });
+
+    updateFinishes();
+  }
+
+  void updateFinishes() async {
+    if (matchingRoutes == null) {
+      return;
+    }
+    List<Map<String, Object?>>? r = await AppServices.of(context)
+        .dbs
+        .queryFinished(
+            matchingRoutes?.map((route) => (route.id)).toList() ?? []);
+    if (r == null) {
+      return;
+    }
+    Map<String, bool> finishesMap = Map.fromEntries(r.map(
+        (map) => (MapEntry(map["route"] as String, map["has_finished"] == 1))));
+    setState(() {
+      finishedRoutes = finishesMap;
+    });
+  }
+
+  IconData? getFinishIcon(String routeId) {
+    bool? fin = finishedRoutes?[routeId];
+    if (fin == null) {
+      return null;
+    }
+    return fin ? Icons.check : Icons.close;
   }
 
   TableRow buildRoutesTableRow(DBRoute data) {
@@ -71,8 +100,8 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
         buildRoutesTableCell(
             Text(RouteColor.fromString(data.color ?? "").string),
             (context) => AscentsPage(route: data)),
-        // buildRoutesTableCell(Icon(data.finished ? Icons.check : Icons.close),
-        //     (context) => AscentsPage(route: data)),
+        buildRoutesTableCell(Icon(getFinishIcon(data.id)),
+            (context) => AscentsPage(route: data)),
         InkWell(
           onTap: () => {
             Navigator.pop(context),
@@ -121,7 +150,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                   const Text("Set date"),
                   const Text("Grade"),
                   const Text("Color"),
-                  // Text("Finished"),
+                  const Text("Finished"),
                   const Text("Ascent"),
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
