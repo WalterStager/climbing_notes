@@ -181,7 +181,13 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
       AppServices.of(context).dbs.ascentInsert(ascent);
     }
 
+    clearData();
     Navigator.pop(context);
+  }
+
+  void clearData() {
+    route = DBRoute("", "", "", null, null, null, null, null, null);
+    ascent = DBAscent(0, "", "", "", null, null, null, null);
   }
 
   @override
@@ -281,6 +287,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
             FloatingActionButton(
               heroTag: "backFloatBtn",
               onPressed: () => {
+                clearData(),
                 Navigator.pop(context),
               },
               tooltip: 'Back',

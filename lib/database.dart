@@ -77,6 +77,18 @@ class DatabaseService {
     ).then((value) => (value.map(DBAscent.fromMap).toList()));
   }
 
+  Future<List<Map<String, Object?>>?> queryFinished(List<String> routeIds) async {
+    checkDB();
+    String q = """
+      SELECT route,
+            MAX(CASE WHEN finished = 1 THEN 1 ELSE 0 END) AS has_finished
+      FROM Ascents
+      WHERE route IN (${List.filled(routeIds.length, "?").join(", ")}) 
+      GROUP BY route;
+    """;
+    return await db?.rawQuery(q, routeIds);
+  }
+
   Future<List<DBRoute>?> queryRoutes(DBRoute routeInfo) async {
     checkDB();
     List<String> queryElements = List<String>.empty(growable: true);
@@ -129,12 +141,12 @@ class DatabaseService {
 
   Future<bool> routeInsert(DBRoute route) async {
     checkDB();
-    List<Map<String, Object?>>? res = await db?.rawQuery("SELECT EXISTS(SELECT 1 FROM Routes WHERE id='${route.id}' LIMIT 1)");
+    List<Map<String, Object?>>? res = await db?.rawQuery("SELECT EXISTS(SELECT 1 FROM Routes WHERE id='${route.id}' LIMIT 1) AS does_exist");
     if (res == null) {
       log("Got null result when checking if route exists. I thought this was impossible.");
       return false;
     }
-    if (res.isNotEmpty) {
+    if (res.first["does_exist"] == 1) {
       return false;
     }
     

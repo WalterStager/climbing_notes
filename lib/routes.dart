@@ -17,6 +17,7 @@ class RoutesPage extends StatefulWidget {
 class _RoutesPageState extends State<RoutesPage> with RouteAware {
   DBRoute queryInfo = DBRoute("", "", "", null, null, null, null, null, null);
   List<DBRoute>? matchingRoutes;
+  Map<String, bool>? finishedRoutes;
 
   _RoutesPageState();
 
@@ -44,10 +45,39 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
   }
 
   void updateTableData() async {
-    List<DBRoute>? r1 = await AppServices.of(context).dbs.queryRoutes(queryInfo);
+    List<DBRoute>? r = await AppServices.of(context).dbs.queryRoutes(queryInfo);
+
     setState(() {
-      matchingRoutes = r1;
+      matchingRoutes = r;
     });
+
+    updateFinishes();
+  }
+
+  void updateFinishes() async {
+    if (matchingRoutes == null) {
+      return;
+    }
+    List<Map<String, Object?>>? r = await AppServices.of(context)
+        .dbs
+        .queryFinished(
+            matchingRoutes?.map((route) => (route.id)).toList() ?? []);
+    if (r == null) {
+      return;
+    }
+    Map<String, bool> finishesMap = Map.fromEntries(r.map(
+        (map) => (MapEntry(map["route"] as String, map["has_finished"] == 1))));
+    setState(() {
+      finishedRoutes = finishesMap;
+    });
+  }
+
+  IconData? getFinishIcon(String routeId) {
+    bool? fin = finishedRoutes?[routeId];
+    if (fin == null) {
+      return null;
+    }
+    return fin ? Icons.check : Icons.close;
   }
 
   TableRow buildRoutesTableRow(DBRoute data) {
@@ -55,14 +85,17 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
       children: [
         buildRoutesTableCell(
             Text(data.rope.toString()), (context) => AscentsPage(route: data)),
+        buildRoutesTableCell(Text(timeDisplayFromTimestamp(data.date)),
+            (context) => AscentsPage(route: data)),
         buildRoutesTableCell(
-            Text(timeDisplayFromTimestamp(data.date)), (context) => AscentsPage(route: data)),
+            Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let)
+                .toString()),
+            (context) => AscentsPage(route: data)),
         buildRoutesTableCell(
-            Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let).toString()), (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(
-            Text(RouteColor.fromString(data.color ?? "").string), (context) => AscentsPage(route: data)),
-        // buildRoutesTableCell(Icon(data.finished ? Icons.check : Icons.close),
-        //     (context) => AscentsPage(route: data)),
+            Text(RouteColor.fromString(data.color ?? "").string),
+            (context) => AscentsPage(route: data)),
+        buildRoutesTableCell(Icon(getFinishIcon(data.id)),
+            (context) => AscentsPage(route: data)),
         InkWell(
           onTap: () => (Navigator.push(
               context,
@@ -98,7 +131,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                   const Text("Set date"),
                   const Text("Grade"),
                   const Text("Color"),
-                  // Text("Finished"),
+                  const Text("Finished"),
                   const Text("Ascent"),
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
@@ -117,24 +150,21 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
           children: [
             Column(
               children: <Widget>[
-                InputRow("Rope #:",
-                    inputType: TextInputType.datetime,
+                InputRow("Rope #:", inputType: TextInputType.datetime,
                     onChanged: (String? value) {
                   setState(() {
                     queryInfo.rope = stringToInt(value);
                     updateTableData();
                   });
                 }),
-                InputRow("Set date:",
-                    inputType: TextInputType.datetime,
+                InputRow("Set date:", inputType: TextInputType.datetime,
                     onChanged: (String? value) {
                   setState(() {
                     queryInfo.date = value;
                     updateTableData();
                   });
                 }),
-                InputRow("Grade:",
-                    inputType: TextInputType.text,
+                InputRow("Grade:", inputType: TextInputType.text,
                     onChanged: (String? value) {
                   setState(() {
                     if (value == null) {
@@ -175,11 +205,19 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             FloatingActionButton(
+              heroTag: "clearFloatBtn",
+              onPressed: () => (queryInfo = DBRoute("", "", "", null, null, null, null, null, null)),
+              tooltip: 'Clear',
+              child: const Icon(Icons.clear),
+            ),
+            const SizedBox(height: 8),
+            FloatingActionButton(
               heroTag: "addFloatBtn",
               onPressed: () => (Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AddRoutePage(providedRoute: queryInfo)))),
+                      builder: (context) =>
+                          AddRoutePage(providedRoute: queryInfo)))),
               tooltip: 'Add route',
               child: const Icon(Icons.add),
             ),
