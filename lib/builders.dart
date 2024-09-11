@@ -23,7 +23,10 @@ Drawer buildDrawer(BuildContext context) {
               children: [
                 SizedBox(height: 50, width: 50, child: getThemeIcon(context)),
                 Text("Climbing Notes",
-                    style: TextStyle(fontSize: Theme.of(context).textTheme.titleLarge?.fontSize, color: contrastingThemeTextColor(context))),
+                    style: TextStyle(
+                        fontSize:
+                            Theme.of(context).textTheme.titleLarge?.fontSize,
+                        color: contrastingThemeTextColor(context))),
               ],
             ),
           ),
@@ -31,9 +34,7 @@ Drawer buildDrawer(BuildContext context) {
         ListTile(
           leading: const Icon(Icons.home),
           title: const Text("Routes"),
-          onTap: () => (Navigator.popUntil(
-              context,
-              ModalRoute.withName('/'))),
+          onTap: () => (Navigator.popUntil(context, ModalRoute.withName('/'))),
         ),
         ListTile(
           leading: const Icon(Icons.add),
@@ -41,7 +42,7 @@ Drawer buildDrawer(BuildContext context) {
           onTap: () => {
             Navigator.pop(context),
             Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddRoutePage())),
+                MaterialPageRoute(builder: (context) => const AddRoutePage())),
           },
         ),
         ListTile(
@@ -50,14 +51,16 @@ Drawer buildDrawer(BuildContext context) {
           onTap: () => {
             Navigator.pop(context),
           },
-        ),     
+        ),
         ListTile(
           leading: const Icon(Icons.account_tree_sharp),
           title: const Text("DB View"),
           onTap: () => {
             Navigator.pop(context),
-            Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const DatabaseViewPage())),
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const DatabaseViewPage())),
           },
         ),
       ],
@@ -70,8 +73,8 @@ AppBar buildAppBar(BuildContext context, String pageTitle) {
     backgroundColor: Theme.of(context).colorScheme.primary,
     actionsIconTheme: IconThemeData(color: contrastingThemeTextColor(context)),
     iconTheme: IconThemeData(color: contrastingThemeTextColor(context)),
-    title:
-        Text(pageTitle, style: TextStyle(color: contrastingThemeTextColor(context))),
+    title: Text(pageTitle,
+        style: TextStyle(color: contrastingThemeTextColor(context))),
   );
 }
 
@@ -167,7 +170,9 @@ Widget buildLockedDropdownRow(BuildContext context, RouteColor value) {
               enabled: false,
               initialSelection: value,
               inputDecorationTheme: InputDecorationTheme(
-                disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).disabledColor)),
+                disabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Theme.of(context).disabledColor)),
               ),
               textStyle: TextStyle(color: Theme.of(context).disabledColor),
               dropdownMenuEntries: RouteColor.values
@@ -223,11 +228,13 @@ Widget buildLockedInputRow(BuildContext context, String label, String shownText,
             padding: inputBoxPadding,
             child: TextField(
               enabled: false,
-              
               readOnly: true,
               controller: TextEditingController(text: shownText),
               maxLength: maxLength,
-              decoration: InputDecoration(disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).disabledColor))),
+              decoration: InputDecoration(
+                  disabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Theme.of(context).disabledColor))),
             ),
           ),
         ),
@@ -236,30 +243,64 @@ Widget buildLockedInputRow(BuildContext context, String label, String shownText,
   );
 }
 
-Widget buildInputRow(BuildContext context, String label,
-    {TextInputType? inputType, int? maxLength, ValueChanged<String?>? inputCallback}) {
-  return Padding(
-    padding: inputSectionElementPadding,
-    child: Row(
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Expanded(
-          child: Padding(
-            padding: inputBoxPadding,
-            child: TextField(
-              onChanged: inputCallback,
-              maxLength: maxLength,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
-              keyboardType: inputType ?? TextInputType.text,
+class InputRow extends StatefulWidget {
+  final String label;
+  final TextInputType? inputType;
+  final int? maxLength;
+  final ValueChanged<String?>? onChanged;
+  final String? initialValue;
+
+  const InputRow(this.label,
+      {this.inputType, this.maxLength, this.onChanged, this.initialValue});
+
+  @override
+  State<StatefulWidget> createState() => InputRowState(
+        label,
+        inputType: inputType,
+        maxLength: maxLength,
+        onChanged: onChanged,
+        initialValue: initialValue,
+      );
+}
+
+class InputRowState extends State<StatefulWidget> {
+  String label;
+  TextInputType? inputType;
+  int? maxLength;
+  ValueChanged<String?>? onChanged;
+  String? initialValue;
+  TextEditingController _controller;
+
+  InputRowState(this.label,
+      {this.inputType, this.maxLength, this.onChanged, this.initialValue})
+      : _controller = TextEditingController(text: initialValue);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: inputSectionElementPadding,
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          Expanded(
+            child: Padding(
+              padding: inputBoxPadding,
+              child: TextField(
+                controller: _controller,
+                onChanged: onChanged,
+                maxLength: maxLength,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                keyboardType: inputType ?? TextInputType.text,
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 Widget buildLabel(BuildContext context, String text) {

@@ -7,10 +7,12 @@ import 'data_structures.dart';
 import 'package:climbing_notes/utility.dart';
 
 class AddRoutePage extends StatefulWidget {
-  const AddRoutePage({super.key});
+  const AddRoutePage({super.key, this.providedRoute});
+
+  final DBRoute? providedRoute;
 
   @override
-  State<AddRoutePage> createState() => _AddRoutePageState();
+  State<AddRoutePage> createState() => _AddRoutePageState(providedRoute);
 }
 
 class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
@@ -18,7 +20,11 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   DBRoute route = DBRoute("", "", "", null, null, null, null, null, null);
   DBAscent ascent = DBAscent(0, "", "", "", null, null, null, null);
 
-  _AddRoutePageState();
+  _AddRoutePageState(DBRoute? providedRoute) {
+    if (providedRoute != null) {
+      route = providedRoute;
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -188,26 +194,28 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
           children: [
             Column(
               children: <Widget>[
-                buildInputRow(context, "Rope #:",
-                    inputType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputCallback: (String? value) {
+                InputRow("Rope #:",
+                    inputType: TextInputType.datetime,
+                    initialValue: route.rope?.toString(),
+                    onChanged: (String? value) {
                   setState(() {
                     route.rope = stringToInt(value);
                     updateTableData();
                   });
                 }),
-                buildInputRow(context, "Set date:",
+                InputRow("Set date:",
                     inputType: TextInputType.datetime,
-                    inputCallback: (String? value) {
+                    initialValue: route.date,
+                    onChanged: (String? value) {
                   setState(() {
                     route.date = value;
                     updateTableData();
                   });
                 }),
-                buildInputRow(context, "Grade:",
+                InputRow("Grade:",
                     inputType: TextInputType.text,
-                    inputCallback: (String? value) {
+                    initialValue: "${route.grade_num ?? ""}${route.grade_let ?? ""}",
+                    onChanged: (String? value) {
                   setState(() {
                     if (value == null) {
                       route.grade_num = null;

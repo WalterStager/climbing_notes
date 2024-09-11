@@ -117,26 +117,25 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
           children: [
             Column(
               children: <Widget>[
-                buildInputRow(context, "Rope #:",
-                    inputType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputCallback: (String? value) {
+                InputRow("Rope #:",
+                    inputType: TextInputType.datetime,
+                    onChanged: (String? value) {
                   setState(() {
                     queryInfo.rope = stringToInt(value);
                     updateTableData();
                   });
                 }),
-                buildInputRow(context, "Set date:",
+                InputRow("Set date:",
                     inputType: TextInputType.datetime,
-                    inputCallback: (String? value) {
+                    onChanged: (String? value) {
                   setState(() {
                     queryInfo.date = value;
                     updateTableData();
                   });
                 }),
-                buildInputRow(context, "Grade:",
+                InputRow("Grade:",
                     inputType: TextInputType.text,
-                    inputCallback: (String? value) {
+                    onChanged: (String? value) {
                   setState(() {
                     if (value == null) {
                       queryInfo.grade_num = null;
@@ -180,7 +179,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
               onPressed: () => (Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const AddRoutePage()))),
+                      builder: (context) => AddRoutePage(providedRoute: queryInfo)))),
               tooltip: 'Add route',
               child: const Icon(Icons.add),
             ),
