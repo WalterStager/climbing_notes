@@ -6,7 +6,7 @@ import 'data_structures.dart';
 import 'package:climbing_notes/utility.dart';
 
 class AscentsPage extends StatefulWidget {
-  AscentsPage({super.key, required this.route});
+  const AscentsPage({super.key, required this.route});
 
   final DBRoute route;
 
@@ -105,45 +105,43 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
         padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
-            Container(
-              child: Column(
-                children: <Widget>[
-                  buildLockedInputRow(
-                    context,
-                    "Rope #:",
-                    route.rope.toString(),
+            Column(
+              children: <Widget>[
+                buildLockedInputRow(
+                  context,
+                  "Rope #:",
+                  route.rope.toString(),
+                ),
+                buildLockedInputRow(
+                  context,
+                  "Set date:",
+                  timeDisplayFromTimestamp(route.date),
+                ),
+                buildLockedInputRow(
+                  context,
+                  "Grade:",
+                  RouteGrade.fromDBValues(route.grade_num, route.grade_let)
+                      .toString(),
+                ),
+                buildLockedDropdownRow(
+                  context,
+                  RouteColor.fromString(route.color ?? ""),
+                ),
+                buildLabel(
+                  context,
+                  "Notes:",
+                ),
+                buildLockedNotes(
+                  context,
+                  route.notes ?? "",
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Container(
+                    child: buildAscentsTable(),
                   ),
-                  buildLockedInputRow(
-                    context,
-                    "Set date:",
-                    timeDisplayFromTimestamp(route.date),
-                  ),
-                  buildLockedInputRow(
-                    context,
-                    "Grade:",
-                    RouteGrade.fromDBValues(route.grade_num, route.grade_let)
-                        .toString(),
-                  ),
-                  buildLockedDropdownRow(
-                    context,
-                    RouteColor.fromString(route.color ?? ""),
-                  ),
-                  buildLabel(
-                    context,
-                    "Notes:",
-                  ),
-                  buildLockedNotes(
-                    context,
-                    route.notes ?? "",
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Container(
-                      child: buildAscentsTable(),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

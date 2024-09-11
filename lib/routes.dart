@@ -94,12 +94,12 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
             TableRow(
                 // header row
                 children: <Widget>[
-                  Text("Rope #"),
-                  Text("Set date"),
-                  Text("Grade"),
-                  Text("Color"),
+                  const Text("Rope #"),
+                  const Text("Set date"),
+                  const Text("Grade"),
+                  const Text("Color"),
                   // Text("Finished"),
-                  Text("Ascent"),
+                  const Text("Ascent"),
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
           ] +
@@ -115,59 +115,57 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
         padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
-            Container(
-              child: Column(
-                children: <Widget>[
-                  buildInputRow(context, "Rope #:",
-                      inputType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      inputCallback: (String? value) {
-                    setState(() {
-                      queryInfo.rope = stringToInt(value);
-                      updateTableData();
-                    });
-                  }),
-                  buildInputRow(context, "Set date:",
-                      inputType: TextInputType.datetime,
-                      inputCallback: (String? value) {
-                    setState(() {
-                      queryInfo.date = value;
-                      updateTableData();
-                    });
-                  }),
-                  buildInputRow(context, "Grade:",
-                      inputType: TextInputType.text,
-                      inputCallback: (String? value) {
-                    setState(() {
-                      if (value == null) {
-                        queryInfo.grade_num = null;
-                        queryInfo.grade_let = null;
-                      } else {
-                        RegExpMatch? match = gradeExp.firstMatch(value);
-                        queryInfo.grade_num =
-                            stringToInt(match?.namedGroup("num"));
-                        queryInfo.grade_let = match?.namedGroup("let");
-                      }
-                      updateTableData();
-                    });
-                  }),
-                  buildDropdownRow(
-                      context, RouteColor.fromString(queryInfo.color ?? ""),
-                      (RouteColor? value) {
-                    setState(() {
-                      queryInfo.color =
-                          value == RouteColor.nocolor ? null : value?.string;
-                      updateTableData();
-                    });
-                  }),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Container(
-                      child: buildRoutesTable(),
-                    ),
+            Column(
+              children: <Widget>[
+                buildInputRow(context, "Rope #:",
+                    inputType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputCallback: (String? value) {
+                  setState(() {
+                    queryInfo.rope = stringToInt(value);
+                    updateTableData();
+                  });
+                }),
+                buildInputRow(context, "Set date:",
+                    inputType: TextInputType.datetime,
+                    inputCallback: (String? value) {
+                  setState(() {
+                    queryInfo.date = value;
+                    updateTableData();
+                  });
+                }),
+                buildInputRow(context, "Grade:",
+                    inputType: TextInputType.text,
+                    inputCallback: (String? value) {
+                  setState(() {
+                    if (value == null) {
+                      queryInfo.grade_num = null;
+                      queryInfo.grade_let = null;
+                    } else {
+                      RegExpMatch? match = gradeExp.firstMatch(value);
+                      queryInfo.grade_num =
+                          stringToInt(match?.namedGroup("num"));
+                      queryInfo.grade_let = match?.namedGroup("let");
+                    }
+                    updateTableData();
+                  });
+                }),
+                buildDropdownRow(
+                    context, RouteColor.fromString(queryInfo.color ?? ""),
+                    (RouteColor? value) {
+                  setState(() {
+                    queryInfo.color =
+                        value == RouteColor.nocolor ? null : value?.string;
+                    updateTableData();
+                  });
+                }),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Container(
+                    child: buildRoutesTable(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

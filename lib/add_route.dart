@@ -106,12 +106,12 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
             TableRow(
                 // header row
                 children: <Widget>[
-                  Text("Rope #"),
-                  Text("Set date"),
-                  Text("Grade"),
-                  Text("Color"),
+                  const Text("Rope #"),
+                  const Text("Set date"),
+                  const Text("Grade"),
+                  const Text("Color"),
                   // Text("Finished"),
-                  Text("Ascent"),
+                  const Text("Ascent"),
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
           ] +
@@ -123,7 +123,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -149,7 +149,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
       return;
     }
 
-    DateTime? likelySetDate = null;
+    DateTime? likelySetDate;
     String? canBePromoted = route.date;
     if (canBePromoted == null) {
       errorPopup("Date is null.");
@@ -182,83 +182,81 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
         padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
-            Container(
-              child: Column(
-                children: <Widget>[
-                  buildInputRow(context, "Rope #:",
-                      inputType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      inputCallback: (String? value) {
-                    setState(() {
-                      route.rope = stringToInt(value);
-                      updateTableData();
-                    });
-                  }),
-                  buildInputRow(context, "Set date:",
-                      inputType: TextInputType.datetime,
-                      inputCallback: (String? value) {
-                    setState(() {
-                      route.date = value;
-                      updateTableData();
-                    });
-                  }),
-                  buildInputRow(context, "Grade:",
-                      inputType: TextInputType.text,
-                      inputCallback: (String? value) {
-                    setState(() {
-                      if (value == null) {
-                        route.grade_num = null;
-                        route.grade_let = null;
-                      } else {
-                        RegExpMatch? match = gradeExp.firstMatch(value);
-                        route.grade_num = stringToInt(match?.namedGroup("num"));
-                        route.grade_let = match?.namedGroup("let");
-                      }
-                      updateTableData();
-                    });
-                  }),
-                  buildDropdownRow(
-                      context, RouteColor.fromString(route.color ?? ""),
-                      (RouteColor? value) {
-                    setState(() {
-                      route.color =
-                          value == RouteColor.nocolor ? null : value?.string;
-                      updateTableData();
-                    });
-                  }),
-                  buildLabel(
-                    context,
-                    "Route notes:",
+            Column(
+              children: <Widget>[
+                buildInputRow(context, "Rope #:",
+                    inputType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputCallback: (String? value) {
+                  setState(() {
+                    route.rope = stringToInt(value);
+                    updateTableData();
+                  });
+                }),
+                buildInputRow(context, "Set date:",
+                    inputType: TextInputType.datetime,
+                    inputCallback: (String? value) {
+                  setState(() {
+                    route.date = value;
+                    updateTableData();
+                  });
+                }),
+                buildInputRow(context, "Grade:",
+                    inputType: TextInputType.text,
+                    inputCallback: (String? value) {
+                  setState(() {
+                    if (value == null) {
+                      route.grade_num = null;
+                      route.grade_let = null;
+                    } else {
+                      RegExpMatch? match = gradeExp.firstMatch(value);
+                      route.grade_num = stringToInt(match?.namedGroup("num"));
+                      route.grade_let = match?.namedGroup("let");
+                    }
+                    updateTableData();
+                  });
+                }),
+                buildDropdownRow(
+                    context, RouteColor.fromString(route.color ?? ""),
+                    (RouteColor? value) {
+                  setState(() {
+                    route.color =
+                        value == RouteColor.nocolor ? null : value?.string;
+                    updateTableData();
+                  });
+                }),
+                buildLabel(
+                  context,
+                  "Route notes:",
+                ),
+                buildNotes(context),
+                buildCheckboxRow(
+                  context,
+                  intToBool(ascent.finished) ?? false,
+                  intToBool(ascent.rested) ?? false,
+                  (newValue) {
+                    setState(
+                      () => (ascent.finished = boolToInt(newValue)),
+                    );
+                  },
+                  (newValue) {
+                    setState(
+                      () => (ascent.rested = boolToInt(newValue)),
+                    );
+                  },
+                ),
+                buildLabel(
+                  context,
+                  "Ascent notes:",
+                ),
+                buildNotes(context),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Container(
+                    child: buildRoutesTable(),
                   ),
-                  buildNotes(context),
-                  buildCheckboxRow(
-                    context,
-                    intToBool(ascent.finished) ?? false,
-                    intToBool(ascent.rested) ?? false,
-                    (newValue) {
-                      setState(
-                        () => (ascent.finished = boolToInt(newValue)),
-                      );
-                    },
-                    (newValue) {
-                      setState(
-                        () => (ascent.rested = boolToInt(newValue)),
-                      );
-                    },
-                  ),
-                  buildLabel(
-                    context,
-                    "Ascent notes:",
-                  ),
-                  buildNotes(context),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Container(
-                      child: buildRoutesTable(),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

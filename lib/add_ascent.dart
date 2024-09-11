@@ -5,7 +5,7 @@ import 'data_structures.dart';
 import 'package:climbing_notes/utility.dart';
 
 class AddAscentPage extends StatefulWidget {
-  AddAscentPage({super.key, required this.route});
+  const AddAscentPage({super.key, required this.route});
 
   final DBRoute route;
 
@@ -86,10 +86,10 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
             TableRow(
                 // header row
                 children: <Widget>[
-                  Text("Date"),
-                  Text("Finished"),
-                  Text("Rested"),
-                  Text("Notes"),
+                  const Text("Date"),
+                  const Text("Finished"),
+                  const Text("Rested"),
+                  const Text("Notes"),
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
           ] +
@@ -120,62 +120,60 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
         padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
-            Container(
-              child: Column(
-                children: <Widget>[
-                  buildLockedInputRow(
-                    context,
-                    "Rope #:",
-                    route.rope.toString(),
+            Column(
+              children: <Widget>[
+                buildLockedInputRow(
+                  context,
+                  "Rope #:",
+                  route.rope.toString(),
+                ),
+                buildLockedInputRow(
+                  context,
+                  "Set date:",
+                  timeDisplayFromTimestamp(route.date),
+                ),
+                buildLockedInputRow(
+                  context,
+                  "Grade:",
+                  RouteGrade.fromDBValues(route.grade_num, route.grade_let)
+                      .toString(),
+                ),
+                buildLockedDropdownRow(
+                  context,
+                  RouteColor.fromString(route.color ?? ""),
+                ),
+                buildLabel(
+                  context,
+                  "Route notes:",
+                ),
+                buildLockedNotes(
+                  context,
+                  route.notes ?? "",
+                ),
+                buildCheckboxRow(
+                  context,
+                  intToBool(ascent.finished) ?? false,
+                  intToBool(ascent.rested) ?? false,
+                  (newValue) {
+                    setState(
+                      () => (ascent.finished = boolToInt(newValue)),
+                    );
+                  },
+                  (newValue) {
+                    setState(
+                      () => (ascent.rested = boolToInt(newValue)),
+                    );
+                  },
+                ),
+                buildLabel(context, "Ascent notes:"),
+                buildNotes(context),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Container(
+                    child: buildAscentsTable(),
                   ),
-                  buildLockedInputRow(
-                    context,
-                    "Set date:",
-                    timeDisplayFromTimestamp(route.date),
-                  ),
-                  buildLockedInputRow(
-                    context,
-                    "Grade:",
-                    RouteGrade.fromDBValues(route.grade_num, route.grade_let)
-                        .toString(),
-                  ),
-                  buildLockedDropdownRow(
-                    context,
-                    RouteColor.fromString(route.color ?? ""),
-                  ),
-                  buildLabel(
-                    context,
-                    "Route notes:",
-                  ),
-                  buildLockedNotes(
-                    context,
-                    route.notes ?? "",
-                  ),
-                  buildCheckboxRow(
-                    context,
-                    intToBool(ascent.finished) ?? false,
-                    intToBool(ascent.rested) ?? false,
-                    (newValue) {
-                      setState(
-                        () => (ascent.finished = boolToInt(newValue)),
-                      );
-                    },
-                    (newValue) {
-                      setState(
-                        () => (ascent.rested = boolToInt(newValue)),
-                      );
-                    },
-                  ),
-                  buildLabel(context, "Ascent notes:"),
-                  buildNotes(context),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Container(
-                      child: buildAscentsTable(),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

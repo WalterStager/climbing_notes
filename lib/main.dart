@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:climbing_notes/database.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:climbing_notes/routes.dart';
 // import 'package:system_theme/system_theme.dart';
 
 void main() async {
@@ -35,10 +36,10 @@ class ClimbingNotesMaterialApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.lightGreen.shade600, //SystemTheme.accentColor.accent,
-              brightness: Brightness.light),
+              brightness: MediaQuery.platformBrightnessOf(context)),
           useMaterial3: true,
         ),
-        home: LoadingScreen(),
+        home: const LoadingScreen(),
       );
   }
 
@@ -69,7 +70,7 @@ class LoadingScreenState extends State<LoadingScreen> {
   Widget build(BuildContext context) {
     if (!AppServices.of(context).dbs.startedLoad) {
       dbFuture = startDatabaseService();
-      delay = Future.delayed(Duration(milliseconds:2300));
+      delay = Future.delayed(const Duration(milliseconds:2300));
     }
 
     List<Future<void>> futures = [dbFuture, delay].whereType<Future<void>>().toList();
