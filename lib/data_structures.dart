@@ -42,8 +42,22 @@ enum RouteColor {
 }
 
 enum SmallDateFormat {
-  mmdd,
-  ddmm
+  mmdd("mm-dd"),
+  ddmm("dd-mm");
+
+  final String string;
+
+  const SmallDateFormat(this.string);
+
+  factory SmallDateFormat.fromString(String s) {
+    try {
+      return values.firstWhere((value) => value.string == s);
+    }
+    on StateError catch (err) {
+      log("Error making SmallDateFormat: $err");
+      rethrow;
+    }
+  }
 }
 
 class RouteGrade {

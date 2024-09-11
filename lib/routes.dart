@@ -102,7 +102,8 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
             Navigator.push(
               context,
               PageTransition(
-                duration: const Duration(milliseconds: 500),
+                duration: pageTransitionDuration,
+                reverseDuration: pageTransitionDuration,
                 type: PageTransitionType.leftToRight,
                 child: AddAscentPage(route: data),
               ),
@@ -225,7 +226,8 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                 Navigator.push(
                   context,
                   PageTransition(
-                    duration: const Duration(milliseconds: 500),
+                    duration: pageTransitionDuration,
+                    reverseDuration: pageTransitionDuration,
                     type: PageTransitionType.leftToRight,
                     child: AddRoutePage(providedRoute: DBRoute.of(queryInfo)),
                   ),

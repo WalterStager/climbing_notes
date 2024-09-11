@@ -1,12 +1,15 @@
 import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:climbing_notes/data_structures.dart';
+import 'package:climbing_notes/settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
 const EdgeInsetsGeometry inputSectionElementPadding =
     EdgeInsets.only(top: 4.0, bottom: 4.0);
 const EdgeInsetsGeometry inputBoxPadding = EdgeInsets.only(left: 8.0);
+const Duration pageTransitionDuration = Duration(milliseconds: 500);
 
 class ClimbingNotesDrawer extends StatelessWidget {
   const ClimbingNotesDrawer({super.key});
@@ -52,7 +55,8 @@ class ClimbingNotesDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 PageTransition(
-                  duration: const Duration(milliseconds: 500),
+                  duration: pageTransitionDuration,
+                  reverseDuration: pageTransitionDuration,
                   type: PageTransitionType.leftToRight,
                   child: const AddRoutePage(),
                 ),
@@ -64,9 +68,18 @@ class ClimbingNotesDrawer extends StatelessWidget {
             title: const Text("Settings"),
             onTap: () => {
               Navigator.pop(context),
+              Navigator.push(
+                context,
+                PageTransition(
+                  duration: pageTransitionDuration,
+                  reverseDuration: pageTransitionDuration,
+                  type: PageTransitionType.leftToRight,
+                  child: const SettingsPage(),
+                )
+              ),
             },
           ),
-          ListTile(
+          if (kDebugMode) ListTile(
             leading: const Icon(Icons.account_tree_sharp),
             title: const Text("DB View"),
             onTap: () => {
@@ -74,7 +87,8 @@ class ClimbingNotesDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 PageTransition(
-                  duration: const Duration(milliseconds: 500),
+                  duration: pageTransitionDuration,
+                  reverseDuration: pageTransitionDuration,
                   type: PageTransitionType.leftToRight,
                   child: const DatabaseViewPage(),
                 ),

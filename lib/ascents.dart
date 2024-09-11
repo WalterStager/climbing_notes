@@ -163,9 +163,10 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                 Navigator.push(
                   context,
                   PageTransition(
-                    duration: const Duration(milliseconds: 500),
-                      type: PageTransitionType.leftToRight,
-                      child: AddAscentPage(route: route),
+                    duration: pageTransitionDuration,
+                    reverseDuration: pageTransitionDuration,
+                    type: PageTransitionType.leftToRight,
+                    child: AddAscentPage(route: route),
                   ),
                 ),
               ),
