@@ -1,7 +1,7 @@
+import 'package:climbing_notes/main.dart';
 import 'package:climbing_notes/utility.dart';
 import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/add_route.dart';
-import 'package:climbing_notes/database.dart';
 import 'package:flutter/material.dart';
 import 'ascents.dart';
 import 'builders.dart';
@@ -15,24 +15,39 @@ class RoutesPage extends StatefulWidget {
 }
 
 class _RoutesPageState extends State<RoutesPage> with RouteAware {
-  DatabaseService db = DatabaseService.db;
   DBRoute queryInfo = DBRoute("", "", "", null, null, null, null, null, null);
-  List<DBRoute> matchingRoutes = List<DBRoute>.empty();
+  List<DBRoute>? matchingRoutes;
 
-  _RoutesPageState() {
+  _RoutesPageState();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    AppServices.of(context).robs.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
     updateTableData();
+    super.didPush();
   }
 
   @override
   void initState() {
     super.initState();
-    updateTableData();
   }
 
   @override
   void didPopNext() {
-    // Called when this page comes back to the foreground
     updateTableData();
+    super.didPopNext();
+  }
+
+  void updateTableData() async {
+    List<DBRoute>? r1 = await AppServices.of(context).dbs.queryRoutes(queryInfo);
+    setState(() {
+      matchingRoutes = r1;
+    });
   }
 
   TableRow buildRoutesTableRow(DBRoute data) {
@@ -72,10 +87,6 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
     );
   }
 
-  void updateTableData() {
-    matchingRoutes = db.queryRoutes(queryInfo);
-  }
-
   Table buildRoutesTable() {
     return Table(
       border: TableBorder.all(color: themeTextColor(context)),
@@ -92,7 +103,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
           ] +
-          matchingRoutes.map(buildRoutesTableRow).toList(),
+          (matchingRoutes?.map(buildRoutesTableRow).toList() ?? []),
     );
   }
 
@@ -148,16 +159,14 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                           value == RouteColor.nocolor ? null : value?.string;
                       updateTableData();
                     });
-                  })
+                  }),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Container(
+                      child: buildRoutesTable(),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Container(
-                  child: buildRoutesTable(),
-                ),
               ),
             ),
           ],

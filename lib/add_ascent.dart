@@ -1,26 +1,54 @@
+import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
 import 'builders.dart';
 import 'data_structures.dart';
-import 'database.dart';
 import 'package:climbing_notes/utility.dart';
 
 class AddAscentPage extends StatefulWidget {
   AddAscentPage({super.key, required this.route});
 
-  DBRoute route;
+  final DBRoute route;
 
   @override
   State<AddAscentPage> createState() => _AddAscentPageState(route);
 }
 
-class _AddAscentPageState extends State<AddAscentPage> {
-  DatabaseService db = DatabaseService.db;
+class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
   DBRoute route;
-  late List<DBAscent> tableData;
+  List<DBAscent>? tableData;
   DBAscent ascent = DBAscent(0, "", "", "", null, null, null, null);
 
-  _AddAscentPageState(this.route) {
-    tableData = db.queryAscents(route.id);
+  _AddAscentPageState(this.route);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    AppServices.of(context).robs.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    getTableData();
+    super.didPush();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didPopNext() {
+    getTableData();
+    super.didPopNext();
+  }
+
+  void getTableData() async {
+    List<DBAscent>? r1 =
+        await AppServices.of(context).dbs.queryAscents(route.id);
+    setState(() {
+      tableData = r1;
+    });
   }
 
   TableRow buildAscentsTableRow(DBAscent data) {
@@ -28,9 +56,11 @@ class _AddAscentPageState extends State<AddAscentPage> {
       children: [
         buildAscentsTableCell(Text(timeDisplayFromTimestamp(data.date)), null),
         buildAscentsTableCell(
-            Icon(intToBool(data.finished) ?? false ? Icons.check : Icons.close), null),
+            Icon(intToBool(data.finished) ?? false ? Icons.check : Icons.close),
+            null),
         buildAscentsTableCell(
-            Icon(intToBool(data.rested) ?? false ? Icons.check : Icons.close), null),
+            Icon(intToBool(data.rested) ?? false ? Icons.check : Icons.close),
+            null),
         buildAscentsTableCell(Text(data.notes ?? ""), null),
       ].map(padCell).toList(),
     );
@@ -53,16 +83,17 @@ class _AddAscentPageState extends State<AddAscentPage> {
     return Table(
       border: TableBorder.all(color: themeTextColor(context)),
       children: [
-        TableRow(
-            // header row
-            children: <Widget>[
-              Text("Date"),
-              Text("Finished"),
-              Text("Rested"),
-              Text("Notes"),
-            ].map(padCell).toList(),
-            decoration: BoxDecoration(color: contrastingSurface(context))),
-      ] + tableData.map(buildAscentsTableRow).toList(),
+            TableRow(
+                // header row
+                children: <Widget>[
+                  Text("Date"),
+                  Text("Finished"),
+                  Text("Rested"),
+                  Text("Notes"),
+                ].map(padCell).toList(),
+                decoration: BoxDecoration(color: contrastingSurface(context))),
+          ] +
+          (tableData?.map(buildAscentsTableRow).toList() ?? []),
     );
   }
 
@@ -77,7 +108,7 @@ class _AddAscentPageState extends State<AddAscentPage> {
     }
     ascent.date = timestamp;
 
-    db.ascentInsert(ascent);
+    AppServices.of(context).dbs.ascentInsert(ascent);
     Navigator.pop(context);
   }
 
@@ -105,7 +136,8 @@ class _AddAscentPageState extends State<AddAscentPage> {
                   buildLockedInputRow(
                     context,
                     "Grade:",
-                    RouteGrade.fromDBValues(route.grade_num, route.grade_let).toString(),
+                    RouteGrade.fromDBValues(route.grade_num, route.grade_let)
+                        .toString(),
                   ),
                   buildLockedDropdownRow(
                     context,
@@ -120,7 +152,9 @@ class _AddAscentPageState extends State<AddAscentPage> {
                     route.notes ?? "",
                   ),
                   buildCheckboxRow(
-                    context, intToBool(ascent.finished) ?? false, intToBool(ascent.rested) ?? false,
+                    context,
+                    intToBool(ascent.finished) ?? false,
+                    intToBool(ascent.rested) ?? false,
                     (newValue) {
                       setState(
                         () => (ascent.finished = boolToInt(newValue)),
@@ -132,20 +166,15 @@ class _AddAscentPageState extends State<AddAscentPage> {
                       );
                     },
                   ),
-                  buildLabel(
-                    context,
-                    "Ascent notes:"
-                  ),
+                  buildLabel(context, "Ascent notes:"),
                   buildNotes(context),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Container(
+                      child: buildAscentsTable(),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Container(
-                  child: buildAscentsTable(),
-                ),
               ),
             ),
           ],

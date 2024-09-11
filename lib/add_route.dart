@@ -1,6 +1,5 @@
-
 import 'package:climbing_notes/add_ascent.dart';
-import 'package:climbing_notes/database.dart';
+import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
 import 'builders.dart';
 import 'ascents.dart';
@@ -14,13 +13,41 @@ class AddRoutePage extends StatefulWidget {
   State<AddRoutePage> createState() => _AddRoutePageState();
 }
 
-class _AddRoutePageState extends State<AddRoutePage> {
-  DatabaseService db = DatabaseService.db;
-  late List<DBRoute> matchingRoutes;
+class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
+  List<DBRoute>? matchingRoutes;
   DBRoute route = DBRoute("", "", "", null, null, null, null, null, null);
   DBAscent ascent = DBAscent(0, "", "", "", null, null, null, null);
-  _AddRoutePageState() {
+
+  _AddRoutePageState();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    AppServices.of(context).robs.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
     updateTableData();
+    super.didPush();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didPopNext() {
+    updateTableData();
+    super.didPopNext();
+  }
+
+  void updateTableData() async {
+    List<DBRoute>? r1 = await AppServices.of(context).dbs.queryRoutes(route);
+    setState(() {
+      matchingRoutes = r1;
+    });
   }
 
   TableRow buildRoutesTableRow(DBRoute data) {
@@ -28,21 +55,24 @@ class _AddRoutePageState extends State<AddRoutePage> {
       children: [
         buildRoutesTableCell(
             Text(data.rope.toString()), (context) => AscentsPage(route: data)),
+        buildRoutesTableCell(Text(timeDisplayFromTimestamp(data.date)),
+            (context) => AscentsPage(route: data)),
         buildRoutesTableCell(
-            Text(timeDisplayFromTimestamp(data.date)), (context) => AscentsPage(route: data)),
+            Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let)
+                .toString()),
+            (context) => AscentsPage(route: data)),
         buildRoutesTableCell(
-            Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let).toString()), (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(
-            Text(RouteColor.fromString(data.color ?? "").string), (context) => AscentsPage(route: data)),
+            Text(RouteColor.fromString(data.color ?? "").string),
+            (context) => AscentsPage(route: data)),
         // buildRoutesTableCell(Icon(data.finished ? Icons.check : Icons.close),
         //     (context) => AscentsPage(route: data)),
         InkWell(
           onTap: () => {
             Navigator.pop(context),
             Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AddAscentPage(route: data))),
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AddAscentPage(route: data))),
           },
           child: const Icon(Icons.add_box_rounded),
         )
@@ -55,22 +85,18 @@ class _AddRoutePageState extends State<AddRoutePage> {
     return InkWell(
       child: cellContents,
       onTap: () => {
-        if (navBuilder == null) {
-          () => ()
-        }
-        else {
-          Navigator.pop(context),
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: navBuilder),
-          )
-        }
+        if (navBuilder == null)
+          {() => ()}
+        else
+          {
+            Navigator.pop(context),
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: navBuilder),
+            )
+          }
       },
     );
-  }
-
-  void updateTableData() {
-    matchingRoutes = db.queryRoutes(route);
   }
 
   Table buildRoutesTable() {
@@ -89,7 +115,7 @@ class _AddRoutePageState extends State<AddRoutePage> {
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
           ] +
-          matchingRoutes.map(buildRoutesTableRow).toList(),
+          (matchingRoutes?.map(buildRoutesTableRow).toList() ?? []),
     );
   }
 
@@ -110,10 +136,16 @@ class _AddRoutePageState extends State<AddRoutePage> {
     ascent.updated = timestamp;
     ascent.date = timestamp;
 
-    if (route.rope == null ||
-        route.color == null ||
-        route.grade_num == null) {
-      errorPopup("Invalid value.");
+    if (route.rope == null) {
+      errorPopup("Invalid rope #.");
+      return;
+    }
+    if (route.color == null || route.color == RouteColor.nocolor.string) {
+      errorPopup("Invalid color.");
+      return;
+    }
+    if (route.grade_num == null) {
+      errorPopup("Invalid grade");
       return;
     }
 
@@ -133,10 +165,10 @@ class _AddRoutePageState extends State<AddRoutePage> {
 
     route.id = "${route.rope}+${route.date}";
     ascent.route = route.id;
-    db.routeInsert(route);
+    AppServices.of(context).dbs.routeInsert(route);
 
     if (ascent.finished != null || ascent.rested != null) {
-      db.ascentInsert(ascent);
+      AppServices.of(context).dbs.ascentInsert(ascent);
     }
 
     Navigator.pop(context);
@@ -219,15 +251,13 @@ class _AddRoutePageState extends State<AddRoutePage> {
                     "Ascent notes:",
                   ),
                   buildNotes(context),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Container(
+                      child: buildRoutesTable(),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Container(
-                  child: buildRoutesTable(),
-                ),
               ),
             ),
           ],

@@ -1,6 +1,7 @@
+// ignore: unused_import
 import 'dart:developer';
-
-import 'package:climbing_notes/database.dart';
+import 'package:climbing_notes/data_structures.dart';
+import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
 import 'builders.dart';
 
@@ -11,32 +12,75 @@ class DatabaseViewPage extends StatefulWidget {
   State<DatabaseViewPage> createState() => _DatabaseViewState();
 }
 
-class _DatabaseViewState extends State<DatabaseViewPage> {
-  DatabaseService db = DatabaseService.db;
+class _DatabaseViewState extends State<DatabaseViewPage> with RouteAware {
+  Map<String, DatabaseTable?> tables = {};
 
-  Widget buildDatabaseViewTableCell(Object? cellContents) {
-    return cellContents == null ? const Text("") : Text(cellContents.toString());
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    AppServices.of(context).robs.subscribe(this, ModalRoute.of(context)!);
   }
 
-  TableRow buildDatabaseViewTableRow(List<Object?> data) {
+  @override
+  void didPush() {
+    updateTables();
+    super.didPush();
+  }
+
+  Widget buildDatabaseViewTableCell(Object? cellContents) {
+    return cellContents == null
+        ? const Text("")
+        : Text(cellContents.toString());
+  }
+
+  TableRow buildDatabaseViewTableRow(Map<String, Object?> data) {
     return TableRow(
-      children: data.map(buildDatabaseViewTableCell).map(padCell).toList(),
+      children:
+          data.values.map(buildDatabaseViewTableCell).map(padCell).toList(),
     );
   }
 
-  Table buildDatabaseViewTable(List<String> headers, List<List<Object?>> data) {
-    log("headers ${headers.length}");
-    data.map((list) => (log("  list ${list.length}"))).toList();
-
+  Widget buildDatabaseViewTable(DatabaseTable? table) {
+    if (table == null) {
+      return const Text("Didn't get table");
+    }
+    if (table.isEmpty) {
+      return const Text("Invalid/empty table");
+    }
     return Table(
       border: TableBorder.all(color: themeTextColor(context)),
       children: [
-        TableRow( // header row
-          children: headers.map((header) => (Text(header))).map(padCell).toList(),
-          decoration: BoxDecoration(color: contrastingSurface(context))
-        ),
-      ] + data.map((list) => (buildDatabaseViewTableRow(list))).toList(),
+            TableRow(
+                // header row
+                children: table.first.keys
+                    .map((header) => (Text(header)))
+                    .map(padCell)
+                    .toList(),
+                decoration: BoxDecoration(color: contrastingSurface(context))),
+          ] +
+          table.map((map) => (buildDatabaseViewTableRow(map))).toList(),
     );
+  }
+
+  Widget buildDatabaseViewTables() {
+    return ListView(
+      children: (tables.values.map(buildDatabaseViewTable).toList()),
+    );
+  }
+
+  void updateTables() async {
+    // DatabaseTable? r1 = await AppServices.of(context).dbs.query("sqlite_schema", 100, 0);
+    DatabaseTable? r2 = await AppServices.of(context).dbs.queryRecentlyUpdated("Routes", 100, 0);
+    DatabaseTable? r3 = await AppServices.of(context).dbs.queryRecentlyUpdated("Ascents", 100, 0);
+    // setState(() {
+    //   tables[0] = r1;
+    // });
+    setState(() {
+      tables["Routes"] = r2;
+    });
+    setState(() {
+      tables["Ascents"] = r3;
+    });
   }
 
   @override
@@ -45,14 +89,31 @@ class _DatabaseViewState extends State<DatabaseViewPage> {
       appBar: buildAppBar(context, "Database View"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: [
-            buildDatabaseViewTable(["id", "created", "updated", "rope", "date", "color", "num", "let", "notes"], db.queryRecentlyUpdated("Routes", 100, 0)),
-            buildDatabaseViewTable(["id", "created", "updated", "route", "date", "finished", "rested", "notes"], db.queryRecentlyUpdated("Ascents", 100, 0)),
+        child: buildDatabaseViewTables(),
+      ),
+      floatingActionButton: Align(
+        alignment: Alignment.bottomRight,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            FloatingActionButton(
+              heroTag: "backFloatBtn",
+              onPressed: () => {
+                Navigator.pop(context),
+              },
+              tooltip: 'Back',
+              child: const Icon(Icons.arrow_back_rounded),
+            ),
+            const SizedBox(height: 8),
+            FloatingActionButton(
+              heroTag: "updateTablesBtn",
+              onPressed: updateTables,
+              tooltip: 'Update data',
+              child: const Icon(Icons.refresh),
+            ),
           ],
         ),
       ),
-      // floatingActionButton: buildfloatingActionButtons(context, backButton: true),
       drawer: buildDrawer(context),
     );
   }

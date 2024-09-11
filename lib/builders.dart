@@ -1,4 +1,3 @@
-import 'package:climbing_notes/database.dart';
 import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:climbing_notes/data_structures.dart';
@@ -51,12 +50,7 @@ Drawer buildDrawer(BuildContext context) {
           onTap: () => {
             Navigator.pop(context),
           },
-        ),
-        ListTile(
-          leading: const Icon(Icons.save),
-          title: const Text("Save DB"),
-          onTap: () => { DatabaseService.db.saveDatabase() },
-        ),        
+        ),     
         ListTile(
           leading: const Icon(Icons.account_tree_sharp),
           title: const Text("DB View"),

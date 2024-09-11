@@ -1,3 +1,4 @@
+// ignore: unused_import
 import 'dart:developer';
 import 'package:intl/intl.dart';
 
@@ -44,7 +45,6 @@ String timeDisplayFromTimestamp(String? s) {
 }
 
 DateTime? likelyTimeFromTimeDisplay(String s) {
-  log("$s");
   RegExpMatch? match = dateExp.firstMatch(s);
   if (match == null) {
     return null;
@@ -66,6 +66,5 @@ DateTime? likelyTimeFromTimeDisplay(String s) {
       return lateGuess;
     }
   }
-  log("2");
   return null;
 }

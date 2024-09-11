@@ -1,5 +1,5 @@
 import 'package:climbing_notes/add_ascent.dart';
-import 'package:climbing_notes/database.dart';
+import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
 import 'builders.dart';
 import 'data_structures.dart';
@@ -9,17 +9,46 @@ class AscentsPage extends StatefulWidget {
   AscentsPage({super.key, required this.route});
 
   final DBRoute route;
+
   @override
   State<AscentsPage> createState() => _AscentsPageState(route);
 }
 
-class _AscentsPageState extends State<AscentsPage> {
-  DatabaseService db = DatabaseService.db;
+class _AscentsPageState extends State<AscentsPage> with RouteAware {
   DBRoute route;
-  late List<DBAscent> tableData;
+  List<DBAscent>? tableData;
 
-  _AscentsPageState(this.route) {
-    tableData = db.queryAscents(route.id);
+  _AscentsPageState(this.route);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    AppServices.of(context).robs.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    getTableData();
+    super.didPush();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didPopNext() {
+    getTableData();
+    super.didPopNext();
+  }
+
+  void getTableData() async {
+    List<DBAscent>? r1 =
+        await AppServices.of(context).dbs.queryAscents(route.id);
+    setState(() {
+      tableData = r1;
+    });
   }
 
   TableRow buildAscentsTableRow(DBAscent data) {
@@ -57,14 +86,14 @@ class _AscentsPageState extends State<AscentsPage> {
             TableRow(
                 // header row
                 children: <Widget>[
-                  Text("Date"),
-                  Text("Finished"),
-                  Text("Rested"),
-                  Text("Notes"),
+                  const Text("Date"),
+                  const Text("Finished"),
+                  const Text("Rested"),
+                  const Text("Notes"),
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
           ] +
-          tableData.map(buildAscentsTableRow).toList(),
+          (tableData?.map(buildAscentsTableRow).toList() ?? []),
     );
   }
 
@@ -107,15 +136,13 @@ class _AscentsPageState extends State<AscentsPage> {
                     context,
                     route.notes ?? "",
                   ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Container(
+                      child: buildAscentsTable(),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Container(
-                  child: buildAscentsTable(),
-                ),
               ),
             ),
           ],

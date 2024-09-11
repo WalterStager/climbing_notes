@@ -1,12 +1,9 @@
+// ignore: unused_import
 import 'dart:developer';
-import 'dart:io';
 import 'package:climbing_notes/data_structures.dart';
 import 'package:climbing_notes/utility.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:sqlite3/sqlite3.dart';
-import 'package:path/path.dart' as path;
-
+import 'package:sqflite/sqflite.dart';
 
 /* DB plan
 Tables:
@@ -28,170 +25,124 @@ Tables:
     string? notes
 */
 
+const String dbFileName = "climbing_notes.db";
+
 class DatabaseService {
-  Database db = sqlite3.openInMemory();
-  bool loaded = false;
-  static final DatabaseService db = DatabaseService._internal();
-  static PackageInfo? pi;
+  Database? db;
+  // bool loaded = false;
+  PackageInfo? pi;
 
-  DatabaseService._internal() {
-    getApplicationSupportDirectory().then((supDir) => {
-      db = sqlite3.copyIntoMemory(sqlite3.open(path.join(supDir.path, "climbing_notes.db"))),
-      createTables(),
-    });
-    log("Creating DB tables");
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) => (pi = packageInfo));
-    createTables();
-    loaded = true;
+  DatabaseService();
+
+  Future<void> start() async {
+    db = await openDatabase(dbFileName);
+    await createTables();
+    // loaded = true;
   }
 
-  factory DatabaseService() {
-    return db;
-  }
-
-  Future<bool> saveDatabase() async {
-    Directory supDir = await getApplicationSupportDirectory();
-    String dbPath = path.join(supDir.path, "climbing_notes.db");
-    Database fileDB = sqlite3.open(dbPath);
-    db.backup(fileDB);
-    return true;
-  }
-
-  
-  List<List<Object?>> queryRecentlyUpdated(String table, int limit, int offset) {
-    String queryStatement = """
-      SELECT * FROM $table
-        ORDER BY updated DESC
-        LIMIT $limit
-        OFFSET $offset
-    """;
-    return db.select(queryStatement).rows;
-  }
-
-  List<DBAscent> queryAscents(String routeId) {
-    String queryStatement = """
-      SELECT * FROM Ascents
-        WHERE route = :route
-        ORDER BY updated DESC
-        LIMIT 10
-        OFFSET 0
-    """;
-
-    PreparedStatement statement = db.prepare(queryStatement);
-    return statement.selectWith(StatementParameters.named({":route": routeId})).rows.map(DBAscent.fromList).toList();
-  }
-
-  List<DBRoute> queryRoutes(DBRoute routeInfo) {
-    List<String> queryElements = List<String>.empty(growable: true);
-    Map<String, dynamic> queryParameters = {};
-    String queryOrderClause = "ORDER BY updated DESC";
-
-    if (routeInfo.rope != null) {
-      queryElements.add("rope LIKE :rope");
-      queryParameters[":rope"] = "%${routeInfo.rope}%";
+  void checkDB() {
+    if (db == null) {
+      throw StateError("Database closed.");
     }
+  }
+
+  Future<DatabaseTable?> query(String table, int limit, int offset) async {
+    checkDB();
+    return await db?.query(
+      table,
+      limit: limit,
+      offset: offset,
+    );
+  }
+  
+  Future<DatabaseTable?> queryRecentlyUpdated(String table, int limit, int offset) async {
+    checkDB();
+    return await db?.query(
+      table,
+      orderBy: "updated DESC",
+      limit: limit,
+      offset: offset,
+    );
+  }
+
+  Future<List<DBAscent>?> queryAscents(String routeId) async {
+    checkDB();
+    return await db?.query(
+      "Ascents",
+      where: "route = ?",
+      orderBy: "updated DESC",
+      limit: 20,
+      offset: 0,
+      whereArgs: [routeId],
+    ).then((value) => (value.map(DBAscent.fromMap).toList()));
+  }
+
+  Future<List<DBRoute>?> queryRoutes(DBRoute routeInfo) async {
+    checkDB();
+    List<String> queryElements = List<String>.empty(growable: true);
+    List<Object?> queryParameters = List<Object>.empty(growable: true);
+    String queryOrderClause = "updated DESC";
+    String? queryWhereClause;
+
     if (routeInfo.date != null) {
-      DateTime? likelySetDate = null;
+      DateTime? likelySetDate;
       String? canBePromoted = routeInfo.date;
       if (canBePromoted != null) {
         likelySetDate = likelyTimeFromTimeDisplay(canBePromoted);
         if (likelySetDate != null) {
-            // queryElements.add("date LIKE :date");
-            // queryParameters[":date"] = "%${routeInfo.date}%";
-            queryOrderClause = "ORDER BY abs(julianday(date) - julianday(:date))";
-            queryParameters[":date"] = "${likelySetDate.toUtc().toIso8601String()}";
+            queryOrderClause = "abs(julianday(date) - julianday('${likelySetDate.toUtc().toIso8601String()}'))";
         }
       }
     }
+    if (routeInfo.rope != null) {
+      queryElements.add("rope LIKE ?");
+      queryParameters.add("%${routeInfo.rope}%");
+    }
     if (routeInfo.grade_num != null) {
-      queryElements.add("grade_num LIKE :grade_num");
-      queryParameters[":grade_num"] = "%${routeInfo.grade_num}%";
+      queryElements.add("grade_num LIKE ?");
+      queryParameters.add("%${routeInfo.grade_num}%");
     }
-    if (routeInfo.grade_let != null) {
-      queryElements.add("grade_let = :grade_let");
-      queryParameters[":grade_let"] = routeInfo.grade_let;
+    String? grade_let = routeInfo.grade_let;
+    if (grade_let != null) {
+      queryElements.add("grade_let = ?");
+      queryParameters.add(grade_let);
     }
-    if (routeInfo.color != null) {
-      queryElements.add("color = :color");
-      queryParameters[":color"] = routeInfo.color;
+    String? color = routeInfo.color;
+    if (color != null) {
+      queryElements.add("color = ?");
+      queryParameters.add(color);
     }
 
-    String queryWhereClause = "WHERE ${queryElements.join(" AND ")}";
-    if (queryElements.length == 0) {
-      queryWhereClause = "";
+    if (queryElements.isNotEmpty) {
+      queryWhereClause = queryElements.join(" AND ");
     }
-      
-    String queryStatement = """
-      SELECT * FROM Routes
-        $queryWhereClause
-        $queryOrderClause
-        LIMIT 20
-        OFFSET 0
-    """;
-    log(queryStatement);
-    PreparedStatement statement = db.prepare(queryStatement);
-    List<DBRoute> res = statement.selectWith(StatementParameters.named(queryParameters)).rows.map(DBRoute.fromList).toList();
-    log(res.length.toString());
-    log(routeInfo.toString());
-    return res;
+
+    return await db?.query(
+      "Routes",
+      orderBy: queryOrderClause,
+      where: queryWhereClause,
+      limit: 20,
+      offset: 0,
+      whereArgs: queryParameters,
+    ).then((value) => (value.map(DBRoute.fromMap).toList()));
   }
 
-  void routeInsert(DBRoute route) {
-    String insertStatement = """
-      INSERT INTO Routes (
-        id,
-        created,
-        updated,
-        rope,
-        date,
-        color,
-        grade_num,
-        grade_let,
-        notes
-      )
-      VALUES (
-        :id,
-        :created,
-        :updated,
-        :rope,
-        :date,
-        :color,
-        :grade_num,
-        :grade_let,
-        :notes
-      )
-    """;
-    PreparedStatement statement = db.prepare(insertStatement);
-    statement.selectWith(StatementParameters.named(route.toMap()));
-  }
-  void ascentInsert(DBAscent ascent) {
-    String insertStatement = """
-      INSERT INTO Ascents (
-        created,
-        updated,
-        route,
-        date,
-        finished,
-        rested,
-        notes
-      )
-      VALUES (
-        :created,
-        :updated,
-        :route,
-        :date,
-        :finished,
-        :rested,
-        :notes
-      )
-    """;
-    PreparedStatement statement = db.prepare(insertStatement);
-    statement.selectWith(StatementParameters.named(ascent.toMap()));
+  Future<void> routeInsert(DBRoute route) async {
+    checkDB();
+    await db?.insert("Routes", route.toMap());
   }
 
-  void createTables() {
-    String createTablesStatement = """
+  Future<void> ascentInsert(DBAscent ascent) async {
+    checkDB();
+    await db?.insert("Ascents", ascent.toMap());
+  }
+
+  Future<void> createTables() async {
+    checkDB();
+    String createTablesStatement0 = """
     PRAGMA user_version = ${pi?.buildNumber ?? 0};
+    """;
+    String createTablesStatement1 = """
     CREATE TABLE IF NOT EXISTS Routes (
       id        TEXT NOT NULL PRIMARY KEY,
       created   TEXT NOT NULL,
@@ -202,7 +153,8 @@ class DatabaseService {
       grade_num INT,
       grade_let TEXT,
       notes     TEXT
-    );
+    );""";
+    String createTablesStatement2 = """
     CREATE TABLE IF NOT EXISTS Ascents (
       id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       created   TEXT NOT NULL,
@@ -213,6 +165,8 @@ class DatabaseService {
       rested    INT,
       notes     TEXT
     );""";
-    db.execute(createTablesStatement);
+    await db?.execute(createTablesStatement0);
+    await db?.execute(createTablesStatement1);
+    await db?.execute(createTablesStatement2);
   }
 }
