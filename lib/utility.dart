@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:intl/intl.dart';
 
 RegExp gradeExp = RegExp(r'^5?\.?(?<num>\d{1,2})?(?<let>[a-d])?$');
-RegExp dateExp = RegExp(r'^(?<day>\d{1,2})/?(?<month>\d{1,2})?$');
+RegExp dateExp = RegExp(r'^(?<day>\d{1,2})[^\w]?(?<month>\d{1,2})?$');
 
 // returns null if input is null or its not a valid int
 int? stringToInt(String? s) {
@@ -44,7 +44,15 @@ String timeDisplayFromTimestamp(String? s) {
   return DateFormat("dd-MM").format(DateTime.parse(s));
 }
 
+
+// parses a date like dd/mm into the nearest full datetime (in the past)
+// for ease of use this will also return a datetime if s is already an Iso8601 UTC String
 DateTime? likelyTimeFromTimeDisplay(String s) {
+  DateTime? parsed = DateTime.tryParse(s);
+  if (parsed != null && parsed.isUtc) {
+    return parsed;
+  }
+
   RegExpMatch? match = dateExp.firstMatch(s);
   if (match == null) {
     return null;

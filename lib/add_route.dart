@@ -128,7 +128,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
     );
   }
 
-  void submitRoute() {
+  void submitRoute() async {
     String timestamp = getTimestamp();
     route.created = timestamp;
     route.updated = timestamp;
@@ -145,19 +145,19 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
       return;
     }
     if (route.grade_num == null) {
-      errorPopup("Invalid grade");
+      errorPopup("Invalid grade.");
       return;
     }
 
     DateTime? likelySetDate;
     String? canBePromoted = route.date;
     if (canBePromoted == null) {
-      errorPopup("Date is null.");
+      errorPopup("Date is not set.");
       return;
     }
     likelySetDate = likelyTimeFromTimeDisplay(canBePromoted);
     if (likelySetDate == null) {
-      errorPopup("Could not get likely date.");
+      errorPopup("Invalid date.");
       return;
     }
 
@@ -165,7 +165,11 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
 
     route.id = "${route.rope}+${route.date}";
     ascent.route = route.id;
-    AppServices.of(context).dbs.routeInsert(route);
+    bool insertResult = await AppServices.of(context).dbs.routeInsert(route);
+    if (!insertResult) {
+      errorPopup("Route already exists");
+      return;
+    }
 
     if (ascent.finished != null || ascent.rested != null) {
       AppServices.of(context).dbs.ascentInsert(ascent);

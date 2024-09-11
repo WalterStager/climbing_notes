@@ -127,9 +127,19 @@ class DatabaseService {
     ).then((value) => (value.map(DBRoute.fromMap).toList()));
   }
 
-  Future<void> routeInsert(DBRoute route) async {
+  Future<bool> routeInsert(DBRoute route) async {
     checkDB();
+    List<Map<String, Object?>>? res = await db?.rawQuery("SELECT EXISTS(SELECT 1 FROM Routes WHERE id='${route.id}' LIMIT 1)");
+    if (res == null) {
+      log("Got null result when checking if route exists. I thought this was impossible.");
+      return false;
+    }
+    if (res.isNotEmpty) {
+      return false;
+    }
+    
     await db?.insert("Routes", route.toMap());
+    return true;
   }
 
   Future<void> ascentInsert(DBAscent ascent) async {
