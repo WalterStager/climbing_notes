@@ -299,8 +299,8 @@ Widget buildLockedNotes(BuildContext context, String notes) {
 Widget buildNotes(BuildContext context) {
   return const Padding(
     padding: inputSectionElementPadding,
-    child: Expanded(
-      child: TextField(decoration: InputDecoration(border: OutlineInputBorder())),
+    child: TextField(
+      decoration: InputDecoration(border: OutlineInputBorder()),
     ),
   );
 }
