@@ -105,8 +105,8 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
               cnPageTransition(AddAscentPage(route: data)),
             ),
           ),
-          child: const Icon(Icons.add_box_rounded),
-        )
+          child: const Icon(Icons.add),
+        ),
       ].map(padCell).toList(),
     );
   }

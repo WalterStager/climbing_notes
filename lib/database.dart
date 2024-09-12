@@ -138,8 +138,15 @@ class DatabaseService {
     await db?.insert("Ascents", ascent.toMap());
   }
 
-  Future<int?> routeUpdate(DBRoute oldR, DBRoute newR) async {
+  Future<int?> routeUpdate(DBRoute newR) async {
     checkDB();
+    DBRoute? oldR = await db?.query("Routes", where: "id = ?", whereArgs: [newR.id]).then((value) => (value.map(DBRoute.fromMap).toList().firstOrNull));
+    if (oldR == null) {
+      return null;
+    }
+    log(newR.toString());
+    log(oldR.toString());
+
     Map<String, Object?> updateElements = <String, Object?>{};
 
     if (newR.rope != oldR.rope) {
@@ -165,7 +172,7 @@ class DatabaseService {
       updateElements["updated"] = getTimestamp();
       return await db?.update("Routes", updateElements, where: "id = ?", whereArgs: [newR.id]);
     }
-    return 0;
+    return -1;
   }
 
   Future<int?> ascentUpdate(DBAscent oldA, DBAscent newA) async {
@@ -192,19 +199,19 @@ class DatabaseService {
     return 0;
   }
 
-  Future<void> deleteRoute(int routeId) async {
+  Future<int?> deleteRoute(int routeId) async {
     checkDB();
     List<DBAscent>? relatedAscents = await queryAscents(routeId);
     if (relatedAscents != null) {
       await deleteAscents(relatedAscents.map((ascent) => (ascent.id)).toList());
     }
 
-    await db?.delete("Routes", where: "id = ?", whereArgs: [routeId]);
+    return await db?.delete("Routes", where: "id = ?", whereArgs: [routeId]);
   }
 
-  Future<void> deleteAscents(List<int> ascentIds) async {
+  Future<int?> deleteAscents(List<int> ascentIds) async {
     checkDB();
-    await db?.delete("Ascents", where: "id IN (${List.filled(ascentIds.length, "?").join(", ")})", whereArgs: ascentIds);
+    return await db?.delete("Ascents", where: "id IN (${List.filled(ascentIds.length, "?").join(", ")})", whereArgs: ascentIds);
   }
 
   Future<void> createTables() async {

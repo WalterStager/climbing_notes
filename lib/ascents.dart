@@ -19,7 +19,14 @@ class AscentsPage extends StatefulWidget {
 class _AscentsPageState extends State<AscentsPage> with RouteAware {
   DBRoute route;
   List<DBAscent>? tableData;
-  bool locked = true;
+  bool lockInputs = true;
+  List<GlobalKey<InputRowState>> inputRowKeys = [
+    GlobalKey<InputRowState>(),
+    GlobalKey<InputRowState>(),
+    GlobalKey<InputRowState>(),
+    GlobalKey<InputRowState>(),
+  ];
+  GlobalKey<DropdownRowState> dropdownRowKey = GlobalKey<DropdownRowState>();
 
   _AscentsPageState(this.route);
 
@@ -57,7 +64,10 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
   TableRow buildAscentsTableRow(DBAscent data) {
     return TableRow(
       children: [
-        buildAscentsTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, data.date)), null),
+        buildAscentsTableCell(
+            Text(timeDisplayFromTimestamp(
+                AppServices.of(context).settings.dateFormat, data.date)),
+            null),
         buildAscentsTableCell(
             Icon(intToBool(data.finished) ?? false ? Icons.check : Icons.close),
             null),
@@ -65,6 +75,10 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
             Icon(intToBool(data.rested) ?? false ? Icons.check : Icons.close),
             null),
         buildAscentsTableCell(Text(data.notes ?? ""), null),
+        InkWell(
+          onTap: () => (deleteAscentDialog(data)),
+          child: const Icon(Icons.clear),
+        )
       ].map(padCell).toList(),
     );
   }
@@ -93,6 +107,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                   const Text("Finished"),
                   const Text("Rested"),
                   const Text("Notes"),
+                  const Text("Delete"),
                 ].map(padCell).toList(),
                 decoration: BoxDecoration(color: contrastingSurface(context))),
           ] +
@@ -100,18 +115,158 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
     );
   }
 
-  void updateRoute() {
-    setState(() => (locked = !locked));
-    
+  void updateRoute() async {
+    if (!lockInputs) {
+      DateTime? likelySetDate;
+      String? canBePromoted = route.date;
+      if (canBePromoted == null) {
+        errorPopup("Date is not set.");
+        return;
+      }
+      likelySetDate = likelyTimeFromTimeDisplay(
+          AppServices.of(context).settings.dateFormat, canBePromoted);
+      if (likelySetDate == null) {
+        errorPopup("Invalid date.");
+        return;
+      }
+
+      if (likelySetDate.isAfter(DateTime.now())) {
+        errorPopup("Date cannot be in the future.");
+        return;
+      }
+
+      route.date = likelySetDate.toUtc().toIso8601String();
+
+      int? res = await AppServices.of(context).dbs.routeUpdate(route);
+      if (res == null || res == 0) {
+        errorPopup("Update unsuccessful");
+      } else if (res == -1) {
+        errorPopup("Nothing to update");
+      }
+      else {
+        errorPopup("Updated");
+      }
+    }
+
+    setState(() {
+      lockInputs = !lockInputs;
+      for (var key in inputRowKeys) {
+        key.currentState
+            ?.setState(() => (key.currentState?.locked = lockInputs));
+      }
+      dropdownRowKey.currentState
+          ?.setState(() => (dropdownRowKey.currentState?.locked = lockInputs));
+      getTableData();
+    });
   }
 
-  void deleteRoute() {
+  void cancelUpdate() {}
 
+  Future<bool> deleteRoute() async {
+    int? res = await AppServices.of(context).dbs.deleteRoute(route.id);
+    if (res == null || res < 1) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> deleteAscent(DBAscent ascent) async {
+    int? res = await AppServices.of(context).dbs.deleteAscents([ascent.id]);
+    if (res == null || res < 1) {
+      return false;
+    }
+    return true;
+  }
+
+  void errorPopup(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  Future<void> deleteAscentDialog(DBAscent ascent) async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Delete Ascent"),
+            content: const SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Are you sure?'),
+                ],
+              ),
+            ),
+            actions: [
+              OutlinedButton(
+                child: const Icon(Icons.check),
+                onPressed: () async {
+                  bool res = await deleteAscent(ascent);
+                  Navigator.of(context).pop();
+                  if (res) {
+                    errorPopup("Ascent deleted");
+                  } else {
+                    errorPopup("Error deleting ascent");
+                  }
+                  getTableData();
+                },
+              ),
+              OutlinedButton(
+                child: const Icon(Icons.clear),
+                onPressed: () => (Navigator.of(context).pop()),
+              ),
+            ],
+          );
+        });
+  }
+
+  Future<void> deleteRouteDialog() async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Delete Route"),
+            content: const SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                      'Deleting this route will also delete associated ascents.'),
+                  Text('Are you sure?'),
+                ],
+              ),
+            ),
+            actions: [
+              OutlinedButton(
+                child: const Icon(Icons.check),
+                onPressed: () async {
+                  bool res = await deleteRoute();
+                  Navigator.of(context).pop();
+                  if (res) {
+                    errorPopup("Route deleted");
+                    Navigator.of(context).pop();
+                  } else {
+                    errorPopup("Error deleting route");
+                  }
+                },
+              ),
+              OutlinedButton(
+                child: const Icon(Icons.clear),
+                onPressed: () => (Navigator.of(context).pop()),
+              ),
+            ],
+          );
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-    log("$locked");
     return Scaffold(
       appBar: const ClimbingNotesAppBar(pageTitle: "Route Info"),
       body: Padding(
@@ -121,39 +276,80 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
             Column(
               children: <Widget>[
                 InputRow(
+                  key: inputRowKeys[0],
                   label: "Rope #:",
                   initialValue: route.rope.toString(),
-                  locked: locked,
+                  locked: lockInputs,
+                  onChanged: (String? value) {
+                    setState(() {
+                      route.rope = stringToInt(value);
+                    });
+                  },
                 ),
                 InputRow(
+                  key: inputRowKeys[1],
                   label: "Set date:",
-                  initialValue: timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, route.date),
-                  locked: locked,
+                  initialValue: timeDisplayFromTimestampSafe(AppServices.of(context).settings.dateFormat, route.date),
+                  locked: lockInputs,
+                  onChanged: (String? value) {
+                    setState(() {
+                      route.date = value;
+                    });
+                  },
                 ),
                 InputRow(
+                  key: inputRowKeys[2],
                   label: "Grade:",
-                  initialValue: RouteGrade.fromDBValues(route.grade_num, route.grade_let)
-                      .toString(),
-                  locked: locked,
+                  initialValue:
+                      RouteGrade.fromDBValues(route.grade_num, route.grade_let)
+                          .toString(),
+                  locked: lockInputs,
+                  onChanged: (String? value) {
+                    setState(() {
+                      if (value == null) {
+                        route.grade_num = null;
+                        route.grade_let = null;
+                      } else {
+                        RegExpMatch? match = gradeExp.firstMatch(value);
+                        route.grade_num = stringToInt(match?.namedGroup("num"));
+                        route.grade_let = match?.namedGroup("let");
+                      }
+                    });
+                  },
                 ),
                 DropdownRow(
+                  key: dropdownRowKey,
                   initialValue: RouteColor.fromString(route.color ?? ""),
-                  locked: locked,
+                  locked: lockInputs,
+                  onSelected: (RouteColor? value) {
+                    setState(() {
+                      route.color =
+                          value == RouteColor.nocolor ? null : value?.string;
+                    });
+                  },
                 ),
                 const ClimbingNotesLabel("Notes:"),
                 InputRow(
+                  key: inputRowKeys[3],
                   initialValue: route.notes,
-                  locked: locked,
+                  locked: lockInputs,
                 ),
-                // Notes(
-                //   initialValue: route.notes ?? "",
-                //   locked: true,
-                // ),
                 Row(
                   children: [
-                    OutlinedButton(child: Icon(Icons.edit), onPressed: updateRoute,),
+                    OutlinedButton(
+                      child: Icon(lockInputs ? Icons.edit : Icons.check),
+                      onPressed: updateRoute,
+                    ),
                     const SizedBox(width: 8),
-                    OutlinedButton(child: Icon(Icons.delete), onPressed: deleteRoute,),
+                    OutlinedButton(
+                      child: const Icon(Icons.close),
+                      onPressed: lockInputs ? null : cancelUpdate,
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      child: const Icon(Icons.delete),
+                      onPressed: lockInputs ? deleteRouteDialog : null,
+                    ),
                   ],
                 ),
                 Padding(

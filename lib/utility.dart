@@ -37,6 +37,15 @@ DateTime timeFromTimestamp(String s) {
   return DateTime.parse(s);
 }
 
+
+String timeDisplayFromTimestampSafe(SmallDateFormat format, String? s) {
+  try {
+    return timeDisplayFromTimestamp(format, s);
+  } on FormatException {
+    return s ?? "";
+  }
+}
+
 String timeDisplayFromTimestamp(SmallDateFormat format, String? s) {
   if (s == null) {
     return "";

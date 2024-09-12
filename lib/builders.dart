@@ -1,5 +1,5 @@
+// ignore: unused_import
 import 'dart:developer';
-
 import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:climbing_notes/data_structures.dart';
@@ -254,6 +254,7 @@ class InputRow extends StatefulWidget {
   final ValueChanged<String?>? onChanged;
   final String? initialValue;
   final bool? locked;
+  // final Function(InputRowState) callback;
 
   const InputRow(
       {super.key,
@@ -295,8 +296,6 @@ class InputRowState extends State<StatefulWidget> {
 
   @override
   Widget build(BuildContext context) {
-    log(" $locked");
-    
     return Padding(
       padding: paddingAroundInputBox,
       child: Row(
