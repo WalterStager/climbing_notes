@@ -1,7 +1,6 @@
 import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'builders.dart';
 import 'ascents.dart';
 import 'data_structures.dart';
@@ -18,9 +17,9 @@ class AddRoutePage extends StatefulWidget {
 
 class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   List<DBRoute>? matchingRoutes;
-  Map<String, bool>? finishedRoutes;
-  DBRoute route = DBRoute("", "", "", null, null, null, null, null, null);
-  DBAscent ascent = DBAscent(0, "", "", "", null, null, null, null);
+  Map<int, bool>? finishedRoutes;
+  DBRoute route = DBRoute(0, "", "", null, null, null, null, null, null);
+  DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null);
 
   _AddRoutePageState(DBRoute? providedRoute) {
     if (providedRoute != null) {
@@ -52,7 +51,9 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   }
 
   void updateTableData() async {
-    List<DBRoute>? r1 = await AppServices.of(context).dbs.queryRoutes(AppServices.of(context).settings.dateFormat, route);
+    List<DBRoute>? r1 = await AppServices.of(context)
+        .dbs
+        .queryRoutes(AppServices.of(context).settings.dateFormat, route);
     setState(() {
       matchingRoutes = r1;
     });
@@ -71,14 +72,14 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
     if (r == null) {
       return;
     }
-    Map<String, bool> finishesMap = Map.fromEntries(r.map(
-        (map) => (MapEntry(map["route"] as String, map["has_finished"] == 1))));
+    Map<int, bool> finishesMap = Map.fromEntries(r.map(
+        (map) => (MapEntry(map["route"] as int, map["has_finished"] == 1))));
     setState(() {
       finishedRoutes = finishesMap;
     });
   }
 
-  IconData? getFinishIcon(String routeId) {
+  IconData? getFinishIcon(int routeId) {
     bool? fin = finishedRoutes?[routeId];
     if (fin == null) {
       return null;
@@ -91,7 +92,9 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
       children: [
         buildRoutesTableCell(
             Text(data.rope.toString()), (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, data.date)),
+        buildRoutesTableCell(
+            Text(timeDisplayFromTimestamp(
+                AppServices.of(context).settings.dateFormat, data.date)),
             (context) => AscentsPage(route: data)),
         buildRoutesTableCell(
             Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let)
@@ -107,12 +110,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
             Navigator.pop(context),
             Navigator.push(
               context,
-              PageTransition(
-                duration: pageTransitionDuration,
-                reverseDuration: pageTransitionDuration,
-                type: PageTransitionType.leftToRight,
-                child: AddAscentPage(route: data),
-              ),
+              cnPageTransition(AddAscentPage(route: data)),
             ),
           },
           child: const Icon(Icons.add_box_rounded),
@@ -196,7 +194,8 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
       errorPopup("Date is not set.");
       return;
     }
-    likelySetDate = likelyTimeFromTimeDisplay(AppServices.of(context).settings.dateFormat, canBePromoted);
+    likelySetDate = likelyTimeFromTimeDisplay(
+        AppServices.of(context).settings.dateFormat, canBePromoted);
     if (likelySetDate == null) {
       errorPopup("Invalid date.");
       return;
@@ -209,13 +208,12 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
 
     route.date = likelySetDate.toUtc().toIso8601String();
 
-    route.id = "${route.rope}+${route.date}";
-    ascent.route = route.id;
-    bool insertResult = await AppServices.of(context).dbs.routeInsert(route);
-    if (!insertResult) {
+    int? insertResult = await AppServices.of(context).dbs.routeInsert(route);
+    if (insertResult == null) {
       errorPopup("Route already exists");
       return;
     }
+    ascent.route = insertResult;
 
     if (ascent.finished != null || ascent.rested != null) {
       AppServices.of(context).dbs.ascentInsert(ascent);
@@ -226,8 +224,10 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   }
 
   void clearData() {
-    route = DBRoute("", "", "", null, null, null, null, null, null);
-    ascent = DBAscent(0, "", "", "", null, null, null, null);
+    setState(() {
+      route.clear();
+      ascent.clear();
+    });
   }
 
   @override
@@ -240,7 +240,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
           children: [
             Column(
               children: <Widget>[
-                InputRow("Rope #:",
+                InputRow(label: "Rope #:",
                     inputType: TextInputType.datetime,
                     initialValue: route.rope?.toString(),
                     onChanged: (String? value) {
@@ -249,7 +249,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                     updateTableData();
                   });
                 }),
-                InputRow("Set date:",
+                InputRow(label: "Set date:",
                     inputType: TextInputType.datetime,
                     initialValue: route.date, onChanged: (String? value) {
                   setState(() {
@@ -257,7 +257,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                     updateTableData();
                   });
                 }),
-                InputRow("Grade:",
+                InputRow(label: "Grade:",
                     inputType: TextInputType.text,
                     initialValue:
                         "${route.grade_num ?? ""}${route.grade_let ?? ""}",
@@ -285,25 +285,25 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                   },
                 ),
                 const ClimbingNotesLabel("Route notes:"),
-                const Notes(),
+                const InputRow(),
                 CheckboxRow(
                   "Finished:",
                   "Rested:",
                   initialValue1: intToBool(ascent.finished) ?? false,
                   initialValue2: intToBool(ascent.rested) ?? false,
-                  onChanged1:(newValue) {
+                  onChanged1: (newValue) {
                     setState(
                       () => (ascent.finished = boolToInt(newValue)),
                     );
                   },
-                  onChanged2:(newValue) {
+                  onChanged2: (newValue) {
                     setState(
                       () => (ascent.rested = boolToInt(newValue)),
                     );
                   },
                 ),
                 const ClimbingNotesLabel("Ascent notes:"),
-                const Notes(),
+                const InputRow(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(

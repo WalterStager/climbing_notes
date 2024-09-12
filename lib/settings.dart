@@ -71,12 +71,7 @@ class _SettingsPageState extends State<SettingsPage> {
             //   onPressed: () => (
             //     Navigator.push(
             //       context,
-            //       PageTransition(
-            //         duration: pageTransitionDuration,
-            //         reverseDuration: pageTransitionDuration,
-            //         type: PageTransitionType.leftToRight,
-            //         child: AddRoutePage(providedRoute: DBRoute.of(queryInfo)),
-            //       ),
+            //       cnPageTransition(AddRoutePage(providedRoute: DBRoute.of(queryInfo)),
             //     ),
             //   ),
             //   tooltip: 'Add route',

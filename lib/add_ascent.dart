@@ -16,7 +16,7 @@ class AddAscentPage extends StatefulWidget {
 class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
   DBRoute route;
   List<DBAscent>? tableData;
-  DBAscent ascent = DBAscent(0, "", "", "", null, null, null, null);
+  DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null);
 
   _AddAscentPageState(this.route);
 
@@ -123,17 +123,17 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
             Column(
               children: <Widget>[
                 InputRow(
-                  "Rope #:",
+                  label: "Rope #:",
                   initialValue: route.rope.toString(),
                   locked: true,
                 ),
                 InputRow(
-                  "Set date:",
+                  label: "Set date:",
                   initialValue: timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, route.date),
                   locked: true,
                 ),
                 InputRow(
-                  "Grade:",
+                  label: "Grade:",
                   initialValue: RouteGrade.fromDBValues(route.grade_num, route.grade_let)
                       .toString(),
                   locked: true,
@@ -143,7 +143,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                   locked: true,
                 ),
                 const ClimbingNotesLabel("Route notes:"),
-                Notes(
+                InputRow(
                   initialValue: route.notes ?? "",
                   locked: true),
                 CheckboxRow(
@@ -163,7 +163,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                   },
                 ),
                 const ClimbingNotesLabel("Ascent notes:"),
-                const Notes(),
+                const InputRow(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(

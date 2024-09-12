@@ -3,7 +3,6 @@ import 'package:climbing_notes/utility.dart';
 import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'ascents.dart';
 import 'builders.dart';
 import 'data_structures.dart';
@@ -16,9 +15,11 @@ class RoutesPage extends StatefulWidget {
 }
 
 class _RoutesPageState extends State<RoutesPage> with RouteAware {
-  DBRoute queryInfo = DBRoute("", "", "", null, null, null, null, null, null);
+  DBRoute queryInfo = DBRoute(0, "", "", null, null, null, null, null, null);
+  List<GlobalKey<InputRowState>> inputRowKeys = [GlobalKey<InputRowState>(), GlobalKey<InputRowState>(), GlobalKey<InputRowState>()];
+  GlobalKey<DropdownRowState> dropdownRowKey = GlobalKey<DropdownRowState>();
   List<DBRoute>? matchingRoutes;
-  Map<String, bool>? finishedRoutes;
+  Map<int, bool>? finishedRoutes;
 
   _RoutesPageState();
 
@@ -66,14 +67,14 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
     if (r == null) {
       return;
     }
-    Map<String, bool> finishesMap = Map.fromEntries(r.map(
-        (map) => (MapEntry(map["route"] as String, map["has_finished"] == 1))));
+    Map<int, bool> finishesMap = Map.fromEntries(r.map(
+        (map) => (MapEntry(map["route"] as int, map["has_finished"] == 1))));
     setState(() {
       finishedRoutes = finishesMap;
     });
   }
 
-  IconData? getFinishIcon(String routeId) {
+  IconData? getFinishIcon(int routeId) {
     bool? fin = finishedRoutes?[routeId];
     if (fin == null) {
       return null;
@@ -101,12 +102,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
           onTap: () => (
             Navigator.push(
               context,
-              PageTransition(
-                duration: pageTransitionDuration,
-                reverseDuration: pageTransitionDuration,
-                type: PageTransitionType.leftToRight,
-                child: AddAscentPage(route: data),
-              ),
+              cnPageTransition(AddAscentPage(route: data)),
             ),
           ),
           child: const Icon(Icons.add_box_rounded),
@@ -148,31 +144,51 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
     );
   }
 
+  void clearData() {
+    setState(() {
+      queryInfo.clear();
+      for (var key in inputRowKeys) {
+        key.currentState?.controller.clear();
+      }
+      dropdownRowKey.currentState?.controller.clear();
+      updateTableData();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const ClimbingNotesAppBar(pageTitle: "Routes"),
+      appBar: const ClimbingNotesAppBar(pageTitle: "Route Search"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
             Column(
               children: <Widget>[
-                InputRow("Rope #:", inputType: TextInputType.datetime,
+                InputRow(
+                  key: inputRowKeys[0],
+                  label: "Rope #:",
+                  inputType: TextInputType.datetime,
                     onChanged: (String? value) {
                   setState(() {
                     queryInfo.rope = stringToInt(value);
                     updateTableData();
                   });
                 }),
-                InputRow("Set date:", inputType: TextInputType.datetime,
+                InputRow(
+                  key: inputRowKeys[1],
+                  label: "Set date:",
+                  inputType: TextInputType.datetime,
                     onChanged: (String? value) {
                   setState(() {
                     queryInfo.date = value;
                     updateTableData();
                   });
                 }),
-                InputRow("Grade:", inputType: TextInputType.text,
+                InputRow(
+                  key: inputRowKeys[2],
+                  label: "Grade:",
+                  inputType: TextInputType.text,
                     onChanged: (String? value) {
                   setState(() {
                     if (value == null) {
@@ -188,6 +204,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                   });
                 }),
                 DropdownRow(
+                    key: dropdownRowKey,
                     initialValue: RouteColor.fromString(queryInfo.color ?? ""),
                     onSelected: (RouteColor? value) {
                       setState(() {
@@ -215,7 +232,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
           children: <Widget>[
             FloatingActionButton(
               heroTag: "clearFloatBtn",
-              onPressed: () => (queryInfo = DBRoute("", "", "", null, null, null, null, null, null)),
+              onPressed: clearData,
               tooltip: 'Clear',
               child: const Icon(Icons.clear),
             ),
@@ -225,12 +242,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
               onPressed: () => (
                 Navigator.push(
                   context,
-                  PageTransition(
-                    duration: pageTransitionDuration,
-                    reverseDuration: pageTransitionDuration,
-                    type: PageTransitionType.leftToRight,
-                    child: AddRoutePage(providedRoute: DBRoute.of(queryInfo)),
-                  ),
+                  cnPageTransition(AddRoutePage(providedRoute: DBRoute.of(queryInfo))),
                 ),
               ),
               tooltip: 'Add route',

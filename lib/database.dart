@@ -5,26 +5,6 @@ import 'package:climbing_notes/utility.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite/sqflite.dart';
 
-/* DB plan
-Tables:
-  Routes
-    string id = rope#+set-date
-    string created
-    string updated
-    string? color
-    string? grade
-    string? notes
-  Ascents
-    string id = uid
-    string created
-    string updated
-    string route = routeID
-    string date
-    bool? finished
-    bool? rested
-    string? notes
-*/
-
 const String dbFileName = "climbing_notes.db";
 
 class DatabaseService {
@@ -65,7 +45,7 @@ class DatabaseService {
     );
   }
 
-  Future<List<DBAscent>?> queryAscents(String routeId) async {
+  Future<List<DBAscent>?> queryAscents(int routeId) async {
     checkDB();
     return await db?.query(
       "Ascents",
@@ -77,7 +57,7 @@ class DatabaseService {
     ).then((value) => (value.map(DBAscent.fromMap).toList()));
   }
 
-  Future<List<Map<String, Object?>>?> queryFinished(List<String> routeIds) async {
+  Future<List<Map<String, Object?>>?> queryFinished(List<int> routeIds) async {
     checkDB();
     String q = """
       SELECT route,
@@ -139,24 +119,92 @@ class DatabaseService {
     ).then((value) => (value.map(DBRoute.fromMap).toList()));
   }
 
-  Future<bool> routeInsert(DBRoute route) async {
+  Future<int?> routeInsert(DBRoute route) async {
     checkDB();
     List<Map<String, Object?>>? res = await db?.rawQuery("SELECT EXISTS(SELECT 1 FROM Routes WHERE id='${route.id}' LIMIT 1) AS does_exist");
     if (res == null) {
       log("Got null result when checking if route exists. I thought this was impossible.");
-      return false;
+      return null;
     }
     if (res.first["does_exist"] == 1) {
-      return false;
+      return null;
     }
     
-    await db?.insert("Routes", route.toMap());
-    return true;
+    return await db?.insert("Routes", route.toMap());
   }
 
   Future<void> ascentInsert(DBAscent ascent) async {
     checkDB();
     await db?.insert("Ascents", ascent.toMap());
+  }
+
+  Future<int?> routeUpdate(DBRoute oldR, DBRoute newR) async {
+    checkDB();
+    Map<String, Object?> updateElements = <String, Object?>{};
+
+    if (newR.rope != oldR.rope) {
+      updateElements["rope"] = newR.rope;
+    }
+    if (newR.date != oldR.date) {
+      updateElements["date"] = newR.date;
+    }
+    if (newR.color != oldR.color) {
+      updateElements["color"] = newR.color;
+    }
+    if (newR.grade_num != oldR.grade_num) {
+      updateElements["grade_num"] = newR.grade_num;
+    }
+    if (newR.grade_let != oldR.grade_let) {
+      updateElements["grade_let"] = newR.grade_let;
+    }
+    if (newR.notes != oldR.notes) {
+      updateElements["notes"] = newR.notes;
+    }
+
+    if (updateElements.isNotEmpty) {
+      updateElements["updated"] = getTimestamp();
+      return await db?.update("Routes", updateElements, where: "id = ?", whereArgs: [newR.id]);
+    }
+    return 0;
+  }
+
+  Future<int?> ascentUpdate(DBAscent oldA, DBAscent newA) async {
+    checkDB();
+    Map<String, Object?> updateElements = <String, Object?>{};
+
+    if (newA.date != oldA.date) {
+      updateElements["date"] = newA.date;
+    }
+    if (newA.finished != oldA.finished) {
+      updateElements["finished"] = newA.finished;
+    }
+    if (newA.rested != oldA.rested) {
+      updateElements["rested"] = newA.rested;
+    }
+    if (newA.notes != oldA.notes) {
+      updateElements["notes"] = newA.notes;
+    }
+
+    if (updateElements.isNotEmpty) {
+      updateElements["updated"] = getTimestamp();
+      return await db?.update("Ascents", updateElements, where: "id = ?", whereArgs: [newA.id]);
+    }
+    return 0;
+  }
+
+  Future<void> deleteRoute(int routeId) async {
+    checkDB();
+    List<DBAscent>? relatedAscents = await queryAscents(routeId);
+    if (relatedAscents != null) {
+      await deleteAscents(relatedAscents.map((ascent) => (ascent.id)).toList());
+    }
+
+    await db?.delete("Routes", where: "id = ?", whereArgs: [routeId]);
+  }
+
+  Future<void> deleteAscents(List<int> ascentIds) async {
+    checkDB();
+    await db?.delete("Ascents", where: "id IN (${List.filled(ascentIds.length, "?").join(", ")})", whereArgs: ascentIds);
   }
 
   Future<void> createTables() async {
@@ -166,7 +214,7 @@ class DatabaseService {
     """;
     String createTablesStatement1 = """
     CREATE TABLE IF NOT EXISTS Routes (
-      id        TEXT NOT NULL PRIMARY KEY,
+      id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       created   TEXT NOT NULL,
       updated   TEXT NOT NULL,
       rope      INT NOT NULL,
@@ -181,7 +229,7 @@ class DatabaseService {
       id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       created   TEXT NOT NULL,
       updated   TEXT NOT NULL,
-      route     TEXT NOT NULL REFERENCES Routes(id),
+      route     INTEGER NOT NULL REFERENCES Routes(id),
       date      TEXT,
       finished  INT,
       rested    INT,

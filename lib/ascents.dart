@@ -1,7 +1,8 @@
+// ignore: unused_import
+import 'dart:developer';
 import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
 import 'builders.dart';
 import 'data_structures.dart';
 import 'package:climbing_notes/utility.dart';
@@ -18,6 +19,7 @@ class AscentsPage extends StatefulWidget {
 class _AscentsPageState extends State<AscentsPage> with RouteAware {
   DBRoute route;
   List<DBAscent>? tableData;
+  bool locked = true;
 
   _AscentsPageState(this.route);
 
@@ -98,10 +100,20 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
     );
   }
 
+  void updateRoute() {
+    setState(() => (locked = !locked));
+    
+  }
+
+  void deleteRoute() {
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    log("$locked");
     return Scaffold(
-      appBar: const ClimbingNotesAppBar(pageTitle: "Ascents"),
+      appBar: const ClimbingNotesAppBar(pageTitle: "Route Info"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -109,28 +121,40 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
             Column(
               children: <Widget>[
                 InputRow(
-                  "Rope #:",
+                  label: "Rope #:",
                   initialValue: route.rope.toString(),
-                  locked: true,
+                  locked: locked,
                 ),
                 InputRow(
-                  "Set date:",
+                  label: "Set date:",
                   initialValue: timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, route.date),
-                  locked: true,
+                  locked: locked,
                 ),
                 InputRow(
-                  "Grade:",
+                  label: "Grade:",
                   initialValue: RouteGrade.fromDBValues(route.grade_num, route.grade_let)
                       .toString(),
-                  locked: true,
+                  locked: locked,
                 ),
                 DropdownRow(
                   initialValue: RouteColor.fromString(route.color ?? ""),
-                  locked: true,
+                  locked: locked,
                 ),
                 const ClimbingNotesLabel("Notes:"),
-                Notes(
-                  initialValue: route.notes ?? "",
+                InputRow(
+                  initialValue: route.notes,
+                  locked: locked,
+                ),
+                // Notes(
+                //   initialValue: route.notes ?? "",
+                //   locked: true,
+                // ),
+                Row(
+                  children: [
+                    OutlinedButton(child: Icon(Icons.edit), onPressed: updateRoute,),
+                    const SizedBox(width: 8),
+                    OutlinedButton(child: Icon(Icons.delete), onPressed: deleteRoute,),
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -162,12 +186,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
               onPressed: () => (
                 Navigator.push(
                   context,
-                  PageTransition(
-                    duration: pageTransitionDuration,
-                    reverseDuration: pageTransitionDuration,
-                    type: PageTransitionType.leftToRight,
-                    child: AddAscentPage(route: route),
-                  ),
+                  cnPageTransition(AddAscentPage(route: route)),
                 ),
               ),
               tooltip: 'Add ascent',

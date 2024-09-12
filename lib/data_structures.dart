@@ -3,13 +3,13 @@ import 'dart:developer';
 import 'package:climbing_notes/utility.dart';
 
 List<DBRoute> exampleRouteData = [
-  DBRoute("22+05/26", getTimestamp(), getTimestamp(), 22, "05/26", "Yellow", 11, 'a', "crimpy, the rest of an extremely long note on this climb, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA sdfs sd sd fd fsdl if jsldf jeihfnsl "),
-  DBRoute("102+12/31", getTimestamp(), getTimestamp(), 102, "12/31", "Green", 7, null, "slopers everywhere"),
+  DBRoute(0, getTimestamp(), getTimestamp(), 22, "05/26", "Yellow", 11, 'a', "crimpy, the rest of an extremely long note on this climb, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA sdfs sd sd fd fsdl if jsldf jeihfnsl "),
+  DBRoute(1, getTimestamp(), getTimestamp(), 102, "12/31", "Green", 7, null, "slopers everywhere"),
 ];
 
 List<DBAscent> exampleAscentData = [
-  DBAscent(0, getTimestamp(), getTimestamp(), "102+12/31", "01/01", 1, 0, "was very tough"),
-  DBAscent(1, getTimestamp(), getTimestamp(), "102+12/31", "02/23", 0, 1, "EZ now"),
+  DBAscent(0, getTimestamp(), getTimestamp(), 0, "01/01", 1, 0, "was very tough"),
+  DBAscent(1, getTimestamp(), getTimestamp(), 1, "02/23", 0, 1, "EZ now"),
 ];
 
 // easier to read
@@ -77,7 +77,7 @@ class RouteGrade {
 }
 
 class DBRoute {
-  String id;
+  int id;
   String created;
   String updated;
   int? rope;
@@ -89,19 +89,17 @@ class DBRoute {
 
   DBRoute(this.id, this.created, this.updated, this.rope, this.date, this.color, this.grade_num, this.grade_let, this.notes);
 
-  // List<dynamic> toList() {
-  //   return [
-  //     id,
-  //     created,
-  //     updated,
-  //     rope,
-  //     date,
-  //     color,
-  //     grade_num,
-  //     grade_let,
-  //     notes,
-  //   ];
-  // }
+  void clear() {
+    id = 0;
+    created = "";
+    updated = "";
+    rope = null;
+    date = null;
+    color = null;
+    grade_num = null;
+    grade_let = null;
+    notes = null;
+  }
 
   factory DBRoute.of(DBRoute original) {
     return DBRoute(
@@ -119,7 +117,7 @@ class DBRoute {
 
   factory DBRoute.fromMap(Map<String, Object?> map) {
     return DBRoute(
-      map['id'] as String,
+      map['id'] as int,
       map['created'] as String,
       map['updated'] as String,
       map['rope'] as int?,
@@ -131,9 +129,8 @@ class DBRoute {
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap({bool? includeId}) {
     return {
-      'id': id,
       'created': created,
       'updated': updated,
       'rope': rope ?? 0,
@@ -142,6 +139,7 @@ class DBRoute {
       'grade_num': grade_num,
       'grade_let': grade_let,
       'notes': notes,
+      if (includeId ?? false) 'id': id,
     };
   }
 
@@ -167,13 +165,25 @@ class DBAscent {
   int id;
   String created;
   String updated;
-  String route;
+  int route;
   String? date;
   int? finished;
   int? rested;
   String? notes;
 
   DBAscent(this.id, this.created, this.updated, this.route, this.date, this.finished, this.rested, this.notes);
+
+  void clear() {
+    id = 0;
+    created = "";
+    updated = "";
+    route = 0;
+    date = null;
+    date = null;
+    finished = null;
+    rested = null;
+    notes = null;
+  }
 
   List<dynamic> toList({bool? includeId}) {
     List<dynamic> list = ((includeId ?? false) ? [id] : []) + [
@@ -193,7 +203,7 @@ class DBAscent {
       map['id'] as int,
       map['created'] as String,
       map['updated'] as String,
-      map['route'] as String,
+      map['route'] as int,
       map['date'] as String?,
       map['finished'] as int?,
       map['rested'] as int?,
@@ -202,7 +212,7 @@ class DBAscent {
   }
 
   Map<String, dynamic> toMap({bool? includeId}) {
-    Map<String, dynamic> map = {
+    return {
       'created': created,
       'updated': updated,
       'route': route,
@@ -210,11 +220,8 @@ class DBAscent {
       'finished': finished,
       'rested': rested,
       'notes': notes,
+      if (includeId ?? false) 'id': id,
     };
-    if (includeId ?? false) {
-      map["id"] = id;
-    }
-    return map;
   }
 }
 
