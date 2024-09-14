@@ -18,15 +18,16 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
   bool lockInputs = true;
   DBRoute route = DBRoute(0, "", "", null, null, null, null, null, null);
   DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null);
+  DBAscent cancelUpdateAscent;
   List<GlobalKey<InputRowState>> inputRowKeys = [
     GlobalKey<InputRowState>(),
     GlobalKey<InputRowState>(),
   ];
 
-  _AscentPageState(DBRoute providedRoute, DBAscent providedAscent) {
-    route = providedRoute;
-    ascent = providedAscent;
-  }
+  _AscentPageState(DBRoute providedRoute, DBAscent providedAscent) :
+    route = providedRoute,
+    ascent = providedAscent,
+    cancelUpdateAscent = DBAscent.of(providedAscent);
 
   void errorPopup(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -39,6 +40,7 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
 
   void updateAscent() async {
     if (!lockInputs) {
+      cancelUpdateAscent = DBAscent.of(ascent);
       DateTime? likelySetDate;
       String? canBePromoted = ascent.date;
       if (canBePromoted == null) {
@@ -85,6 +87,18 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
       return false;
     }
     return true;
+  }
+
+  // TODO fix update cancel (and probably make a lot of stuff easier, by changing InputRow to Stateless)
+  void cancelUpdate() {
+    setState(() {
+      lockInputs = !lockInputs;
+      ascent = DBAscent.of(cancelUpdateAscent);
+      for (var key in inputRowKeys) {
+        key.currentState
+            ?.setState(() => (key.currentState?.locked = lockInputs));
+      }
+    });
   }
 
   Future<void> deleteAscentDialog() async {
@@ -210,7 +224,7 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
                     const SizedBox(width: 8),
                     OutlinedButton(
                       child: const Icon(Icons.close),
-                      onPressed: lockInputs ? null : null,
+                      onPressed: lockInputs ? null : cancelUpdate,
                     ),
                     const SizedBox(width: 8),
                     OutlinedButton(

@@ -19,6 +19,7 @@ class AscentsPage extends StatefulWidget {
 
 class _AscentsPageState extends State<AscentsPage> with RouteAware {
   DBRoute route;
+  DBRoute cancelUpdateRoute;
   List<DBAscent>? tableData;
   bool lockInputs = true;
   List<GlobalKey<InputRowState>> inputRowKeys = [
@@ -29,7 +30,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
   ];
   GlobalKey<DropdownRowState> dropdownRowKey = GlobalKey<DropdownRowState>();
 
-  _AscentsPageState(this.route);
+  _AscentsPageState(this.route) : cancelUpdateRoute = DBRoute.of(route); 
 
   @override
   void didChangeDependencies() {
@@ -118,6 +119,8 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
 
   void updateRoute() async {
     if (!lockInputs) {
+      cancelUpdateRoute = DBRoute.of(route);
+
       DateTime? likelySetDate;
       String? canBePromoted = route.date;
       if (canBePromoted == null) {
@@ -161,7 +164,20 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
     });
   }
 
-  void cancelUpdate() {}
+  // TODO fix update cancel (and probably make a lot of stuff easier, by changing InputRow to Stateless)
+  void cancelUpdate() {
+    setState(() {
+      lockInputs = !lockInputs;
+      route = DBRoute.of(cancelUpdateRoute);
+      for (var key in inputRowKeys) {
+        key.currentState
+            ?.setState(() => (key.currentState?.locked = lockInputs));
+      }
+      dropdownRowKey.currentState
+          ?.setState(() => (dropdownRowKey.currentState?.locked = lockInputs));
+      getTableData();
+    });
+  }
 
   Future<bool> deleteRoute() async {
     int? res = await AppServices.of(context).dbs.deleteRoute(route.id);

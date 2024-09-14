@@ -185,6 +185,19 @@ class DBAscent {
     notes = null;
   }
 
+  factory DBAscent.of(DBAscent original) {
+    return DBAscent(
+      original.id,
+      original.created,
+      original.updated,
+      original.route,
+      original.date,
+      original.finished,
+      original.rested,
+      original.notes,
+    );
+  }
+
   List<dynamic> toList({bool? includeId}) {
     List<dynamic> list = ((includeId ?? false) ? [id] : []) + [
       created,
