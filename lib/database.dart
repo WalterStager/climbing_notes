@@ -175,8 +175,6 @@ class DatabaseService {
     if (oldR == null) {
       return null;
     }
-    log(newR.toString());
-    log(oldR.toString());
 
     Map<String, Object?> updateElements = <String, Object?>{};
 
@@ -206,8 +204,13 @@ class DatabaseService {
     return -1;
   }
 
-  Future<int?> ascentUpdate(DBAscent oldA, DBAscent newA) async {
+  Future<int?> ascentUpdate(DBAscent newA) async {
     checkDB();
+    DBAscent? oldA = await db?.query("Ascents", where: "id = ?", whereArgs: [newA.id]).then((value) => (value.map(DBAscent.fromMap).toList().firstOrNull));
+    if (oldA == null) {
+      return null;
+    }
+
     Map<String, Object?> updateElements = <String, Object?>{};
 
     if (newA.date != oldA.date) {

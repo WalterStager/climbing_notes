@@ -358,13 +358,15 @@ class CheckboxRow extends StatelessWidget {
   final bool? initialValue2;
   final ValueChanged<bool?>? onChanged1;
   final ValueChanged<bool?>? onChanged2;
+  final bool? locked;
 
   const CheckboxRow(this.label1, this.label2,
       {super.key,
       this.initialValue1,
       this.initialValue2,
       this.onChanged1,
-      this.onChanged2});
+      this.onChanged2,
+      this.locked});
 
   @override
   Widget build(BuildContext context) {
@@ -376,12 +378,22 @@ class CheckboxRow extends StatelessWidget {
             label1,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          Checkbox(value: initialValue1, onChanged: onChanged1),
+          Checkbox(
+            value: initialValue1, 
+            // fillColor: WidgetStateProperty.all((locked ?? false) ? Theme.of(context).disabledColor : null),
+            side: (locked ?? false) ? BorderSide(color: Theme.of(context).disabledColor) : null,
+            onChanged: (locked ?? false) ? null : onChanged1,
+            ),
           Text(
             label2,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          Checkbox(value: initialValue2, onChanged: onChanged2),
+          Checkbox(
+            value: initialValue2,
+            // fillColor: WidgetStateProperty.all((locked ?? false) ? Theme.of(context).disabledColor : null),
+            side: (locked ?? false) ? BorderSide(color: Theme.of(context).disabledColor) : null,
+            onChanged: (locked ?? false) ? null : onChanged2
+          ),
         ],
       ),
     );

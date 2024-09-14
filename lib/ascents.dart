@@ -1,6 +1,7 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'package:climbing_notes/add_ascent.dart';
+import 'package:climbing_notes/ascent.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
 import 'builders.dart';
@@ -67,14 +68,14 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
         buildAscentsTableCell(
             Text(timeDisplayFromTimestamp(
                 AppServices.of(context).settings.smallDateFormat, data.date)),
-            null),
+            (context) => (AscentPage(providedRoute: route, providedAscent:  data))),
         buildAscentsTableCell(
             Icon(intToBool(data.finished) ?? false ? Icons.check : Icons.close),
-            null),
+            (context) => (AscentPage(providedRoute: route, providedAscent:  data))),
         buildAscentsTableCell(
             Icon(intToBool(data.rested) ?? false ? Icons.check : Icons.close),
-            null),
-        buildAscentsTableCell(Text(data.notes ?? ""), null),
+            (context) => (AscentPage(providedRoute: route, providedAscent:  data))),
+        buildAscentsTableCell(Text(data.notes ?? ""), (context) => (AscentPage(providedRoute: route, providedAscent:  data))),
         InkWell(
           onTap: () => (deleteAscentDialog(data)),
           child: const Icon(Icons.clear),
