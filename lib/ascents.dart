@@ -333,6 +333,12 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                   key: inputRowKeys[3],
                   initialValue: route.notes,
                   locked: lockInputs,
+                  onChanged: (String? value) {
+                    setState(() {
+                      route.notes = value;
+                      getTableData();
+                    });
+                  }
                 ),
                 Row(
                   children: [

@@ -285,7 +285,16 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                   },
                 ),
                 const ClimbingNotesLabel("Route notes:"),
-                const InputRow(),
+                InputRow(
+                  inputType: TextInputType.text,
+                  initialValue: route.notes ?? "",
+                  onChanged: (String? value) {
+                    setState(() {
+                      route.notes = value;
+                      updateTableData();
+                    });
+                  },
+                ),
                 CheckboxRow(
                   "Finished:",
                   "Rested:",
@@ -303,7 +312,16 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                   },
                 ),
                 const ClimbingNotesLabel("Ascent notes:"),
-                const InputRow(),
+                InputRow(
+                  inputType: TextInputType.text,
+                  initialValue: ascent.notes ?? "",
+                  onChanged: (String? value) {
+                    setState(() {
+                      ascent.notes = value;
+                      updateTableData();
+                    });
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(

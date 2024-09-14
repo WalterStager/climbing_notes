@@ -163,7 +163,16 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                   },
                 ),
                 const ClimbingNotesLabel("Ascent notes:"),
-                const InputRow(),
+                InputRow(
+                  inputType: TextInputType.text,
+                  initialValue: ascent.notes ?? "",
+                  onChanged: (String? value) {
+                    setState(() {
+                      ascent.notes = value;
+                      getTableData();
+                    });
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(

@@ -105,6 +105,11 @@ class DatabaseService {
       queryElements.add("color = ?");
       queryParameters.add(color);
     }
+    String? notes = routeInfo.notes;
+    if (notes != null) {
+      queryElements.add("notes = ?");
+      queryParameters.add("%${routeInfo.notes}%");
+    }
 
     if (queryElements.isNotEmpty) {
       queryWhereClause = queryElements.join(" AND ");
