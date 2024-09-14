@@ -66,7 +66,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
       children: [
         buildAscentsTableCell(
             Text(timeDisplayFromTimestamp(
-                AppServices.of(context).settings.dateFormat, data.date)),
+                AppServices.of(context).settings.smallDateFormat, data.date)),
             null),
         buildAscentsTableCell(
             Icon(intToBool(data.finished) ?? false ? Icons.check : Icons.close),
@@ -124,7 +124,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
         return;
       }
       likelySetDate = likelyTimeFromTimeDisplay(
-          AppServices.of(context).settings.dateFormat, canBePromoted);
+          AppServices.of(context).settings.smallDateFormat, canBePromoted);
       if (likelySetDate == null) {
         errorPopup("Invalid date.");
         return;
@@ -289,7 +289,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                 InputRow(
                   key: inputRowKeys[1],
                   label: "Set date:",
-                  initialValue: timeDisplayFromTimestampSafe(AppServices.of(context).settings.dateFormat, route.date),
+                  initialValue: timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, route.date),
                   locked: lockInputs,
                   onChanged: (String? value) {
                     setState(() {

@@ -47,7 +47,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
   }
 
   void updateTableData() async {
-    List<DBRoute>? r = await AppServices.of(context).dbs.queryRoutes(AppServices.of(context).settings.dateFormat, queryInfo);
+    List<DBRoute>? r = await AppServices.of(context).dbs.queryRoutes(AppServices.of(context).settings.smallDateFormat, queryInfo);
 
     setState(() {
       matchingRoutes = r;
@@ -87,7 +87,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
       children: [
         buildRoutesTableCell(
             Text(data.rope.toString()), (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.dateFormat, data.date)),
+        buildRoutesTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.smallDateFormat, data.date)),
             (context) => AscentsPage(route: data)),
         buildRoutesTableCell(
             Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let)

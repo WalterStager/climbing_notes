@@ -69,22 +69,15 @@ class _DatabaseViewState extends State<DatabaseViewPage> with RouteAware {
   }
 
   void updateTables() async {
-    // DatabaseTable? r1 = await AppServices.of(context).dbs.query("sqlite_schema", 100, 0);
-    DatabaseTable? r2 = await AppServices.of(context)
-        .dbs
-        .queryRecentlyUpdated("Routes", 100, 0);
-    DatabaseTable? r3 = await AppServices.of(context)
-        .dbs
-        .queryRecentlyUpdated("Ascents", 100, 0);
-    // setState(() {
-    //   tables[0] = r1;
-    // });
-    setState(() {
-      tables["Routes"] = r2;
-    });
-    setState(() {
-      tables["Ascents"] = r3;
-    });
+    List<String> tableNames = ["Routes", "Ascents", "Settings"]; //"sqlite_schema"
+
+    for (int i = 0; i < tableNames.length; i++) {
+      DatabaseTable? r = await AppServices.of(context)
+        .dbs.query(tableNames[i], 100, 0);
+      setState(() {
+        tables[tableNames[i]] = r;
+      });
+    }
   }
 
   @override

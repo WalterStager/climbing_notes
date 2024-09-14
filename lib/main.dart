@@ -63,7 +63,7 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class LoadingScreenState extends State<LoadingScreen> {
-  Future<void>? dbFuture;
+  Future<void>? servicesFuture;
   Future<void>? delay;
 
   @override
@@ -73,17 +73,17 @@ class LoadingScreenState extends State<LoadingScreen> {
   }
 
   Future<void> startDatabaseService() async {
-    await AppServices.of(context).dbs.start();
+    await AppServices.of(context).start();
   }
 
   @override
   Widget build(BuildContext context) {
     if (!AppServices.of(context).dbs.startedLoad) {
-      dbFuture = startDatabaseService();
+      servicesFuture = startDatabaseService();
       delay = Future.delayed(const Duration(milliseconds:2300));
     }
 
-    List<Future<void>> futures = [dbFuture, delay].whereType<Future<void>>().toList();
+    List<Future<void>> futures = [servicesFuture, delay].whereType<Future<void>>().toList();
 
     return FutureBuilder(
       future: Future.wait(futures),
@@ -110,6 +110,12 @@ class AppServices extends InheritedWidget {
   final DatabaseService dbs = DatabaseService();
   final RouteObserver<ModalRoute<void>> robs = RouteObserver<ModalRoute<void>>();
   final AppSettings settings = AppSettings();
+
+  Future<void> start() async {
+    await dbs.start();
+    AppSettings? dbSettings = await dbs.settingsGetOrInsert(settings);
+    settings.setTo((null == dbSettings) ? settings : dbSettings);
+  }
 
   @override
   bool updateShouldNotify(AppServices oldWidget) {

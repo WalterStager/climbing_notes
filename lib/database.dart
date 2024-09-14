@@ -1,6 +1,7 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'package:climbing_notes/data_structures.dart';
+import 'package:climbing_notes/settings.dart';
 import 'package:climbing_notes/utility.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite/sqflite.dart';
@@ -119,6 +120,31 @@ class DatabaseService {
     ).then((value) => (value.map(DBRoute.fromMap).toList()));
   }
 
+  Future<AppSettings?> settingsGetOrInsert(AppSettings settings) async {
+    checkDB();
+
+    List<Map<String, Object?>>? res = await db?.rawQuery("SELECT * FROM Settings");
+    if (res == null) {
+      log("Got null result when checking if settings exists. I thought this was impossible.");
+      return null;
+    }
+    if (res.isEmpty) {
+      settingsInsert(settings);
+      return settings;
+    }
+    return AppSettings.fromMap(res.first);
+  }
+
+  Future<int?> settingsInsert(AppSettings settings) async {
+    checkDB();
+    return await db?.insert("Settings", settings.toMap());
+  }
+
+  Future<int?> settingsUpdate(AppSettings settings) async {
+    checkDB();
+    return await db?.update("Settings", settings.toMap(), where: "id = ?", whereArgs: [settings.id]);
+  }
+
   Future<int?> routeInsert(DBRoute route) async {
     checkDB();
     List<Map<String, Object?>>? res = await db?.rawQuery("SELECT EXISTS(SELECT 1 FROM Routes WHERE id='${route.id}' LIMIT 1) AS does_exist");
@@ -216,10 +242,15 @@ class DatabaseService {
 
   Future<void> createTables() async {
     checkDB();
-    String createTablesStatement0 = """
+    List<String> createTablesStatements = ["""
     PRAGMA user_version = ${pi?.buildNumber ?? 0};
-    """;
-    String createTablesStatement1 = """
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS Settings (
+      id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      date_format TEXT
+    );""",
+    """
     CREATE TABLE IF NOT EXISTS Routes (
       id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       created   TEXT NOT NULL,
@@ -230,8 +261,8 @@ class DatabaseService {
       grade_num INT,
       grade_let TEXT,
       notes     TEXT
-    );""";
-    String createTablesStatement2 = """
+    );""",
+    """
     CREATE TABLE IF NOT EXISTS Ascents (
       id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       created   TEXT NOT NULL,
@@ -241,9 +272,11 @@ class DatabaseService {
       finished  INT,
       rested    INT,
       notes     TEXT
-    );""";
-    await db?.execute(createTablesStatement0);
-    await db?.execute(createTablesStatement1);
-    await db?.execute(createTablesStatement2);
+    );
+    """];
+
+    createTablesStatements.forEach((statement) async {
+      await db?.execute(statement);
+    });
   }
 }
