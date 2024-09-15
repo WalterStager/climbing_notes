@@ -11,8 +11,8 @@ import 'package:page_transition/page_transition.dart';
 const EdgeInsetsGeometry paddingAroundInputBox =
     EdgeInsets.only(top: 4.0, bottom: 4.0);
 const EdgeInsetsGeometry paddingInsideInputBox = EdgeInsets.only(left: 8.0);
-const Duration pageTransitionDuration = Duration(milliseconds: 500);
-const Duration pageTransitionReverseDuration = Duration(milliseconds: 300);
+const Duration pageTransitionDuration = Duration(milliseconds: 200);
+const Duration pageTransitionReverseDuration = Duration(milliseconds: 100);
 
 PageTransition<dynamic> cnPageTransition(Widget child) {
   return PageTransition(

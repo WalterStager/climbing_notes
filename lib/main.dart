@@ -80,7 +80,7 @@ class LoadingScreenState extends State<LoadingScreen> {
   Widget build(BuildContext context) {
     if (!AppServices.of(context).dbs.startedLoad) {
       servicesFuture = startDatabaseService();
-      delay = Future.delayed(const Duration(milliseconds:2300));
+      delay = Future.delayed(const Duration(milliseconds:0));
     }
 
     List<Future<void>> futures = [servicesFuture, delay].whereType<Future<void>>().toList();
