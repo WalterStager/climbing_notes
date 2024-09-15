@@ -17,14 +17,15 @@ typedef DatabaseTable = List<Map<String, Object?>>;
 
 enum RouteColor {
   nocolor(""),
-  white("White"),
-  purple("Purple"),
-  pink("Pink"),
   black("Black"),
-  red("Red"),
   blue("Blue"),
-  yellow("Yellow"),
-  green("Green");
+  green("Green"),
+  pink("Pink"),
+  purple("Purple"),
+  red("Red"),
+  white("White"),
+  yellow("Yellow");
+  
 
   final String string;
 
