@@ -9,6 +9,14 @@ import 'package:climbing_notes/routes.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:system_theme/system_theme.dart';
 
+/*
+db location
+  android //data/data/climbing_notes/databases/climbing_notes.db
+  windows
+    debug   <repo_dir>\.dart_tool\sqflite_common_ffi\databases\climbing_notes.db
+    release 
+*/
+
 void main() async {
   // TODO, use system_theme when android build is fixed https://github.com/bdlukaa/system_theme/pull/35
   // WidgetsFlutterBinding.ensureInitialized();
