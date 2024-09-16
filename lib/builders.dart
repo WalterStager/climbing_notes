@@ -1,6 +1,7 @@
 // ignore: unused_import
 import 'dart:developer';
-import 'package:climbing_notes/ascents.dart';
+import 'package:climbing_notes/ascent_page.dart';
+import 'package:climbing_notes/route_page.dart';
 import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:climbing_notes/data_structures.dart';
@@ -200,7 +201,6 @@ class DropdownRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<DropdownMenuItem<RouteColor>>? itemss = RouteColor.values.map<DropdownMenuItem<RouteColor>>(makeMenuEntry).toList();
-    log(itemss.length.toString());
     
     return Padding(
       padding: paddingAroundInputBox,
@@ -400,6 +400,16 @@ class RoutesTableWithExtra extends StatelessWidget {
 
   const RoutesTableWithExtra({super.key, required this.data});
   
+  Widget buildInkwell(BuildContext context, DBRouteExtra rowData, Widget child) {
+      return TableRowInkWell(
+        onTap: () {
+          Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AscentsPage(route: DBRoute.fromExtra(rowData))));
+        },
+        child: child,
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -424,20 +434,13 @@ class RoutesTableWithExtra extends StatelessWidget {
       data.map((DBRouteExtra rowData) {
         return TableRow(
           children: <Widget>[
-            TableRowInkWell(
-              onTap: () {
-                Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AscentsPage(route: DBRoute.fromExtra(rowData))));
-              },
-              child: Text(rowData.rope.toString()),
-            ),
-            Text(timeDisplayFromDateTime(AppServices.of(context).settings.smallDateFormat, rowData.date)),
-            Text(rowData.grade.toString()),
-            Text(rowData.color.toString()),
-            Icon((rowData.finished ?? false) ? Icons.check : null),
-            Icon((rowData.finWithoutRest ?? false) ? Icons.check : null),
-            Text(timeDisplayFromDateTime(AppServices.of(context).settings.smallDateFormat, rowData.lastAscentDate)),
+            buildInkwell(context, rowData, Text(rowData.rope.toString())),
+            buildInkwell(context, rowData, Text(timeDisplayFromDateTime(AppServices.of(context).settings.smallDateFormat, rowData.date))),
+            buildInkwell(context, rowData, Text(rowData.grade.toString())),
+            buildInkwell(context, rowData, Text(rowData.color.toString())),
+            buildInkwell(context, rowData, Icon((rowData.finished ?? false) ? Icons.check : null)),
+            buildInkwell(context, rowData, Icon((rowData.finWithoutRest ?? false) ? Icons.check : null)),
+            buildInkwell(context, rowData, Text(timeDisplayFromDateTime(AppServices.of(context).settings.smallDateFormat, rowData.lastAscentDate))),
           ].map(padCell).toList(),
         );
       })
@@ -450,12 +453,56 @@ class RoutesTableWithExtra extends StatelessWidget {
   }
 }
 
-class RoutesTableRow {
+class AscentsTable extends StatelessWidget {
+  final List<DBAscent> data;
+  final DBRoute route;
 
-}
+  const AscentsTable({super.key, required this.route, required this.data});
 
-class RoutesTableCell {
+  Widget buildInkwell(BuildContext context, DBAscent rowData, Widget child) {
+      return TableRowInkWell(
+        onTap: () {
+          Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AscentPage(providedRoute: route, providedAscent: rowData)));
+        },
+        child: child,
+      );
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    List<TableRow> rows = [
+      TableRow(
+        // header row
+        children: <Widget>[
+          const Text("Date"),
+          const Text("Finished"),
+          const Text("Rested"),
+          const Text("Notes"),
+        ].map(padCell).toList(),
+        decoration: BoxDecoration(color: contrastingSurface(context)),
+      ),
+    ];
+
+    rows.addAll(
+      data.map((DBAscent rowData) {
+        return TableRow(
+          children: <Widget>[
+            buildInkwell(context, rowData, Text(timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, rowData.date))),
+            buildInkwell(context, rowData, Icon((intToBool(rowData.finished) ?? false) ? Icons.check : null)),
+            buildInkwell(context, rowData, Icon((intToBool(rowData.rested) ?? false) ? Icons.check : null)),
+            buildInkwell(context, rowData, Text(rowData.notes ?? "")),
+          ].map(padCell).toList(),
+        );
+      })
+    );
+
+    return Table(
+      border: TableBorder.all(color: themeTextColor(context)),
+      children: rows
+    );
+  }
 }
 
 Padding padCell(Widget cellContents) {

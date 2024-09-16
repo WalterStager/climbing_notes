@@ -51,52 +51,6 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
     });
   }
 
-  TableRow buildAscentsTableRow(DBAscent data) {
-    return TableRow(
-      children: [
-        buildAscentsTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.smallDateFormat, data.date)), null),
-        buildAscentsTableCell(
-            Icon(intToBool(data.finished) ?? false ? Icons.check : Icons.close),
-            null),
-        buildAscentsTableCell(
-            Icon(intToBool(data.rested) ?? false ? Icons.check : Icons.close),
-            null),
-        buildAscentsTableCell(Text(data.notes ?? ""), null),
-      ].map(padCell).toList(),
-    );
-  }
-
-  Widget buildAscentsTableCell(
-      Widget cellContents, Widget Function(BuildContext)? navBuilder) {
-    return InkWell(
-      child: cellContents,
-      onTap: () => navBuilder == null
-          ? () => ()
-          : Navigator.push(
-              context,
-              MaterialPageRoute(builder: navBuilder),
-            ),
-    );
-  }
-
-  Table buildAscentsTable() {
-    return Table(
-      border: TableBorder.all(color: themeTextColor(context)),
-      children: [
-            TableRow(
-                // header row
-                children: <Widget>[
-                  const Text("Date"),
-                  const Text("Finished"),
-                  const Text("Rested"),
-                  const Text("Notes"),
-                ].map(padCell).toList(),
-                decoration: BoxDecoration(color: contrastingSurface(context))),
-          ] +
-          (tableData?.map(buildAscentsTableRow).toList() ?? []),
-    );
-  }
-
   void submitAscent() {
     String timestamp = getTimestamp();
     ascent.created = timestamp;
@@ -176,9 +130,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Container(
-                    child: buildAscentsTable(),
-                  ),
+                  child: AscentsTable(data: tableData ?? [], route: route,),
                 ),
               ],
             ),

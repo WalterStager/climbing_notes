@@ -5,7 +5,7 @@ import 'package:climbing_notes/database.dart';
 import 'package:climbing_notes/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:climbing_notes/routes.dart';
+import 'package:climbing_notes/route_search.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 // import 'package:system_theme/system_theme.dart';
 

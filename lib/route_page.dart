@@ -1,7 +1,6 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'package:climbing_notes/add_ascent.dart';
-import 'package:climbing_notes/ascent.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
 import 'builders.dart';
@@ -62,60 +61,6 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
     });
   }
 
-  TableRow buildAscentsTableRow(DBAscent data) {
-    return TableRow(
-      children: [
-        buildAscentsTableCell(
-            Text(timeDisplayFromTimestamp(
-                AppServices.of(context).settings.smallDateFormat, data.date)),
-            (context) => (AscentPage(providedRoute: route, providedAscent:  data))),
-        buildAscentsTableCell(
-            Icon(intToBool(data.finished) ?? false ? Icons.check : Icons.close),
-            (context) => (AscentPage(providedRoute: route, providedAscent:  data))),
-        buildAscentsTableCell(
-            Icon(intToBool(data.rested) ?? false ? Icons.check : Icons.close),
-            (context) => (AscentPage(providedRoute: route, providedAscent:  data))),
-        buildAscentsTableCell(Text(data.notes ?? ""), (context) => (AscentPage(providedRoute: route, providedAscent:  data))),
-        InkWell(
-          onTap: () => (deleteAscentDialog(data)),
-          child: const Icon(Icons.clear),
-        )
-      ].map(padCell).toList(),
-    );
-  }
-
-  Widget buildAscentsTableCell(
-      Widget cellContents, Widget Function(BuildContext)? navBuilder) {
-    return InkWell(
-      child: cellContents,
-      onTap: () => navBuilder == null
-          ? () => ()
-          : Navigator.push(
-              context,
-              MaterialPageRoute(builder: navBuilder),
-            ),
-    );
-  }
-
-  Table buildAscentsTable() {
-    return Table(
-      border: TableBorder.all(color: themeTextColor(context)),
-      children: [
-            TableRow(
-                // header row
-                children: <Widget>[
-                  const Text("Date"),
-                  const Text("Finished"),
-                  const Text("Rested"),
-                  const Text("Notes"),
-                  const Text("Delete"),
-                ].map(padCell).toList(),
-                decoration: BoxDecoration(color: contrastingSurface(context))),
-          ] +
-          (tableData?.map(buildAscentsTableRow).toList() ?? []),
-    );
-  }
-
   void updateRoute() async {
     if (!lockInputs) {
       cancelUpdateRoute = DBRoute.of(route);
@@ -161,7 +106,6 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
     });
   }
 
-  // TODO fix update cancel (and probably make a lot of stuff easier, by changing InputRow to Stateless)
   void cancelUpdate() {
     setState(() {
       lockInputs = !lockInputs;
@@ -182,14 +126,6 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
     return true;
   }
 
-  Future<bool> deleteAscent(DBAscent ascent) async {
-    int? res = await AppServices.of(context).dbs.deleteAscents([ascent.id]);
-    if (res == null || res < 1) {
-      return false;
-    }
-    return true;
-  }
-
   void errorPopup(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -197,44 +133,6 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
         duration: const Duration(seconds: 3),
       ),
     );
-  }
-
-  Future<void> deleteAscentDialog(DBAscent ascent) async {
-    return showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Delete Ascent"),
-            content: const SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Are you sure?'),
-                ],
-              ),
-            ),
-            actions: [
-              OutlinedButton(
-                child: const Icon(Icons.check),
-                onPressed: () async {
-                  bool res = await deleteAscent(ascent);
-                  Navigator.of(context).pop();
-                  if (res) {
-                    errorPopup("Ascent deleted");
-                  } else {
-                    errorPopup("Error deleting ascent");
-                  }
-                  getTableData();
-                },
-              ),
-              OutlinedButton(
-                child: const Icon(Icons.clear),
-                onPressed: () => (Navigator.of(context).pop()),
-              ),
-            ],
-          );
-        });
   }
 
   Future<void> deleteRouteDialog() async {
@@ -371,9 +269,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Container(
-                    child: buildAscentsTable(),
-                  ),
+                  child: AscentsTable(data: tableData ?? [], route: route,),
                 ),
               ],
             ),
