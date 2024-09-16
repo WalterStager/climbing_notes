@@ -79,7 +79,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
     if (fin == null) {
       return null;
     }
-    return fin ? Icons.check : Icons.close;
+    return fin ? Icons.check : null;
   }
 
   TableRow buildRoutesTableRow(DBRoute data) {
