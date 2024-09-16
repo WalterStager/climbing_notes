@@ -51,9 +51,20 @@ String timeDisplayFromTimestamp(SmallDateFormat format, String? s) {
     return "";
   }
   if (format == SmallDateFormat.ddmm) {
-    return DateFormat("dd-MM").format(DateTime.parse(s));
+    return DateFormat("dd-MM").format(DateTime.parse(s).toLocal());
   } else {
-    return DateFormat("MM-dd").format(DateTime.parse(s));
+    return DateFormat("MM-dd").format(DateTime.parse(s).toLocal());
+  }
+}
+
+String timeDisplayFromDateTime(SmallDateFormat format, DateTime? dt) {
+  if (dt == null) {
+    return "";
+  }
+  if (format == SmallDateFormat.ddmm) {
+    return DateFormat("dd-MM").format(dt.toLocal());
+  } else {
+    return DateFormat("MM-dd").format(dt.toLocal());
   }
 }
 
