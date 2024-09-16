@@ -94,10 +94,14 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
     setState(() {
       lockInputs = !lockInputs;
       ascent = DBAscent.of(cancelUpdateAscent);
-      for (var key in inputRowKeys) {
-        key.currentState
-            ?.setState(() => (key.currentState?.locked = lockInputs));
-      }
+      inputRowKeys[0].currentState?.setState(() {
+        inputRowKeys[0].currentState?.locked = lockInputs;
+        inputRowKeys[0].currentState?.controller.text = ascent.notes ?? "";
+      });
+      inputRowKeys[1].currentState?.setState(() {
+        inputRowKeys[1].currentState?.locked = lockInputs;
+        inputRowKeys[1].currentState?.controller.text = timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, ascent.date);
+      });
     });
   }
 
