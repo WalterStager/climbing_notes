@@ -20,6 +20,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   Map<int, bool>? finishedRoutes;
   DBRoute route = DBRoute(0, "", "", null, null, null, null, null, null);
   DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null);
+  bool addAscent = false;
 
   _AddRoutePageState(DBRoute? providedRoute) {
     if (providedRoute != null) {
@@ -215,7 +216,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
     }
     ascent.route = insertResult;
 
-    if (ascent.finished != null || ascent.rested != null) {
+    if (addAscent) {
       AppServices.of(context).dbs.ascentInsert(ascent);
     }
 
@@ -230,6 +231,56 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
     });
   }
 
+  Widget ascentSection() {
+    if (!addAscent) {
+      return Row(
+        children: [
+          FittedBox(
+            child: OutlinedButton(
+              child: const Row(
+                children: [
+                  Icon(Icons.add),
+                  Text("Also add ascent"),
+                ],
+              ),
+              onPressed: () => (setState(() => (addAscent = true))),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Column(children: [
+        CheckboxRow(
+          "Finished:",
+          "Rested:",
+          initialValue1: intToBool(ascent.finished) ?? false,
+          initialValue2: intToBool(ascent.rested) ?? false,
+          onChanged1: (newValue) {
+            setState(
+              () => (ascent.finished = boolToInt(newValue)),
+            );
+          },
+          onChanged2: (newValue) {
+            setState(
+              () => (ascent.rested = boolToInt(newValue)),
+            );
+          },
+        ),
+        const ClimbingNotesLabel("Ascent notes:"),
+        InputRow(
+          inputType: TextInputType.text,
+          initialValue: ascent.notes ?? "",
+          onChanged: (String? value) {
+            setState(() {
+              ascent.notes = value;
+              updateTableData();
+            });
+          },
+        )
+      ]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -240,40 +291,45 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
           children: [
             Column(
               children: <Widget>[
-                InputRow(label: "Rope #:",
+                InputRow(
+                    label: "Rope #:",
                     inputType: TextInputType.datetime,
                     initialValue: route.rope?.toString(),
                     onChanged: (String? value) {
-                  setState(() {
-                    route.rope = stringToInt(value);
-                    updateTableData();
-                  });
-                }),
-                InputRow(label: "Set date:",
+                      setState(() {
+                        route.rope = stringToInt(value);
+                        updateTableData();
+                      });
+                    }),
+                InputRow(
+                    label: "Set date:",
                     inputType: TextInputType.datetime,
-                    initialValue: route.date, onChanged: (String? value) {
-                  setState(() {
-                    route.date = value;
-                    updateTableData();
-                  });
-                }),
-                InputRow(label: "Grade:",
+                    initialValue: route.date,
+                    onChanged: (String? value) {
+                      setState(() {
+                        route.date = value;
+                        updateTableData();
+                      });
+                    }),
+                InputRow(
+                    label: "Grade:",
                     inputType: TextInputType.text,
                     initialValue:
                         "${route.grade_num ?? ""}${route.grade_let ?? ""}",
                     onChanged: (String? value) {
-                  setState(() {
-                    if (value == null) {
-                      route.grade_num = null;
-                      route.grade_let = null;
-                    } else {
-                      RegExpMatch? match = gradeExp.firstMatch(value);
-                      route.grade_num = stringToInt(match?.namedGroup("num"));
-                      route.grade_let = match?.namedGroup("let");
-                    }
-                    updateTableData();
-                  });
-                }),
+                      setState(() {
+                        if (value == null) {
+                          route.grade_num = null;
+                          route.grade_let = null;
+                        } else {
+                          RegExpMatch? match = gradeExp.firstMatch(value);
+                          route.grade_num =
+                              stringToInt(match?.namedGroup("num"));
+                          route.grade_let = match?.namedGroup("let");
+                        }
+                        updateTableData();
+                      });
+                    }),
                 DropdownRow(
                   initialValue: RouteColor.fromString(route.color ?? ""),
                   onSelected: (RouteColor? value) {
@@ -295,33 +351,8 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                     });
                   },
                 ),
-                CheckboxRow(
-                  "Finished:",
-                  "Rested:",
-                  initialValue1: intToBool(ascent.finished) ?? false,
-                  initialValue2: intToBool(ascent.rested) ?? false,
-                  onChanged1: (newValue) {
-                    setState(
-                      () => (ascent.finished = boolToInt(newValue)),
-                    );
-                  },
-                  onChanged2: (newValue) {
-                    setState(
-                      () => (ascent.rested = boolToInt(newValue)),
-                    );
-                  },
-                ),
-                const ClimbingNotesLabel("Ascent notes:"),
-                InputRow(
-                  inputType: TextInputType.text,
-                  initialValue: ascent.notes ?? "",
-                  onChanged: (String? value) {
-                    setState(() {
-                      ascent.notes = value;
-                      updateTableData();
-                    });
-                  },
-                ),
+                const Divider(),
+                ascentSection(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Container(

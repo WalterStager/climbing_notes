@@ -146,6 +146,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                 InputRow(
                   initialValue: route.notes ?? "",
                   locked: true),
+                const Divider(),
                 CheckboxRow(
                   "Finished:",
                   "Rested:",

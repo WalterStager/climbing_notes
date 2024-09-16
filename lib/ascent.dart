@@ -186,6 +186,7 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
                     });
                   },
                 ),
+                const Divider(),
                 CheckboxRow(
                   "Finished:",
                   "Rested:",
