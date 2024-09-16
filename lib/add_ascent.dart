@@ -88,7 +88,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                 ),
                 InputRow(
                   label: "Grade:",
-                  initialValue: RouteGrade.fromDBValues(route.grade_num, route.grade_let)
+                  initialValue: RouteGrade.fromDBValues(route.gradeNum, route.gradeLet)
                       .toString(),
                   locked: true,
                 ),

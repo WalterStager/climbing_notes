@@ -97,14 +97,14 @@ class DatabaseService {
       queryElements.add("rope LIKE ?");
       queryParameters.add("%${routeInfo.rope}%");
     }
-    if (routeInfo.grade_num != null) {
+    if (routeInfo.gradeNum != null) {
       queryElements.add("grade_num LIKE ?");
-      queryParameters.add("%${routeInfo.grade_num}%");
+      queryParameters.add("%${routeInfo.gradeNum}%");
     }
-    String? grade_let = routeInfo.grade_let;
-    if (grade_let != null) {
+    String? gradeLet = routeInfo.gradeLet;
+    if (gradeLet != null) {
       queryElements.add("grade_let = ?");
-      queryParameters.add(grade_let);
+      queryParameters.add(gradeLet);
     }
     String? color = routeInfo.color;
     if (color != null) {
@@ -193,11 +193,11 @@ class DatabaseService {
     if (newR.color != oldR.color) {
       updateElements["color"] = newR.color;
     }
-    if (newR.grade_num != oldR.grade_num) {
-      updateElements["grade_num"] = newR.grade_num;
+    if (newR.gradeNum != oldR.gradeNum) {
+      updateElements["grade_num"] = newR.gradeNum;
     }
-    if (newR.grade_let != oldR.grade_let) {
-      updateElements["grade_let"] = newR.grade_let;
+    if (newR.gradeLet != oldR.gradeLet) {
+      updateElements["grade_let"] = newR.gradeLet;
     }
     if (newR.notes != oldR.notes) {
       updateElements["notes"] = newR.notes;
@@ -289,6 +289,7 @@ class DatabaseService {
     );
     """];
 
+    // ignore: avoid_function_literals_in_foreach_calls
     createTablesStatements.forEach((statement) async {
       await db?.execute(statement);
     });

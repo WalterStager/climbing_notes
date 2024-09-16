@@ -101,7 +101,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
       errorPopup("Invalid color.");
       return;
     }
-    if (route.grade_num == null) {
+    if (route.gradeNum == null) {
       errorPopup("Invalid grade.");
       return;
     }
@@ -232,17 +232,17 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                     label: "Grade:",
                     inputType: TextInputType.text,
                     initialValue:
-                        "${route.grade_num ?? ""}${route.grade_let ?? ""}",
+                        "${route.gradeLet ?? ""}${route.gradeLet ?? ""}",
                     onChanged: (String? value) {
                       setState(() {
                         if (value == null) {
-                          route.grade_num = null;
-                          route.grade_let = null;
+                          route.gradeNum = null;
+                          route.gradeLet = null;
                         } else {
                           RegExpMatch? match = gradeExp.firstMatch(value);
-                          route.grade_num =
+                          route.gradeNum =
                               stringToInt(match?.namedGroup("num"));
-                          route.grade_let = match?.namedGroup("let");
+                          route.gradeLet = match?.namedGroup("let");
                         }
                         updateTableData();
                       });
@@ -272,9 +272,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                 ascentSection(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Container(
-                    child: RoutesTableWithExtra(data: routeExtras ?? []),
-                  ),
+                  child: RoutesTableWithExtra(data: routeExtras ?? []),
                 ),
               ],
             ),

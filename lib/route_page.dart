@@ -120,7 +120,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
       });
       inputRowKeys[2].currentState?.setState(() {
         inputRowKeys[2].currentState?.locked = lockInputs;
-        inputRowKeys[2].currentState?.controller.text = RouteGrade.fromDBValues(route.grade_num, route.grade_let).toString();
+        inputRowKeys[2].currentState?.controller.text = RouteGrade.fromDBValues(route.gradeNum, route.gradeLet).toString();
       });
       inputRowKeys[3].currentState?.setState(() {
         inputRowKeys[3].currentState?.locked = lockInputs;
@@ -224,18 +224,18 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                   key: inputRowKeys[2],
                   label: "Grade:",
                   initialValue:
-                      RouteGrade.fromDBValues(route.grade_num, route.grade_let)
+                      RouteGrade.fromDBValues(route.gradeNum, route.gradeLet)
                           .toString(),
                   locked: lockInputs,
                   onChanged: (String? value) {
                     setState(() {
                       if (value == null) {
-                        route.grade_num = null;
-                        route.grade_let = null;
+                        route.gradeNum = null;
+                        route.gradeLet = null;
                       } else {
                         RegExpMatch? match = gradeExp.firstMatch(value);
-                        route.grade_num = stringToInt(match?.namedGroup("num"));
-                        route.grade_let = match?.namedGroup("let");
+                        route.gradeNum = stringToInt(match?.namedGroup("num"));
+                        route.gradeLet = match?.namedGroup("let");
                       }
                     });
                   },
@@ -265,18 +265,18 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                 Row(
                   children: [
                     OutlinedButton(
-                      child: Icon(lockInputs ? Icons.edit : Icons.check),
                       onPressed: updateRoute,
+                      child: Icon(lockInputs ? Icons.edit : Icons.check),
                     ),
                     const SizedBox(width: 8),
                     OutlinedButton(
-                      child: const Icon(Icons.close),
                       onPressed: lockInputs ? null : cancelUpdate,
+                      child: const Icon(Icons.close),
                     ),
                     const SizedBox(width: 8),
                     OutlinedButton(
-                      child: const Icon(Icons.delete),
                       onPressed: lockInputs ? deleteRouteDialog : null,
+                      child: const Icon(Icons.delete),
                     ),
                   ],
                 ),

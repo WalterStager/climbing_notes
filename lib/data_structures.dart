@@ -89,11 +89,11 @@ class DBRoute {
   int? rope;
   String? date;
   String? color;
-  int? grade_num;
-  String? grade_let;
+  int? gradeNum;
+  String? gradeLet;
   String? notes;
 
-  DBRoute(this.id, this.created, this.updated, this.rope, this.date, this.color, this.grade_num, this.grade_let, this.notes);
+  DBRoute(this.id, this.created, this.updated, this.rope, this.date, this.color, this.gradeNum, this.gradeLet, this.notes);
 
   void clear() {
     id = 0;
@@ -102,8 +102,8 @@ class DBRoute {
     rope = null;
     date = null;
     color = null;
-    grade_num = null;
-    grade_let = null;
+    gradeNum = null;
+    gradeLet = null;
     notes = null;
   }
 
@@ -115,8 +115,8 @@ class DBRoute {
       original.rope,
       original.date,
       original.color,
-      original.grade_num,
-      original.grade_let,
+      original.gradeNum,
+      original.gradeLet,
       original.notes,
     );
   }
@@ -156,8 +156,8 @@ class DBRoute {
       'rope': rope ?? 0,
       'date': date ?? '',
       'color': color,
-      'grade_num': grade_num,
-      'grade_let': grade_let,
+      'grade_num': gradeNum,
+      'grade_let': gradeLet,
       'notes': notes,
       if (includeId ?? false) 'id': id,
     };
@@ -173,8 +173,8 @@ class DBRoute {
         rope: $rope,
         date: $date,
         color: $color,
-        grade_num: $grade_num,
-        grade_let: $grade_let,
+        grade_num: $gradeNum,
+        grade_let: $gradeLet,
         notes: $notes,
       }
     """;
@@ -294,11 +294,11 @@ class DBAscent {
 class DBSQliteSchema {
   String type;
   String name;
-  String tbl_name;
+  String tableName;
   int rootpage;
   String sql;
 
-  DBSQliteSchema(this.type, this.name, this.tbl_name, this.rootpage, this.sql);
+  DBSQliteSchema(this.type, this.name, this.tableName, this.rootpage, this.sql);
 
   factory DBSQliteSchema.fromMap(Map<String, Object?> map) {
     return DBSQliteSchema(
@@ -314,7 +314,7 @@ class DBSQliteSchema {
     Map<String, dynamic> map = {
       'type': type,
       'name': name,
-      'tbl_name': tbl_name,
+      'tbl_name': tableName,
       'rootpage': rootpage,
     };
     return map;

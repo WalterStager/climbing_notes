@@ -116,13 +116,13 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                     onChanged: (String? value) {
                   setState(() {
                     if (value == null) {
-                      queryInfo.grade_num = null;
-                      queryInfo.grade_let = null;
+                      queryInfo.gradeNum = null;
+                      queryInfo.gradeLet = null;
                     } else {
                       RegExpMatch? match = gradeExp.firstMatch(value);
-                      queryInfo.grade_num =
+                      queryInfo.gradeNum =
                           stringToInt(match?.namedGroup("num"));
-                      queryInfo.grade_let = match?.namedGroup("let");
+                      queryInfo.gradeLet = match?.namedGroup("let");
                     }
                     updateTableData();
                   });

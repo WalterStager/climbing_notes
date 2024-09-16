@@ -309,7 +309,7 @@ class InputRowState extends State<StatefulWidget> {
                 maxLength: maxLength,
                 decoration: InputDecoration(
                     contentPadding:
-                        EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+                        const EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
                     border: const OutlineInputBorder(),
                     disabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(

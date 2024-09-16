@@ -89,7 +89,6 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
     return true;
   }
 
-  // TODO fix update cancel (and probably make a lot of stuff easier, by changing InputRow to Stateless)
   void cancelUpdate() {
     setState(() {
       lockInputs = !lockInputs;
@@ -166,7 +165,7 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
                 InputRow(label: "Grade:",
                     inputType: TextInputType.text,
                     initialValue:
-                        "${route.grade_num ?? ""}${route.grade_let ?? ""}",
+                        "${route.gradeNum ?? ""}${route.gradeLet ?? ""}",
                     locked: true,
                 ),
                 DropdownRow(
@@ -223,18 +222,18 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
                 Row(
                   children: [
                     OutlinedButton(
-                      child: Icon(lockInputs ? Icons.edit : Icons.check),
                       onPressed: updateAscent,
+                      child: Icon(lockInputs ? Icons.edit : Icons.check),
                     ),
                     const SizedBox(width: 8),
                     OutlinedButton(
-                      child: const Icon(Icons.close),
                       onPressed: lockInputs ? null : cancelUpdate,
+                      child: const Icon(Icons.close),
                     ),
                     const SizedBox(width: 8),
                     OutlinedButton(
-                      child: const Icon(Icons.delete),
                       onPressed: lockInputs ? deleteAscentDialog : null,
+                      child: const Icon(Icons.delete),
                     ),
                   ],
                 ),
