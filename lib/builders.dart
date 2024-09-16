@@ -1,9 +1,12 @@
 // ignore: unused_import
 import 'dart:developer';
+import 'package:climbing_notes/ascents.dart';
 import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:climbing_notes/data_structures.dart';
+import 'package:climbing_notes/main.dart';
 import 'package:climbing_notes/settings.dart';
+import 'package:climbing_notes/utility.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -398,6 +401,70 @@ class CheckboxRow extends StatelessWidget {
       ),
     );
   }
+}
+
+
+class RoutesTableWithExtra extends StatelessWidget {
+  final List<DBRouteExtra> data;
+
+  const RoutesTableWithExtra({super.key, required this.data});
+  
+
+  @override
+  Widget build(BuildContext context) {
+
+    List<TableRow> rows = [
+      TableRow(
+        // header row
+        children: <Widget>[
+          const Text("Rope #"),
+          const Text("Set date"),
+          const Text("Grade"),
+          const Text("Color"),
+          const Text("Finished"),
+          const Text("Without rest?"),
+          const Text("Last ascent"),
+        ].map(padCell).toList(),
+        decoration: BoxDecoration(color: contrastingSurface(context)),
+      ),
+    ];
+
+    rows.addAll(
+      data.map((DBRouteExtra rowData) {
+        return TableRow(
+          children: <Widget>[
+            TableRowInkWell(
+              onTap: () {
+                Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => AscentsPage(route: DBRoute.fromExtra(rowData))));
+              },
+              child: Text(rowData.rope.toString()),
+            ),
+            Text(timeDisplayFromDateTime(AppServices.of(context).settings.smallDateFormat, rowData.date)),
+            Text(rowData.grade.toString()),
+            Text(rowData.color.toString()),
+            Icon((rowData.finished ?? false) ? Icons.check : null),
+            Icon((rowData.finWithoutRest ?? false) ? Icons.check : null),
+            Text(timeDisplayFromDateTime(AppServices.of(context).settings.smallDateFormat, rowData.lastAscentDate)),
+          ].map(padCell).toList(),
+        );
+      })
+    );
+
+    return Table(
+      border: TableBorder.all(color: themeTextColor(context)),
+      children: rows
+    );
+  }
+}
+
+class RoutesTableRow {
+
+}
+
+class RoutesTableCell {
+
 }
 
 Padding padCell(Widget cellContents) {

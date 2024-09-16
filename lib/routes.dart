@@ -19,7 +19,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
   List<GlobalKey<InputRowState>> inputRowKeys = [GlobalKey<InputRowState>(), GlobalKey<InputRowState>(), GlobalKey<InputRowState>()];
   GlobalKey<DropdownRowState> dropdownRowKey = GlobalKey<DropdownRowState>();
   List<DBRoute>? matchingRoutes;
-  Map<int, bool>? finishedRoutes;
+  List<DBRouteExtra>? routeExtras;
 
   _RoutesPageState();
 
@@ -60,88 +60,16 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
     if (matchingRoutes == null) {
       return;
     }
-    List<Map<String, Object?>>? r = await AppServices.of(context)
+    List<DBRouteExtra>? r = await AppServices.of(context)
         .dbs
-        .queryFinished(
+        .queryExtra(
             matchingRoutes?.map((route) => (route.id)).toList() ?? []);
     if (r == null) {
       return;
     }
-    Map<int, bool> finishesMap = Map.fromEntries(r.map(
-        (map) => (MapEntry(map["route"] as int, map["has_finished"] == 1))));
     setState(() {
-      finishedRoutes = finishesMap;
+      routeExtras = r;
     });
-  }
-
-  IconData? getFinishIcon(int routeId) {
-    bool? fin = finishedRoutes?[routeId];
-    if (fin == null) {
-      return null;
-    }
-    return fin ? Icons.check : null;
-  }
-
-  TableRow buildRoutesTableRow(DBRoute data) {
-    return TableRow(
-      children: [
-        buildRoutesTableCell(
-            Text(data.rope.toString()), (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(Text(timeDisplayFromTimestamp(AppServices.of(context).settings.smallDateFormat, data.date)),
-            (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(
-            Text(RouteGrade.fromDBValues(data.grade_num, data.grade_let)
-                .toString()),
-            (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(
-            Text(RouteColor.fromString(data.color ?? "").string),
-            (context) => AscentsPage(route: data)),
-        buildRoutesTableCell(Icon(getFinishIcon(data.id)),
-            (context) => AscentsPage(route: data)),
-        InkWell(
-          onTap: () => (
-            Navigator.push(
-              context,
-              cnPageTransition(AddAscentPage(route: data)),
-            ),
-          ),
-          child: const Icon(Icons.add),
-        ),
-      ].map(padCell).toList(),
-    );
-  }
-
-  Widget buildRoutesTableCell(
-      Widget cellContents, Widget Function(BuildContext)? navBuilder) {
-    return InkWell(
-      child: cellContents,
-      onTap: () => navBuilder == null
-          ? () => ()
-          : Navigator.push(
-              context,
-              MaterialPageRoute(builder: navBuilder),
-            ),
-    );
-  }
-
-  Table buildRoutesTable() {
-    return Table(
-      border: TableBorder.all(color: themeTextColor(context)),
-      children: [
-            TableRow(
-                // header row
-                children: <Widget>[
-                  const Text("Rope #"),
-                  const Text("Set date"),
-                  const Text("Grade"),
-                  const Text("Color"),
-                  const Text("Finished"),
-                  const Text("Ascent"),
-                ].map(padCell).toList(),
-                decoration: BoxDecoration(color: contrastingSurface(context))),
-          ] +
-          (matchingRoutes?.map(buildRoutesTableRow).toList() ?? []),
-    );
   }
 
   void clearData() {
@@ -216,9 +144,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                   ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Container(
-                    child: buildRoutesTable(),
-                  ),
+                  child: RoutesTableWithExtra(data: routeExtras ?? []),
                 ),
               ],
             ),

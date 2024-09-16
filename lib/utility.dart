@@ -29,11 +29,25 @@ bool? intToBool(int? i) {
   return i == 1 ? true : false;
 }
 
+bool? parseFinWithRest(int? i) {
+  if (i == null) {
+    return true;
+  }
+  return i == 0 ? true : false;
+}
+
 String getTimestamp() {
   return DateTime.now().toUtc().toIso8601String();
 }
 
 DateTime timeFromTimestamp(String s) {
+  return DateTime.parse(s);
+}
+
+DateTime? timeFromTimestampNullable(String? s) {
+  if (s == null) {
+    return null;
+  }
   return DateTime.parse(s);
 }
 

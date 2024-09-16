@@ -58,16 +58,22 @@ class DatabaseService {
     ).then((value) => (value.map(DBAscent.fromMap).toList()));
   }
 
-  Future<List<Map<String, Object?>>?> queryFinished(List<int> routeIds) async {
+  Future<List<DBRouteExtra>?> queryExtra(List<int> routeIds) async {
     checkDB();
     String q = """
-      SELECT route,
-            MAX(CASE WHEN finished = 1 THEN 1 ELSE 0 END) AS has_finished
-      FROM Ascents
-      WHERE route IN (${List.filled(routeIds.length, "?").join(", ")}) 
-      GROUP BY route;
+      SELECT
+        Routes.*,
+        SUM(Ascents.finished) as finished,
+        MAX(Ascents.date) as ascent_date,
+        MIN(CASE WHEN Ascents.finished = 1 THEN COALESCE(Ascents.rested, 0) ELSE 1 END) AS fin_with_rest
+      FROM Routes
+      JOIN Ascents
+      ON Routes.id = Ascents.route
+      WHERE Routes.id IN (${List.filled(routeIds.length, "?").join(", ")})
+      GROUP BY Routes.id
     """;
-    return await db?.rawQuery(q, routeIds);
+    List<Map<String, Object?>>? res =  await db?.rawQuery(q, routeIds);
+    return res?.map(DBRouteExtra.fromMap).toList();
   }
 
   Future<List<DBRoute>?> queryRoutes(SmallDateFormat format, DBRoute routeInfo) async {

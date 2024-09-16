@@ -40,6 +40,11 @@ enum RouteColor {
       return nocolor;
     }
   }
+
+  @override
+  String toString() {
+    return string;
+  }
 }
 
 enum SmallDateFormat {
@@ -116,6 +121,20 @@ class DBRoute {
     );
   }
 
+  factory DBRoute.fromExtra(DBRouteExtra original) {
+    return DBRoute(
+      original.id,
+      original.created.toUtc().toIso8601String(),
+      original.updated.toUtc().toIso8601String(),
+      original.rope,
+      original.date?.toUtc().toIso8601String(),
+      original.color.toString(),
+      original.grade?.afterDecimal,
+      original.grade?.letter,
+      original.notes,
+    );
+  }
+
   factory DBRoute.fromMap(Map<String, Object?> map) {
     return DBRoute(
       map['id'] as int,
@@ -162,6 +181,38 @@ class DBRoute {
   }
 }
 
+class DBRouteExtra {
+  int id;
+  DateTime created;
+  DateTime updated;
+  int? rope;
+  DateTime? date;
+  RouteColor? color;
+  RouteGrade? grade;
+  String? notes;
+  bool? finished;
+  DateTime? lastAscentDate;
+  bool? finWithoutRest;
+
+  DBRouteExtra({required this.id, required this.created, required this.updated, this.rope, this.date, this.color, this.grade, this.notes, this.finished, this.lastAscentDate, this.finWithoutRest});
+
+  factory DBRouteExtra.fromMap(Map<String, Object?> map) {
+    return DBRouteExtra(
+      id: (map['id'] as int),
+      created: timeFromTimestamp(map['created'] as String),
+      updated: timeFromTimestamp(map['updated'] as String),
+      rope: (map['rope'] as int?),
+      date: timeFromTimestampNullable(map['date'] as String?),
+      color: RouteColor.fromString((map['color'] as String?) ?? ""),
+      grade: RouteGrade.fromDBValues(map['grade_num'] as int?, map['grade_let'] as String?),
+      notes: (map['notes'] as String?),
+      finished: intToBool(map['finished'] as int?),
+      lastAscentDate: timeFromTimestampNullable(map['ascent_date'] as String?),
+      finWithoutRest: parseFinWithRest(map['fin_with_rest'] as int?),
+    );
+  }
+}
+
 class DBAscent {
   int id;
   String created;
@@ -198,6 +249,7 @@ class DBAscent {
       original.notes,
     );
   }
+  
 
   List<dynamic> toList({bool? includeId}) {
     List<dynamic> list = ((includeId ?? false) ? [id] : []) + [
