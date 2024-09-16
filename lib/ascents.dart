@@ -28,7 +28,6 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
     GlobalKey<InputRowState>(),
     GlobalKey<InputRowState>(),
   ];
-  GlobalKey<DropdownRowState> dropdownRowKey = GlobalKey<DropdownRowState>();
 
   _AscentsPageState(this.route) : cancelUpdateRoute = DBRoute.of(route); 
 
@@ -158,8 +157,6 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
         key.currentState
             ?.setState(() => (key.currentState?.locked = lockInputs));
       }
-      dropdownRowKey.currentState
-          ?.setState(() => (dropdownRowKey.currentState?.locked = lockInputs));
       getTableData();
     });
   }
@@ -173,8 +170,6 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
         key.currentState
             ?.setState(() => (key.currentState?.locked = lockInputs));
       }
-      dropdownRowKey.currentState
-          ?.setState(() => (dropdownRowKey.currentState?.locked = lockInputs));
       getTableData();
     });
   }
@@ -335,8 +330,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                   },
                 ),
                 DropdownRow(
-                  key: dropdownRowKey,
-                  initialValue: RouteColor.fromString(route.color ?? ""),
+                  value: RouteColor.fromString(route.color ?? ""),
                   locked: lockInputs,
                   onSelected: (RouteColor? value) {
                     setState(() {

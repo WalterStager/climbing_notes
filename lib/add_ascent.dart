@@ -139,7 +139,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                   locked: true,
                 ),
                 DropdownRow(
-                  initialValue: RouteColor.fromString(route.color ?? ""),
+                  value: RouteColor.fromString(route.color ?? ""),
                   locked: true,
                 ),
                 const ClimbingNotesLabel("Route notes:"),

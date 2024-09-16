@@ -1,8 +1,6 @@
-import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:flutter/material.dart';
 import 'builders.dart';
-import 'ascents.dart';
 import 'data_structures.dart';
 import 'package:climbing_notes/utility.dart';
 
@@ -250,7 +248,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                       });
                     }),
                 DropdownRow(
-                  initialValue: RouteColor.fromString(route.color ?? ""),
+                  value: RouteColor.fromString(route.color ?? ""),
                   onSelected: (RouteColor? value) {
                     setState(() {
                       route.color =

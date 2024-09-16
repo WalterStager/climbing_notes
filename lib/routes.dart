@@ -1,9 +1,7 @@
 import 'package:climbing_notes/main.dart';
 import 'package:climbing_notes/utility.dart';
-import 'package:climbing_notes/add_ascent.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:flutter/material.dart';
-import 'ascents.dart';
 import 'builders.dart';
 import 'data_structures.dart';
 
@@ -17,7 +15,6 @@ class RoutesPage extends StatefulWidget {
 class _RoutesPageState extends State<RoutesPage> with RouteAware {
   DBRoute queryInfo = DBRoute(0, "", "", null, null, null, null, null, null);
   List<GlobalKey<InputRowState>> inputRowKeys = [GlobalKey<InputRowState>(), GlobalKey<InputRowState>(), GlobalKey<InputRowState>()];
-  GlobalKey<DropdownRowState> dropdownRowKey = GlobalKey<DropdownRowState>();
   List<DBRoute>? matchingRoutes;
   List<DBRouteExtra>? routeExtras;
 
@@ -78,7 +75,6 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
       for (var key in inputRowKeys) {
         key.currentState?.controller.clear();
       }
-      dropdownRowKey.currentState?.controller.clear();
       updateTableData();
     });
   }
@@ -132,8 +128,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                   });
                 }),
                 DropdownRow(
-                    key: dropdownRowKey,
-                    initialValue: RouteColor.fromString(queryInfo.color ?? ""),
+                    value: RouteColor.fromString(queryInfo.color ?? ""),
                     onSelected: (RouteColor? value) {
                       setState(() {
                         queryInfo.color =

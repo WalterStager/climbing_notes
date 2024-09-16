@@ -182,33 +182,26 @@ Color contrastingThemeTextColor(BuildContext context) {
   }
 }
 
-class DropdownRow extends StatefulWidget {
-  final RouteColor initialValue;
+class DropdownRow extends StatelessWidget {
+  final RouteColor value;
   final Function(RouteColor?)? onSelected;
   final bool? locked;
 
-  DropdownRow(
-      {super.key, required this.initialValue, this.onSelected, this.locked});
 
-  @override
-  State<StatefulWidget> createState() => DropdownRowState(
-        initialValue: initialValue,
-        onSelected: onSelected,
-        locked: locked,
-      );
-}
+  const DropdownRow({super.key, required this.value, this.locked, this.onSelected});
 
-class DropdownRowState extends State<StatefulWidget> {
-  RouteColor initialValue;
-  Function(RouteColor?)? onSelected;
-  bool? locked;
-  TextEditingController controller;
-
-  DropdownRowState({required this.initialValue, this.onSelected, this.locked})
-      : controller = TextEditingController(text: initialValue.string);
+  DropdownMenuItem<RouteColor> makeMenuEntry(RouteColor rc) {
+    return DropdownMenuItem(
+      value: rc,
+      child: Text(rc.toString()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    List<DropdownMenuItem<RouteColor>>? itemss = RouteColor.values.map<DropdownMenuItem<RouteColor>>(makeMenuEntry).toList();
+    log(itemss.length.toString());
+    
     return Padding(
       padding: paddingAroundInputBox,
       child: Row(
@@ -219,29 +212,27 @@ class DropdownRowState extends State<StatefulWidget> {
           ),
           Padding(
             padding: paddingInsideInputBox,
-            child: DropdownMenu<RouteColor>(
-              controller: controller,
-              enabled: !(locked ?? false),
-              initialSelection: initialValue,
-              inputDecorationTheme: InputDecorationTheme(
-                contentPadding:
-                    paddingInsideInputBox,
-                border: const OutlineInputBorder(),
-                disabledBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Theme.of(context).disabledColor)),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: (locked ?? false) ? Theme.of(context).disabledColor : Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.circular(4),
               ),
-              textStyle: (locked ?? false)
-                  ? TextStyle(color: Theme.of(context).disabledColor)
-                  : null,
-              dropdownMenuEntries: RouteColor.values
-                  .map<DropdownMenuEntry<RouteColor>>((RouteColor value) {
-                return DropdownMenuEntry<RouteColor>(
-                    value: value,
-                    label: value.string,
-                  );
-              }).toList(),
-              onSelected: onSelected,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<RouteColor>(
+                  items: itemss,
+                  onChanged: (locked ?? false) ? null : onSelected,
+                  value: value,
+                  padding: paddingInsideInputBox,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  icon: Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 8),
+                    child: Icon(
+                      Icons.arrow_drop_down,
+                      color: (locked ?? false) ? Theme.of(context).disabledColor : Theme.of(context).dividerColor,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
