@@ -50,18 +50,18 @@ class ClimbingNotesMaterialApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        navigatorObservers: [AppServices.of(context).robs],
-        title: 'Climbing Notes',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.lightGreen.shade600, //SystemTheme.accentColor.accent,
-              brightness: MediaQuery.platformBrightnessOf(context)),
-          useMaterial3: true,
-        ),
-        home: const LoadingScreen(),
-      );
+      navigatorObservers: [AppServices.of(context).robs],
+      title: 'Climbing Notes',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+            seedColor:
+                Colors.lightGreen.shade600, //SystemTheme.accentColor.accent,
+            brightness: MediaQuery.platformBrightnessOf(context)),
+        useMaterial3: true,
+      ),
+      home: const LoadingScreen(),
+    );
   }
-
 }
 
 class LoadingScreen extends StatefulWidget {
@@ -77,7 +77,6 @@ class LoadingScreenState extends State<LoadingScreen> {
 
   @override
   void initState() {
-
     super.initState();
   }
 
@@ -89,27 +88,26 @@ class LoadingScreenState extends State<LoadingScreen> {
   Widget build(BuildContext context) {
     if (!AppServices.of(context).dbs.startedLoad) {
       servicesFuture = startDatabaseService();
-      delay = Future.delayed(const Duration(milliseconds:0));
+      delay = Future.delayed(const Duration(milliseconds: 0));
     }
 
-    List<Future<void>> futures = [servicesFuture, delay].whereType<Future<void>>().toList();
+    List<Future<void>> futures =
+        [servicesFuture, delay].whereType<Future<void>>().toList();
 
     return FutureBuilder(
-      future: Future.wait(futures),
-      builder: (innerContext, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return const RoutesPage();
-        }
-        else {
-          // TODO modify this animation
-          // 1. return a future so that you can end the loading screen in sync with the animation cycle
-          // 2. make the background color sync with theme (currently its always black, "people" who use light theme still deserve consistency)
-          // 3. add app name below animation
-          return LoadingAnimationWidget.dotsTriangle(
-                    color: Theme.of(context).colorScheme.primary, size: 200);
-        }
-      }
-    );
+        future: Future.wait(futures),
+        builder: (innerContext, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return const RoutesPage();
+          } else {
+            // TODO modify this animation
+            // 1. return a future so that you can end the loading screen in sync with the animation cycle
+            // 2. make the background color sync with theme (currently its always black, "people" who use light theme still deserve consistency)
+            // 3. add app name below animation
+            return LoadingAnimationWidget.dotsTriangle(
+                color: Theme.of(context).colorScheme.primary, size: 200);
+          }
+        });
   }
 }
 
@@ -117,7 +115,8 @@ class AppServices extends InheritedWidget {
   AppServices({super.key, required super.child});
 
   final DatabaseService dbs = DatabaseService();
-  final RouteObserver<ModalRoute<void>> robs = RouteObserver<ModalRoute<void>>();
+  final RouteObserver<ModalRoute<void>> robs =
+      RouteObserver<ModalRoute<void>>();
   final AppSettings settings = AppSettings();
   final OCRService ocr = OCRService();
 
@@ -130,7 +129,10 @@ class AppServices extends InheritedWidget {
 
   @override
   bool updateShouldNotify(AppServices oldWidget) {
-    return dbs != oldWidget.dbs || robs != oldWidget.robs || settings != oldWidget.settings || ocr != oldWidget.ocr;
+    return dbs != oldWidget.dbs ||
+        robs != oldWidget.robs ||
+        settings != oldWidget.settings ||
+        ocr != oldWidget.ocr;
   }
 
   static AppServices? maybeOf(BuildContext context) {

@@ -28,7 +28,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
     GlobalKey<InputRowState>(),
   ];
 
-  _AscentsPageState(this.route) : cancelUpdateRoute = DBRoute.of(route); 
+  _AscentsPageState(this.route) : cancelUpdateRoute = DBRoute.of(route);
 
   @override
   void didChangeDependencies() {
@@ -90,8 +90,7 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
         errorPopup("Update unsuccessful");
       } else if (res == -1) {
         errorPopup("Nothing to update");
-      }
-      else {
+      } else {
         errorPopup("Updated");
       }
     }
@@ -116,11 +115,14 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
       });
       inputRowKeys[1].currentState?.setState(() {
         inputRowKeys[1].currentState?.locked = lockInputs;
-        inputRowKeys[1].currentState?.controller.text = timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, route.date);
+        inputRowKeys[1].currentState?.controller.text =
+            timeDisplayFromTimestampSafe(
+                AppServices.of(context).settings.smallDateFormat, route.date);
       });
       inputRowKeys[2].currentState?.setState(() {
         inputRowKeys[2].currentState?.locked = lockInputs;
-        inputRowKeys[2].currentState?.controller.text = RouteGrade.fromDBValues(route.gradeNum, route.gradeLet).toString();
+        inputRowKeys[2].currentState?.controller.text =
+            RouteGrade.fromDBValues(route.gradeNum, route.gradeLet).toString();
       });
       inputRowKeys[3].currentState?.setState(() {
         inputRowKeys[3].currentState?.locked = lockInputs;
@@ -212,7 +214,9 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                 InputRow(
                   key: inputRowKeys[1],
                   label: "Set date:",
-                  initialValue: timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, route.date),
+                  initialValue: timeDisplayFromTimestampSafe(
+                      AppServices.of(context).settings.smallDateFormat,
+                      route.date),
                   locked: lockInputs,
                   onChanged: (String? value) {
                     setState(() {
@@ -252,16 +256,15 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                 ),
                 const ClimbingNotesLabel("Notes:"),
                 InputRow(
-                  key: inputRowKeys[3],
-                  initialValue: route.notes,
-                  locked: lockInputs,
-                  onChanged: (String? value) {
-                    setState(() {
-                      route.notes = value;
-                      getTableData();
-                    });
-                  }
-                ),
+                    key: inputRowKeys[3],
+                    initialValue: route.notes,
+                    locked: lockInputs,
+                    onChanged: (String? value) {
+                      setState(() {
+                        route.notes = value;
+                        getTableData();
+                      });
+                    }),
                 Row(
                   children: [
                     OutlinedButton(
@@ -282,7 +285,10 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: AscentsTable(data: tableData ?? [], route: route,),
+                  child: AscentsTable(
+                    data: tableData ?? [],
+                    route: route,
+                  ),
                 ),
               ],
             ),

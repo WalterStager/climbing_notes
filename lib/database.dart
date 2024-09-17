@@ -35,8 +35,9 @@ class DatabaseService {
       offset: offset,
     );
   }
-  
-  Future<DatabaseTable?> queryRecentlyUpdated(String table, int limit, int offset) async {
+
+  Future<DatabaseTable?> queryRecentlyUpdated(
+      String table, int limit, int offset) async {
     checkDB();
     return await db?.query(
       table,
@@ -72,11 +73,12 @@ class DatabaseService {
       WHERE Routes.id IN (${List.filled(routeIds.length, "?").join(", ")})
       GROUP BY Routes.id
     """;
-    List<Map<String, Object?>>? res =  await db?.rawQuery(q, routeIds);
+    List<Map<String, Object?>>? res = await db?.rawQuery(q, routeIds);
     return res?.map(DBRouteExtra.fromMap).toList();
   }
 
-  Future<List<DBRoute>?> queryRoutes(SmallDateFormat format, DBRoute routeInfo) async {
+  Future<List<DBRoute>?> queryRoutes(
+      SmallDateFormat format, DBRoute routeInfo) async {
     checkDB();
     List<String> queryElements = List<String>.empty(growable: true);
     List<Object?> queryParameters = List<Object>.empty(growable: true);
@@ -89,7 +91,8 @@ class DatabaseService {
       if (canBePromoted != null) {
         likelySetDate = likelyTimeFromTimeDisplay(format, canBePromoted);
         if (likelySetDate != null) {
-            queryOrderClause = "abs(julianday(date) - julianday('${likelySetDate.toUtc().toIso8601String()}'))";
+          queryOrderClause =
+              "abs(julianday(date) - julianday('${likelySetDate.toUtc().toIso8601String()}'))";
         }
       }
     }
@@ -121,20 +124,23 @@ class DatabaseService {
       queryWhereClause = queryElements.join(" AND ");
     }
 
-    return await db?.query(
-      "Routes",
-      orderBy: queryOrderClause,
-      where: queryWhereClause,
-      limit: 20,
-      offset: 0,
-      whereArgs: queryParameters,
-    ).then((value) => (value.map(DBRoute.fromMap).toList()));
+    return await db
+        ?.query(
+          "Routes",
+          orderBy: queryOrderClause,
+          where: queryWhereClause,
+          limit: 20,
+          offset: 0,
+          whereArgs: queryParameters,
+        )
+        .then((value) => (value.map(DBRoute.fromMap).toList()));
   }
 
   Future<AppSettings?> settingsGetOrInsert(AppSettings settings) async {
     checkDB();
 
-    List<Map<String, Object?>>? res = await db?.rawQuery("SELECT * FROM Settings");
+    List<Map<String, Object?>>? res =
+        await db?.rawQuery("SELECT * FROM Settings");
     if (res == null) {
       log("Got null result when checking if settings exists. I thought this was impossible.");
       return null;
@@ -153,12 +159,14 @@ class DatabaseService {
 
   Future<int?> settingsUpdate(AppSettings settings) async {
     checkDB();
-    return await db?.update("Settings", settings.toMap(), where: "id = ?", whereArgs: [settings.id]);
+    return await db?.update("Settings", settings.toMap(),
+        where: "id = ?", whereArgs: [settings.id]);
   }
 
   Future<int?> routeInsert(DBRoute route) async {
     checkDB();
-    List<Map<String, Object?>>? res = await db?.rawQuery("SELECT EXISTS(SELECT 1 FROM Routes WHERE rope='${route.rope}' AND date='${route.date}' LIMIT 1) AS does_exist");
+    List<Map<String, Object?>>? res = await db?.rawQuery(
+        "SELECT EXISTS(SELECT 1 FROM Routes WHERE rope='${route.rope}' AND date='${route.date}' LIMIT 1) AS does_exist");
     if (res == null) {
       log("Got null result when checking if route exists. I thought this was impossible.");
       return null;
@@ -166,7 +174,7 @@ class DatabaseService {
     if (res.first["does_exist"] == 1) {
       return null;
     }
-    
+
     return await db?.insert("Routes", route.toMap());
   }
 
@@ -177,7 +185,9 @@ class DatabaseService {
 
   Future<int?> routeUpdate(DBRoute newR) async {
     checkDB();
-    DBRoute? oldR = await db?.query("Routes", where: "id = ?", whereArgs: [newR.id]).then((value) => (value.map(DBRoute.fromMap).toList().firstOrNull));
+    DBRoute? oldR = await db?.query("Routes", where: "id = ?", whereArgs: [
+      newR.id
+    ]).then((value) => (value.map(DBRoute.fromMap).toList().firstOrNull));
     if (oldR == null) {
       return null;
     }
@@ -205,14 +215,17 @@ class DatabaseService {
 
     if (updateElements.isNotEmpty) {
       updateElements["updated"] = getTimestamp();
-      return await db?.update("Routes", updateElements, where: "id = ?", whereArgs: [newR.id]);
+      return await db?.update("Routes", updateElements,
+          where: "id = ?", whereArgs: [newR.id]);
     }
     return -1;
   }
 
   Future<int?> ascentUpdate(DBAscent newA) async {
     checkDB();
-    DBAscent? oldA = await db?.query("Ascents", where: "id = ?", whereArgs: [newA.id]).then((value) => (value.map(DBAscent.fromMap).toList().firstOrNull));
+    DBAscent? oldA = await db?.query("Ascents", where: "id = ?", whereArgs: [
+      newA.id
+    ]).then((value) => (value.map(DBAscent.fromMap).toList().firstOrNull));
     if (oldA == null) {
       return null;
     }
@@ -234,7 +247,8 @@ class DatabaseService {
 
     if (updateElements.isNotEmpty) {
       updateElements["updated"] = getTimestamp();
-      return await db?.update("Ascents", updateElements, where: "id = ?", whereArgs: [newA.id]);
+      return await db?.update("Ascents", updateElements,
+          where: "id = ?", whereArgs: [newA.id]);
     }
     return 0;
   }
@@ -251,20 +265,23 @@ class DatabaseService {
 
   Future<int?> deleteAscents(List<int> ascentIds) async {
     checkDB();
-    return await db?.delete("Ascents", where: "id IN (${List.filled(ascentIds.length, "?").join(", ")})", whereArgs: ascentIds);
+    return await db?.delete("Ascents",
+        where: "id IN (${List.filled(ascentIds.length, "?").join(", ")})",
+        whereArgs: ascentIds);
   }
 
   Future<void> createTables() async {
     checkDB();
-    List<String> createTablesStatements = ["""
+    List<String> createTablesStatements = [
+      """
     PRAGMA user_version = ${pi?.buildNumber ?? 0};
     """,
-    """
+      """
     CREATE TABLE IF NOT EXISTS Settings (
       id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       date_format TEXT
     );""",
-    """
+      """
     CREATE TABLE IF NOT EXISTS Routes (
       id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       created   TEXT NOT NULL,
@@ -276,7 +293,7 @@ class DatabaseService {
       grade_let TEXT,
       notes     TEXT
     );""",
-    """
+      """
     CREATE TABLE IF NOT EXISTS Ascents (
       id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       created   TEXT NOT NULL,
@@ -287,7 +304,8 @@ class DatabaseService {
       rested    INT,
       notes     TEXT
     );
-    """];
+    """
+    ];
 
     // ignore: avoid_function_literals_in_foreach_calls
     createTablesStatements.forEach((statement) async {

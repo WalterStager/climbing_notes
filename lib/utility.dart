@@ -52,7 +52,6 @@ DateTime? timeFromTimestampNullable(String? s) {
   return DateTime.parse(s);
 }
 
-
 String timeDisplayFromTimestampSafe(SmallDateFormat format, String? s) {
   try {
     return timeDisplayFromTimestamp(format, s);

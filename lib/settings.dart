@@ -76,18 +76,17 @@ class _SettingsPageState extends State<SettingsPage> {
   void importCSV() {
     errorPopup("Not implemented");
   }
-  
+
   void exportCSV() {
     errorPopup("Not implemented");
   }
 
   Future<void> exportDB() async {
     Directory? downloadsDir;
-    
+
     if (Platform.isAndroid) {
       downloadsDir = Directory("/storage/emulated/0/Download/");
-    }
-    else {
+    } else {
       downloadsDir = await getDownloadsDirectory();
     }
     if (downloadsDir == null) {
@@ -101,27 +100,20 @@ class _SettingsPageState extends State<SettingsPage> {
     log(databsePath);
     log(savePath);
 
-    await Permission.manageExternalStorage
-      .onDeniedCallback(() {
-        errorPopup("Couldn't save database, permissions denied");
-      })
-      .onGrantedCallback(() async {
-        await File(databsePath).copy(savePath);
-        errorPopup("Database saved");
-      })
-      .onPermanentlyDeniedCallback(() {
-        errorPopup("Couldn't save database, permissions denied");
-      })
-      .onRestrictedCallback(() {
-        errorPopup("Couldn't save database, permissions denied");
-      })
-      .onLimitedCallback(() {
-        errorPopup("Couldn't save database, permissions denied");
-      })
-      .onProvisionalCallback(() {
-        errorPopup("Couldn't save database, permissions denied");
-      })
-      .request();
+    await Permission.manageExternalStorage.onDeniedCallback(() {
+      errorPopup("Couldn't save database, permissions denied");
+    }).onGrantedCallback(() async {
+      await File(databsePath).copy(savePath);
+      errorPopup("Database saved");
+    }).onPermanentlyDeniedCallback(() {
+      errorPopup("Couldn't save database, permissions denied");
+    }).onRestrictedCallback(() {
+      errorPopup("Couldn't save database, permissions denied");
+    }).onLimitedCallback(() {
+      errorPopup("Couldn't save database, permissions denied");
+    }).onProvisionalCallback(() {
+      errorPopup("Couldn't save database, permissions denied");
+    }).request();
   }
 
   @override
@@ -156,7 +148,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
-                const Divider(thickness: 3,),
+                const Divider(
+                  thickness: 3,
+                ),
                 Row(
                   children: [
                     OutlinedButton(

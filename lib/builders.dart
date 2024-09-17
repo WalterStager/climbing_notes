@@ -1,7 +1,6 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'package:climbing_notes/ascent_page.dart';
-import 'package:climbing_notes/ocr.dart';
 import 'package:climbing_notes/route_page.dart';
 import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
@@ -84,7 +83,8 @@ class ClimbingNotesDrawer extends StatelessWidget {
               leading: const Icon(Icons.camera_alt),
               title: const Text("Add route with image"),
               onTap: () async {
-                DBRoute? ocrRes = await AppServices.of(context).ocr.filePickerOcrAdd(context);
+                DBRoute? ocrRes =
+                    await AppServices.of(context).ocr.filePickerOcrAdd(context);
                 if (ocrRes != null) {
                   Navigator.pop(context);
                   Navigator.push(
@@ -108,32 +108,20 @@ class ClimbingNotesDrawer extends StatelessWidget {
               },
             ),
           ),
-          if (kDebugMode) InkWell(
-            child: ListTile(
-              leading: const Icon(Icons.account_tree_sharp),
-              title: const Text("DB View"),
-              onTap: () => {
-                Navigator.pop(context),
-                Navigator.push(
-                  context,
-                  cnPageTransition(const DatabaseViewPage()),
-                ),
-              },
+          if (kDebugMode)
+            InkWell(
+              child: ListTile(
+                leading: const Icon(Icons.account_tree_sharp),
+                title: const Text("DB View"),
+                onTap: () => {
+                  Navigator.pop(context),
+                  Navigator.push(
+                    context,
+                    cnPageTransition(const DatabaseViewPage()),
+                  ),
+                },
+              ),
             ),
-          ),
-          // InkWell(
-          //   child: ListTile(
-          //     leading: const Icon(Icons.camera),
-          //     title: const Text("Image import"),
-          //     onTap: () => {
-          //       Navigator.pop(context),
-          //       Navigator.push(
-          //         context,
-          //         cnPageTransition(const OCRPage()),
-          //       ),
-          //     },
-          //   ),
-          // ),
         ],
       ),
     );
@@ -217,8 +205,8 @@ class DropdownRow extends StatelessWidget {
   final Function(RouteColor?)? onSelected;
   final bool? locked;
 
-
-  const DropdownRow({super.key, required this.value, this.locked, this.onSelected});
+  const DropdownRow(
+      {super.key, required this.value, this.locked, this.onSelected});
 
   DropdownMenuItem<RouteColor> makeMenuEntry(RouteColor rc) {
     return DropdownMenuItem(
@@ -229,8 +217,10 @@ class DropdownRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<DropdownMenuItem<RouteColor>>? itemss = RouteColor.values.map<DropdownMenuItem<RouteColor>>(makeMenuEntry).toList();
-    
+    List<DropdownMenuItem<RouteColor>>? itemss = RouteColor.values
+        .map<DropdownMenuItem<RouteColor>>(makeMenuEntry)
+        .toList();
+
     return Padding(
       padding: paddingAroundInputBox,
       child: Row(
@@ -243,7 +233,10 @@ class DropdownRow extends StatelessWidget {
             padding: paddingInsideInputBox,
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: (locked ?? false) ? Theme.of(context).disabledColor : Theme.of(context).dividerColor),
+                border: Border.all(
+                    color: (locked ?? false)
+                        ? Theme.of(context).disabledColor
+                        : Theme.of(context).dividerColor),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: DropdownButtonHideUnderline(
@@ -257,7 +250,9 @@ class DropdownRow extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 16, right: 8),
                     child: Icon(
                       Icons.arrow_drop_down,
-                      color: (locked ?? false) ? Theme.of(context).disabledColor : Theme.of(context).dividerColor,
+                      color: (locked ?? false)
+                          ? Theme.of(context).disabledColor
+                          : Theme.of(context).dividerColor,
                     ),
                   ),
                 ),
@@ -323,13 +318,15 @@ class InputRowState extends State<StatefulWidget> {
       padding: paddingAroundInputBox,
       child: Row(
         children: [
-          if (label != null) Text(
-            label ?? "",
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          if (label != null)
+            Text(
+              label ?? "",
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
           Expanded(
             child: Padding(
-              padding: (label != null ? paddingInsideInputBox : EdgeInsets.zero) ,
+              padding:
+                  (label != null ? paddingInsideInputBox : EdgeInsets.zero),
               child: TextField(
                 enabled: !(locked ?? false),
                 readOnly: (locked ?? false),
@@ -337,8 +334,8 @@ class InputRowState extends State<StatefulWidget> {
                 onChanged: onChanged,
                 maxLength: maxLength,
                 decoration: InputDecoration(
-                    contentPadding:
-                        const EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+                    contentPadding: const EdgeInsets.only(
+                        top: 4, bottom: 4, left: 8, right: 8),
                     border: const OutlineInputBorder(),
                     disabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
@@ -402,47 +399,49 @@ class CheckboxRow extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Checkbox(
-            value: initialValue1, 
-            // fillColor: WidgetStateProperty.all((locked ?? false) ? Theme.of(context).disabledColor : null),
-            side: (locked ?? false) ? BorderSide(color: Theme.of(context).disabledColor) : null,
+            value: initialValue1,
+            side: (locked ?? false)
+                ? BorderSide(color: Theme.of(context).disabledColor)
+                : null,
             onChanged: (locked ?? false) ? null : onChanged1,
-            ),
+          ),
           Text(
             label2,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Checkbox(
-            value: initialValue2,
-            // fillColor: WidgetStateProperty.all((locked ?? false) ? Theme.of(context).disabledColor : null),
-            side: (locked ?? false) ? BorderSide(color: Theme.of(context).disabledColor) : null,
-            onChanged: (locked ?? false) ? null : onChanged2
-          ),
+              value: initialValue2,
+              side: (locked ?? false)
+                  ? BorderSide(color: Theme.of(context).disabledColor)
+                  : null,
+              onChanged: (locked ?? false) ? null : onChanged2),
         ],
       ),
     );
   }
 }
 
-
 class RoutesTableWithExtra extends StatelessWidget {
   final List<DBRouteExtra> data;
 
   const RoutesTableWithExtra({super.key, required this.data});
-  
-  Widget buildInkwell(BuildContext context, DBRouteExtra rowData, Widget child) {
-      return TableRowInkWell(
-        onTap: () {
-          Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AscentsPage(route: DBRoute.fromExtra(rowData))));
-        },
-        child: child,
-      );
+
+  Widget buildInkwell(
+      BuildContext context, DBRouteExtra rowData, Widget child) {
+    return TableRowInkWell(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    AscentsPage(route: DBRoute.fromExtra(rowData))));
+      },
+      child: child,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-
     List<TableRow> rows = [
       TableRow(
         // header row
@@ -459,26 +458,35 @@ class RoutesTableWithExtra extends StatelessWidget {
       ),
     ];
 
-    rows.addAll(
-      data.map((DBRouteExtra rowData) {
-        return TableRow(
-          children: <Widget>[
-            buildInkwell(context, rowData, Text(rowData.rope.toString())),
-            buildInkwell(context, rowData, Text(timeDisplayFromDateTime(AppServices.of(context).settings.smallDateFormat, rowData.date))),
-            buildInkwell(context, rowData, Text(rowData.grade.toString())),
-            buildInkwell(context, rowData, Text(rowData.color.toString())),
-            buildInkwell(context, rowData, Icon((rowData.finished ?? false) ? Icons.check : null)),
-            buildInkwell(context, rowData, Icon((rowData.finWithoutRest ?? false) ? Icons.check : null)),
-            buildInkwell(context, rowData, Text(timeDisplayFromDateTime(AppServices.of(context).settings.smallDateFormat, rowData.lastAscentDate))),
-          ].map(padCell).toList(),
-        );
-      })
-    );
+    rows.addAll(data.map((DBRouteExtra rowData) {
+      return TableRow(
+        children: <Widget>[
+          buildInkwell(context, rowData, Text(rowData.rope.toString())),
+          buildInkwell(
+              context,
+              rowData,
+              Text(timeDisplayFromDateTime(
+                  AppServices.of(context).settings.smallDateFormat,
+                  rowData.date))),
+          buildInkwell(context, rowData, Text(rowData.grade.toString())),
+          buildInkwell(context, rowData, Text(rowData.color.toString())),
+          buildInkwell(context, rowData,
+              Icon((rowData.finished ?? false) ? Icons.check : null)),
+          buildInkwell(context, rowData,
+              Icon((rowData.finWithoutRest ?? false) ? Icons.check : null)),
+          buildInkwell(
+              context,
+              rowData,
+              Text(timeDisplayFromDateTime(
+                  AppServices.of(context).settings.smallDateFormat,
+                  rowData.lastAscentDate))),
+        ].map(padCell).toList(),
+      );
+    }));
 
     return Table(
-      border: TableBorder.all(color: themeTextColor(context)),
-      children: rows
-    );
+        border: TableBorder.all(color: themeTextColor(context)),
+        children: rows);
   }
 }
 
@@ -489,14 +497,16 @@ class AscentsTable extends StatelessWidget {
   const AscentsTable({super.key, required this.route, required this.data});
 
   Widget buildInkwell(BuildContext context, DBAscent rowData, Widget child) {
-      return TableRowInkWell(
-        onTap: () {
-          Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AscentPage(providedRoute: route, providedAscent: rowData)));
-        },
-        child: child,
-      );
+    return TableRowInkWell(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    AscentPage(providedRoute: route, providedAscent: rowData)));
+      },
+      child: child,
+    );
   }
 
   @override
@@ -514,23 +524,30 @@ class AscentsTable extends StatelessWidget {
       ),
     ];
 
-    rows.addAll(
-      data.map((DBAscent rowData) {
-        return TableRow(
-          children: <Widget>[
-            buildInkwell(context, rowData, Text(timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, rowData.date))),
-            buildInkwell(context, rowData, Icon((intToBool(rowData.finished) ?? false) ? Icons.check : null)),
-            buildInkwell(context, rowData, Icon((intToBool(rowData.rested) ?? false) ? Icons.check : null)),
-            buildInkwell(context, rowData, Text(rowData.notes ?? "")),
-          ].map(padCell).toList(),
-        );
-      })
-    );
+    rows.addAll(data.map((DBAscent rowData) {
+      return TableRow(
+        children: <Widget>[
+          buildInkwell(
+              context,
+              rowData,
+              Text(timeDisplayFromTimestampSafe(
+                  AppServices.of(context).settings.smallDateFormat,
+                  rowData.date))),
+          buildInkwell(
+              context,
+              rowData,
+              Icon(
+                  (intToBool(rowData.finished) ?? false) ? Icons.check : null)),
+          buildInkwell(context, rowData,
+              Icon((intToBool(rowData.rested) ?? false) ? Icons.check : null)),
+          buildInkwell(context, rowData, Text(rowData.notes ?? "")),
+        ].map(padCell).toList(),
+      );
+    }));
 
     return Table(
-      border: TableBorder.all(color: themeTextColor(context)),
-      children: rows
-    );
+        border: TableBorder.all(color: themeTextColor(context)),
+        children: rows);
   }
 }
 

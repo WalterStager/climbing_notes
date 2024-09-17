@@ -3,12 +3,15 @@ import 'dart:developer';
 import 'package:climbing_notes/utility.dart';
 
 List<DBRoute> exampleRouteData = [
-  DBRoute(0, getTimestamp(), getTimestamp(), 22, "05/26", "Yellow", 11, 'a', "crimpy, the rest of an extremely long note on this climb, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA sdfs sd sd fd fsdl if jsldf jeihfnsl "),
-  DBRoute(1, getTimestamp(), getTimestamp(), 102, "12/31", "Green", 7, null, "slopers everywhere"),
+  DBRoute(0, getTimestamp(), getTimestamp(), 22, "05/26", "Yellow", 11, 'a',
+      "crimpy, the rest of an extremely long note on this climb, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA sdfs sd sd fd fsdl if jsldf jeihfnsl "),
+  DBRoute(1, getTimestamp(), getTimestamp(), 102, "12/31", "Green", 7, null,
+      "slopers everywhere"),
 ];
 
 List<DBAscent> exampleAscentData = [
-  DBAscent(0, getTimestamp(), getTimestamp(), 0, "01/01", 1, 0, "was very tough"),
+  DBAscent(
+      0, getTimestamp(), getTimestamp(), 0, "01/01", 1, 0, "was very tough"),
   DBAscent(1, getTimestamp(), getTimestamp(), 1, "02/23", 0, 1, "EZ now"),
 ];
 
@@ -36,7 +39,6 @@ enum RouteColor {
   red("Red"),
   white("White"),
   yellow("Yellow");
-  
 
   final String string;
 
@@ -45,8 +47,7 @@ enum RouteColor {
   factory RouteColor.fromString(String s) {
     try {
       return values.firstWhere((value) => value.string == s);
-    }
-    on StateError catch (err) {
+    } on StateError catch (err) {
       log("Error making RouteColor: $err");
       return nocolor;
     }
@@ -69,8 +70,7 @@ enum SmallDateFormat {
   factory SmallDateFormat.fromString(String s) {
     try {
       return values.firstWhere((value) => value.string == s);
-    }
-    on StateError catch (err) {
+    } on StateError catch (err) {
       log("Error making SmallDateFormat: $err");
       rethrow;
     }
@@ -104,7 +104,8 @@ class DBRoute {
   String? gradeLet;
   String? notes;
 
-  DBRoute(this.id, this.created, this.updated, this.rope, this.date, this.color, this.gradeNum, this.gradeLet, this.notes);
+  DBRoute(this.id, this.created, this.updated, this.rope, this.date, this.color,
+      this.gradeNum, this.gradeLet, this.notes);
 
   void clear() {
     id = 0;
@@ -205,7 +206,18 @@ class DBRouteExtra {
   DateTime? lastAscentDate;
   bool? finWithoutRest;
 
-  DBRouteExtra({required this.id, required this.created, required this.updated, this.rope, this.date, this.color, this.grade, this.notes, this.finished, this.lastAscentDate, this.finWithoutRest});
+  DBRouteExtra(
+      {required this.id,
+      required this.created,
+      required this.updated,
+      this.rope,
+      this.date,
+      this.color,
+      this.grade,
+      this.notes,
+      this.finished,
+      this.lastAscentDate,
+      this.finWithoutRest});
 
   factory DBRouteExtra.fromMap(Map<String, Object?> map) {
     return DBRouteExtra(
@@ -215,7 +227,8 @@ class DBRouteExtra {
       rope: (map['rope'] as int?),
       date: timeFromTimestampNullable(map['date'] as String?),
       color: RouteColor.fromString((map['color'] as String?) ?? ""),
-      grade: RouteGrade.fromDBValues(map['grade_num'] as int?, map['grade_let'] as String?),
+      grade: RouteGrade.fromDBValues(
+          map['grade_num'] as int?, map['grade_let'] as String?),
       notes: (map['notes'] as String?),
       finished: intToBool(map['finished'] as int?),
       lastAscentDate: timeFromTimestampNullable(map['ascent_date'] as String?),
@@ -234,7 +247,8 @@ class DBAscent {
   int? rested;
   String? notes;
 
-  DBAscent(this.id, this.created, this.updated, this.route, this.date, this.finished, this.rested, this.notes);
+  DBAscent(this.id, this.created, this.updated, this.route, this.date,
+      this.finished, this.rested, this.notes);
 
   void clear() {
     id = 0;
@@ -260,18 +274,18 @@ class DBAscent {
       original.notes,
     );
   }
-  
 
   List<dynamic> toList({bool? includeId}) {
-    List<dynamic> list = ((includeId ?? false) ? [id] : []) + [
-      created,
-      updated,
-      route,
-      date,
-      finished,
-      rested,
-      notes,
-    ];
+    List<dynamic> list = ((includeId ?? false) ? [id] : []) +
+        [
+          created,
+          updated,
+          route,
+          date,
+          finished,
+          rested,
+          notes,
+        ];
     return list;
   }
 

@@ -83,13 +83,16 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                 ),
                 InputRow(
                   label: "Set date:",
-                  initialValue: timeDisplayFromTimestamp(AppServices.of(context).settings.smallDateFormat, route.date),
+                  initialValue: timeDisplayFromTimestamp(
+                      AppServices.of(context).settings.smallDateFormat,
+                      route.date),
                   locked: true,
                 ),
                 InputRow(
                   label: "Grade:",
-                  initialValue: RouteGrade.fromDBValues(route.gradeNum, route.gradeLet)
-                      .toString(),
+                  initialValue:
+                      RouteGrade.fromDBValues(route.gradeNum, route.gradeLet)
+                          .toString(),
                   locked: true,
                 ),
                 DropdownRow(
@@ -97,9 +100,7 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                   locked: true,
                 ),
                 const ClimbingNotesLabel("Route notes:"),
-                InputRow(
-                  initialValue: route.notes ?? "",
-                  locked: true),
+                InputRow(initialValue: route.notes ?? "", locked: true),
                 const Divider(),
                 CheckboxRow(
                   "Finished:",
@@ -130,7 +131,10 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: AscentsTable(data: tableData ?? [], route: route,),
+                  child: AscentsTable(
+                    data: tableData ?? [],
+                    route: route,
+                  ),
                 ),
               ],
             ),

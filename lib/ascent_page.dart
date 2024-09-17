@@ -5,13 +5,15 @@ import 'data_structures.dart';
 import 'package:climbing_notes/utility.dart';
 
 class AscentPage extends StatefulWidget {
-  const AscentPage({super.key, required this.providedRoute, required this.providedAscent});
+  const AscentPage(
+      {super.key, required this.providedRoute, required this.providedAscent});
 
   final DBRoute providedRoute;
   final DBAscent providedAscent;
 
   @override
-  State<AscentPage> createState() => _AscentPageState(providedRoute, providedAscent);
+  State<AscentPage> createState() =>
+      _AscentPageState(providedRoute, providedAscent);
 }
 
 class _AscentPageState extends State<AscentPage> with RouteAware {
@@ -24,10 +26,10 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
     GlobalKey<InputRowState>(),
   ];
 
-  _AscentPageState(DBRoute providedRoute, DBAscent providedAscent) :
-    route = providedRoute,
-    ascent = providedAscent,
-    cancelUpdateAscent = DBAscent.of(providedAscent);
+  _AscentPageState(DBRoute providedRoute, DBAscent providedAscent)
+      : route = providedRoute,
+        ascent = providedAscent,
+        cancelUpdateAscent = DBAscent.of(providedAscent);
 
   void errorPopup(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -66,8 +68,7 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
         errorPopup("Update unsuccessful");
       } else if (res == -1) {
         errorPopup("Nothing to update");
-      }
-      else {
+      } else {
         errorPopup("Updated");
       }
     }
@@ -99,7 +100,9 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
       });
       inputRowKeys[1].currentState?.setState(() {
         inputRowKeys[1].currentState?.locked = lockInputs;
-        inputRowKeys[1].currentState?.controller.text = timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, ascent.date);
+        inputRowKeys[1].currentState?.controller.text =
+            timeDisplayFromTimestampSafe(
+                AppServices.of(context).settings.smallDateFormat, ascent.date);
       });
     });
   }
@@ -152,21 +155,26 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
           children: [
             Column(
               children: <Widget>[
-                InputRow(label: "Rope #:",
-                    inputType: TextInputType.datetime,
-                    initialValue: route.rope?.toString(),
-                    locked: true,
+                InputRow(
+                  label: "Rope #:",
+                  inputType: TextInputType.datetime,
+                  initialValue: route.rope?.toString(),
+                  locked: true,
                 ),
-                InputRow(label: "Set date:",
-                    inputType: TextInputType.datetime,
-                    initialValue: timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, route.date),
-                    locked: true,
+                InputRow(
+                  label: "Set date:",
+                  inputType: TextInputType.datetime,
+                  initialValue: timeDisplayFromTimestampSafe(
+                      AppServices.of(context).settings.smallDateFormat,
+                      route.date),
+                  locked: true,
                 ),
-                InputRow(label: "Grade:",
-                    inputType: TextInputType.text,
-                    initialValue:
-                        "${route.gradeNum ?? ""}${route.gradeLet ?? ""}",
-                    locked: true,
+                InputRow(
+                  label: "Grade:",
+                  inputType: TextInputType.text,
+                  initialValue:
+                      "${route.gradeNum ?? ""}${route.gradeLet ?? ""}",
+                  locked: true,
                 ),
                 DropdownRow(
                   value: RouteColor.fromString(route.color ?? ""),
@@ -181,7 +189,9 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
                 InputRow(
                   key: inputRowKeys[1],
                   label: "Ascent date:",
-                  initialValue: timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, ascent.date),
+                  initialValue: timeDisplayFromTimestampSafe(
+                      AppServices.of(context).settings.smallDateFormat,
+                      ascent.date),
                   locked: lockInputs,
                   onChanged: (String? value) {
                     setState(() {

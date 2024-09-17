@@ -14,7 +14,11 @@ class RoutesPage extends StatefulWidget {
 
 class _RoutesPageState extends State<RoutesPage> with RouteAware {
   DBRoute queryInfo = DBRoute(0, "", "", null, null, null, null, null, null);
-  List<GlobalKey<InputRowState>> inputRowKeys = [GlobalKey<InputRowState>(), GlobalKey<InputRowState>(), GlobalKey<InputRowState>()];
+  List<GlobalKey<InputRowState>> inputRowKeys = [
+    GlobalKey<InputRowState>(),
+    GlobalKey<InputRowState>(),
+    GlobalKey<InputRowState>()
+  ];
   List<DBRoute>? matchingRoutes;
   List<DBRouteExtra>? routeExtras;
 
@@ -44,7 +48,8 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
   }
 
   void updateTableData() async {
-    List<DBRoute>? r = await AppServices.of(context).dbs.queryRoutes(AppServices.of(context).settings.smallDateFormat, queryInfo);
+    List<DBRoute>? r = await AppServices.of(context).dbs.queryRoutes(
+        AppServices.of(context).settings.smallDateFormat, queryInfo);
 
     setState(() {
       matchingRoutes = r;
@@ -59,8 +64,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
     }
     List<DBRouteExtra>? r = await AppServices.of(context)
         .dbs
-        .queryExtra(
-            matchingRoutes?.map((route) => (route.id)).toList() ?? []);
+        .queryExtra(matchingRoutes?.map((route) => (route.id)).toList() ?? []);
     if (r == null) {
       return;
     }
@@ -90,53 +94,53 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
             Column(
               children: <Widget>[
                 InputRow(
-                  key: inputRowKeys[0],
-                  label: "Rope #:",
-                  inputType: TextInputType.datetime,
+                    key: inputRowKeys[0],
+                    label: "Rope #:",
+                    inputType: TextInputType.datetime,
                     onChanged: (String? value) {
-                  setState(() {
-                    queryInfo.rope = stringToInt(value);
-                    updateTableData();
-                  });
-                }),
-                InputRow(
-                  key: inputRowKeys[1],
-                  label: "Set date:",
-                  inputType: TextInputType.datetime,
-                    onChanged: (String? value) {
-                  setState(() {
-                    queryInfo.date = value;
-                    updateTableData();
-                  });
-                }),
-                InputRow(
-                  key: inputRowKeys[2],
-                  label: "Grade:",
-                  inputType: TextInputType.text,
-                    onChanged: (String? value) {
-                  setState(() {
-                    if (value == null) {
-                      queryInfo.gradeNum = null;
-                      queryInfo.gradeLet = null;
-                    } else {
-                      RegExpMatch? match = gradeExp.firstMatch(value);
-                      queryInfo.gradeNum =
-                          stringToInt(match?.namedGroup("num"));
-                      queryInfo.gradeLet = match?.namedGroup("let");
-                    }
-                    updateTableData();
-                  });
-                }),
-                DropdownRow(
-                    value: RouteColor.fromString(queryInfo.color ?? ""),
-                    onSelected: (RouteColor? value) {
                       setState(() {
-                        queryInfo.color =
-                            value == RouteColor.nocolor ? null : value?.string;
+                        queryInfo.rope = stringToInt(value);
                         updateTableData();
                       });
-                    },
-                  ),
+                    }),
+                InputRow(
+                    key: inputRowKeys[1],
+                    label: "Set date:",
+                    inputType: TextInputType.datetime,
+                    onChanged: (String? value) {
+                      setState(() {
+                        queryInfo.date = value;
+                        updateTableData();
+                      });
+                    }),
+                InputRow(
+                    key: inputRowKeys[2],
+                    label: "Grade:",
+                    inputType: TextInputType.text,
+                    onChanged: (String? value) {
+                      setState(() {
+                        if (value == null) {
+                          queryInfo.gradeNum = null;
+                          queryInfo.gradeLet = null;
+                        } else {
+                          RegExpMatch? match = gradeExp.firstMatch(value);
+                          queryInfo.gradeNum =
+                              stringToInt(match?.namedGroup("num"));
+                          queryInfo.gradeLet = match?.namedGroup("let");
+                        }
+                        updateTableData();
+                      });
+                    }),
+                DropdownRow(
+                  value: RouteColor.fromString(queryInfo.color ?? ""),
+                  onSelected: (RouteColor? value) {
+                    setState(() {
+                      queryInfo.color =
+                          value == RouteColor.nocolor ? null : value?.string;
+                      updateTableData();
+                    });
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: RoutesTableWithExtra(data: routeExtras ?? []),
@@ -163,7 +167,8 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
               onPressed: () => (
                 Navigator.push(
                   context,
-                  cnPageTransition(AddRoutePage(providedRoute: DBRoute.of(queryInfo))),
+                  cnPageTransition(
+                      AddRoutePage(providedRoute: DBRoute.of(queryInfo))),
                 ),
               ),
               tooltip: 'Add route',

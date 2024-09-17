@@ -66,8 +66,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
     }
     List<DBRouteExtra>? r = await AppServices.of(context)
         .dbs
-        .queryExtra(
-            matchingRoutes?.map((route) => (route.id)).toList() ?? []);
+        .queryExtra(matchingRoutes?.map((route) => (route.id)).toList() ?? []);
     if (r == null) {
       return;
     }
@@ -221,7 +220,9 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                 InputRow(
                     label: "Set date:",
                     inputType: TextInputType.datetime,
-                    initialValue: timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, route.date),
+                    initialValue: timeDisplayFromTimestampSafe(
+                        AppServices.of(context).settings.smallDateFormat,
+                        route.date),
                     onChanged: (String? value) {
                       setState(() {
                         route.date = value;
