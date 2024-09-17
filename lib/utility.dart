@@ -1,6 +1,7 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'package:climbing_notes/data_structures.dart';
+import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
 RegExp gradeExp = RegExp(r'^5?\.?(?<num>\d{1,2})?(?<let>[a-d])?$');
@@ -117,4 +118,16 @@ DateTime? likelyTimeFromTimeDisplay(SmallDateFormat format, String s) {
     }
   }
   return null;
+}
+
+DateTimeCellValue? dateTimeCellValueFromDateTime(DateTime? dt) {
+  return dt == null ? null : DateTimeCellValue(
+    year: dt.year,
+    month: dt.month,
+    day: dt.day,
+    hour: dt.hour,
+    minute: dt.minute,
+    second: dt.second,
+    millisecond: dt.millisecond,
+    microsecond: dt.microsecond);
 }

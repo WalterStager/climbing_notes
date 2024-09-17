@@ -27,7 +27,7 @@ class DatabaseService {
     }
   }
 
-  Future<DatabaseTable?> query(String table, int limit, int offset) async {
+  Future<DatabaseTable?> query(String table, int? limit, int? offset) async {
     checkDB();
     return await db?.query(
       table,
