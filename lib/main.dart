@@ -2,6 +2,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:climbing_notes/database.dart';
+import 'package:climbing_notes/ocr.dart';
 import 'package:climbing_notes/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -118,16 +119,18 @@ class AppServices extends InheritedWidget {
   final DatabaseService dbs = DatabaseService();
   final RouteObserver<ModalRoute<void>> robs = RouteObserver<ModalRoute<void>>();
   final AppSettings settings = AppSettings();
+  final OCRService ocr = OCRService();
 
   Future<void> start() async {
     await dbs.start();
+    await ocr.start();
     AppSettings? dbSettings = await dbs.settingsGetOrInsert(settings);
     settings.setTo((null == dbSettings) ? settings : dbSettings);
   }
 
   @override
   bool updateShouldNotify(AppServices oldWidget) {
-    return dbs != oldWidget.dbs;
+    return dbs != oldWidget.dbs || robs != oldWidget.robs || settings != oldWidget.settings || ocr != oldWidget.ocr;
   }
 
   static AppServices? maybeOf(BuildContext context) {

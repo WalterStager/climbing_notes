@@ -15,6 +15,17 @@ List<DBAscent> exampleAscentData = [
 // easier to read
 typedef DatabaseTable = List<Map<String, Object?>>;
 
+const List<String> colorStrings = [
+  "Black",
+  "Blue",
+  "Green",
+  "Pink",
+  "Purple",
+  "Red",
+  "White",
+  "Yellow",
+];
+
 enum RouteColor {
   nocolor(""),
   black("Black"),

@@ -4,6 +4,7 @@ import 'package:climbing_notes/data_structures.dart';
 import 'package:intl/intl.dart';
 
 RegExp gradeExp = RegExp(r'^5?\.?(?<num>\d{1,2})?(?<let>[a-d])?$');
+RegExp strictGradeExp = RegExp(r'^5\.(?<num>\d{1,2})(?<let>[a-d])?$');
 RegExp dateExp = RegExp(r'^(?<g1>\d{1,2})[^\w]?(?<g2>\d{1,2})?$');
 
 // returns null if input is null or its not a valid int

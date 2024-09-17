@@ -1,6 +1,7 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'package:climbing_notes/ascent_page.dart';
+import 'package:climbing_notes/ocr.dart';
 import 'package:climbing_notes/route_page.dart';
 import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
@@ -80,6 +81,22 @@ class ClimbingNotesDrawer extends StatelessWidget {
           ),
           InkWell(
             child: ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text("Add route with image"),
+              onTap: () async {
+                DBRoute? ocrRes = await AppServices.of(context).ocr.filePickerOcrAdd(context);
+                if (ocrRes != null) {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    cnPageTransition(AddRoutePage(providedRoute: ocrRes)),
+                  );
+                }
+              },
+            ),
+          ),
+          InkWell(
+            child: ListTile(
               leading: const Icon(Icons.settings),
               title: const Text("Settings"),
               onTap: () => {
@@ -91,20 +108,32 @@ class ClimbingNotesDrawer extends StatelessWidget {
               },
             ),
           ),
-          if (kDebugMode)
-            InkWell(
-              child: ListTile(
-                leading: const Icon(Icons.account_tree_sharp),
-                title: const Text("DB View"),
-                onTap: () => {
-                  Navigator.pop(context),
-                  Navigator.push(
-                    context,
-                    cnPageTransition(const DatabaseViewPage()),
-                  ),
-                },
-              ),
+          if (kDebugMode) InkWell(
+            child: ListTile(
+              leading: const Icon(Icons.account_tree_sharp),
+              title: const Text("DB View"),
+              onTap: () => {
+                Navigator.pop(context),
+                Navigator.push(
+                  context,
+                  cnPageTransition(const DatabaseViewPage()),
+                ),
+              },
             ),
+          ),
+          // InkWell(
+          //   child: ListTile(
+          //     leading: const Icon(Icons.camera),
+          //     title: const Text("Image import"),
+          //     onTap: () => {
+          //       Navigator.pop(context),
+          //       Navigator.push(
+          //         context,
+          //         cnPageTransition(const OCRPage()),
+          //       ),
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );

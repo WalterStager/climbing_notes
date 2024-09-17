@@ -40,6 +40,10 @@ dependencies:
   sqflite_common_ffi: ^2.3.3
   page_transition: ^2.1.0
   permission_handler: ^11.3.1
+  file_picker: ^8.1.2
+  google_mlkit_text_recognition: ^0.13.0
+  image_picker: ^1.1.2
+  exif: ^3.3.0
 
 dev_dependencies:
   flutter_test:
