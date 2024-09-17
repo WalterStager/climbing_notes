@@ -170,6 +170,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     OutlinedButton(
@@ -183,6 +184,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     OutlinedButton(
