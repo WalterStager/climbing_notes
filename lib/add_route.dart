@@ -221,7 +221,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                 InputRow(
                     label: "Set date:",
                     inputType: TextInputType.datetime,
-                    initialValue: route.date,
+                    initialValue: timeDisplayFromTimestampSafe(AppServices.of(context).settings.smallDateFormat, route.date),
                     onChanged: (String? value) {
                       setState(() {
                         route.date = value;
@@ -232,7 +232,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                     label: "Grade:",
                     inputType: TextInputType.text,
                     initialValue:
-                        "${route.gradeLet ?? ""}${route.gradeLet ?? ""}",
+                        "${route.gradeNum ?? ""}${route.gradeLet ?? ""}",
                     onChanged: (String? value) {
                       setState(() {
                         if (value == null) {
@@ -268,7 +268,6 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                     });
                   },
                 ),
-                const Divider(),
                 ascentSection(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
