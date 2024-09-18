@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:climbing_notes/builders.dart';
 import 'package:climbing_notes/data_structures.dart';
 import 'package:climbing_notes/utility.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +7,19 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:image_picker/image_picker.dart';
 
 class OCRService {
-  TextRecognizer? textRecognizer = null;
+  TextRecognizer? textRecognizer;
 
   Future<void> start() async {
     textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+  }
+
+  void errorPopup(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   Widget ocrPickerPopup(BuildContext context) {
@@ -44,20 +54,10 @@ class OCRService {
   }
 
   Future<DBRoute?> filePickerOcrAdd(BuildContext context) async {
-    ImageSource? pickType = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: ocrPickerPopup,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(
-              color: Theme.of(context).colorScheme.primary, width: 1)),
-      isDismissible: true,
-      enableDrag: false,
-      showDragHandle: false,
-      isScrollControlled: false,
-    );
+    ImageSource? pickType = await modalBottomPopup<ImageSource>(context, ocrPickerPopup);
+
     if (pickType == null) {
+      errorPopup(context, "Could not get file");
       return null;
     }
 
@@ -66,6 +66,7 @@ class OCRService {
         await picker.pickImage(source: pickType, requestFullMetadata: true);
 
     if (pickResult == null) {
+      errorPopup(context, "Could not get file");
       return null;
     }
 
@@ -93,6 +94,7 @@ class OCRService {
       }
     }
 
+    errorPopup(context, "Could not find route information");
     return null;
   }
 

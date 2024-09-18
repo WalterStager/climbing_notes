@@ -59,9 +59,20 @@ class DatabaseService {
     ).then((value) => (value.map(DBAscent.fromMap).toList()));
   }
 
-  Future<List<DBRouteExtra>?> queryExtra(List<int> routeIds) async {
+  Future<List<DBRouteExtra>?> queryExtra(List<int> routeIds, SmallDateFormat? dateFormat, String? orderByDate) async {
     checkDB();
-    String q = """
+    String queryOrderClause = "ascent_date DESC";
+
+    if (orderByDate != null && dateFormat != null) {
+      DateTime? likelySetDate;
+      likelySetDate = likelyTimeFromTimeDisplay(dateFormat, orderByDate);
+      if (likelySetDate != null) {
+        queryOrderClause =
+            "abs(julianday(Routes.date) - julianday('${likelySetDate.toUtc().toIso8601String()}'))";
+      }
+    }
+
+    String query = """
       SELECT
         Routes.*,
         SUM(Ascents.finished) as finished,
@@ -72,8 +83,9 @@ class DatabaseService {
       ON Routes.id = Ascents.route
       WHERE Routes.id IN (${List.filled(routeIds.length, "?").join(", ")})
       GROUP BY Routes.id
+      ORDER BY $queryOrderClause
     """;
-    List<Map<String, Object?>>? res = await db?.rawQuery(q, routeIds);
+    List<Map<String, Object?>>? res = await db?.rawQuery(query, routeIds);
     return res?.map(DBRouteExtra.fromMap).toList();
   }
 
@@ -278,8 +290,9 @@ class DatabaseService {
     """,
       """
     CREATE TABLE IF NOT EXISTS Settings (
-      id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-      date_format TEXT
+      id            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      date_format   TEXT NOT NULL,
+      export_format TEXT NOT NULL
     );""",
       """
     CREATE TABLE IF NOT EXISTS Routes (

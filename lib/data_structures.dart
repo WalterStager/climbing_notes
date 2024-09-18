@@ -52,6 +52,17 @@ enum RouteColor {
       return nocolor;
     }
   }
+    
+  static RouteColor? fromStringOrNull(String? s) {
+    if (s == null) {
+      return null;
+    }
+    try {
+      return values.firstWhere((value) => value.string == s);
+    } on StateError {
+      return null;
+    }
+  }
 
   @override
   String toString() {
@@ -72,6 +83,24 @@ enum SmallDateFormat {
       return values.firstWhere((value) => value.string == s);
     } on StateError catch (err) {
       log("Error making SmallDateFormat: $err");
+      rethrow;
+    }
+  }
+}
+
+enum ExportDateFormat {
+  local("local"),
+  utc("utc");
+
+  final String string;
+
+  const ExportDateFormat(this.string);
+
+  factory ExportDateFormat.fromString(String s) {
+    try {
+      return values.firstWhere((value) => value.string == s);
+    } on StateError catch (err) {
+      log("Error making ExportDateFormat: $err");
       rethrow;
     }
   }
@@ -313,6 +342,22 @@ class DBAscent {
       'notes': notes,
       if (includeId ?? false) 'id': id,
     };
+  }
+
+  @override
+  String toString() {
+    return """
+      DBAscent {
+        id: $id,
+        created: $created,
+        updated: $updated,
+        route: $route,
+        date: $date,
+        finished: $finished,
+        rested: $rested,
+        notes: $notes,
+      }
+    """;
   }
 }
 

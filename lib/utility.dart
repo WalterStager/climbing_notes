@@ -131,3 +131,37 @@ DateTimeCellValue? dateTimeCellValueFromDateTime(DateTime? dt) {
     millisecond: dt.millisecond,
     microsecond: dt.microsecond);
 }
+
+DateTime? dateTimeFromDateTimeCellValue(DateTimeCellValue? dt) {
+  if (dt == null) {
+    return null;
+  }
+  return DateTime(
+    dt.year,
+    dt.month,
+    dt.day,
+    dt.hour,
+    dt.minute,
+    dt.second,
+    dt.millisecond,
+    dt.microsecond
+  );
+}
+
+DateTime? dateTimeFromDateCellValue(DateCellValue? dt) {
+  if (dt == null) {
+    return null;
+  }
+  return DateTime(
+    dt.year,
+    dt.month,
+    dt.day,
+  );
+}
+
+DateTime? toSettingsTimezone(ExportDateFormat dateFormat, DateTime? dt) {
+  if (dateFormat ==  ExportDateFormat.utc) {
+    return dt?.toUtc();
+  }
+  return dt?.toLocal();
+}

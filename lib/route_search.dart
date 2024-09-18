@@ -64,7 +64,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
     }
     List<DBRouteExtra>? r = await AppServices.of(context)
         .dbs
-        .queryExtra(matchingRoutes?.map((route) => (route.id)).toList() ?? []);
+        .queryExtra(matchingRoutes?.map((route) => (route.id)).toList() ?? [], AppServices.of(context).settings.smallDateFormat, queryInfo.date);
     if (r == null) {
       return;
     }

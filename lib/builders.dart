@@ -85,8 +85,8 @@ class ClimbingNotesDrawer extends StatelessWidget {
               onTap: () async {
                 DBRoute? ocrRes =
                     await AppServices.of(context).ocr.filePickerOcrAdd(context);
+                Navigator.pop(context);
                 if (ocrRes != null) {
-                  Navigator.pop(context);
                   Navigator.push(
                     context,
                     cnPageTransition(AddRoutePage(providedRoute: ocrRes)),
@@ -555,5 +555,22 @@ Padding padCell(Widget cellContents) {
   return Padding(
     padding: const EdgeInsets.only(left: 3.0),
     child: cellContents,
+  );
+}
+
+
+Future<T?> modalBottomPopup<T>(BuildContext context, Widget Function(BuildContext) builder) {
+  return showModalBottomSheet(
+    context: context,
+    builder: builder,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+            color: Theme.of(context).colorScheme.primary, width: 1)),
+    isDismissible: true,
+    enableDrag: false,
+    showDragHandle: false,
+    isScrollControlled: false,
   );
 }
