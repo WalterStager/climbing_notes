@@ -61,6 +61,8 @@ class DatabaseService {
 
   Future<List<DBRouteExtra>?> queryExtra(List<int> routeIds, SmallDateFormat? dateFormat, String? orderByDate) async {
     checkDB();
+    // shows routes with 0 ascents at the top of results
+    // String queryOrderClause = "(CASE WHEN ascent_date IS NULL THEN '3000-00-00T00:00:00.000000Z' ELSE ascent_date END) DESC";
     String queryOrderClause = "ascent_date DESC";
 
     if (orderByDate != null && dateFormat != null) {
@@ -79,7 +81,7 @@ class DatabaseService {
         MAX(Ascents.date) as ascent_date,
         MIN(CASE WHEN Ascents.finished = 1 THEN COALESCE(Ascents.rested, 0) ELSE 1 END) AS fin_with_rest
       FROM Routes
-      JOIN Ascents
+      LEFT JOIN Ascents
       ON Routes.id = Ascents.route
       WHERE Routes.id IN (${List.filled(routeIds.length, "?").join(", ")})
       GROUP BY Routes.id
