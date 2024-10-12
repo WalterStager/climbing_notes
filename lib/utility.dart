@@ -28,7 +28,7 @@ bool? intToBool(int? i) {
   if (i == null) {
     return null;
   }
-  return i == 1 ? true : false;
+  return i >= 1 ? true : false;
 }
 
 bool? parseFinWithRest(int? i) {
