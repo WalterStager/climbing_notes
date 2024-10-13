@@ -3,10 +3,11 @@ import 'dart:developer';
 import 'package:climbing_notes/data_structures.dart';
 import 'package:climbing_notes/settings.dart';
 import 'package:climbing_notes/utility.dart';
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite/sqflite.dart';
 
-const String dbFileName = "climbing_notes.db";
+const String dbFileName = kDebugMode ? "climbing_notes_debug.db": "climbing_notes.db";
 
 class DatabaseService {
   Database? db;
