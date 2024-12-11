@@ -181,7 +181,14 @@ class DatabaseService {
   Future<int?> routeInsert(DBRoute route) async {
     checkDB();
     List<Map<String, Object?>>? res = await db?.rawQuery(
-        "SELECT EXISTS(SELECT 1 FROM Routes WHERE rope='${route.rope}' AND date='${route.date}' LIMIT 1) AS does_exist");
+        """SELECT EXISTS(SELECT 1 FROM Routes WHERE
+            rope='${route.rope}' AND
+            date='${route.date}' AND
+            color='${route.color}' AND
+            grade_num='${route.gradeNum}' AND
+            grade_let='${route.gradeLet}'
+          LIMIT 1) AS does_exist
+        """);
     if (res == null) {
       log("Got null result when checking if route exists. I thought this was impossible.");
       return null;
