@@ -7,7 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sqflite/sqflite.dart';
 
-const String dbFileName = kDebugMode ? "climbing_notes_debug.db": "climbing_notes.db";
+const String prodDBFileName = "climbing_notes.db";
+const String debugDBFileName ="climbing_notes_debug.db";
+const String dbFileName = kDebugMode ? debugDBFileName : prodDBFileName;
 
 class DatabaseService {
   Database? db;
