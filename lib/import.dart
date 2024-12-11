@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:climbing_notes/builders.dart';
 import 'package:climbing_notes/data_structures.dart';
+import 'package:climbing_notes/database.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:climbing_notes/utility.dart';
 import 'package:excel/excel.dart';
@@ -281,7 +282,7 @@ Future<void> importDB(BuildContext context) async {
   }
 
   String databaseDir = await getDatabasesPath();
-  String databsePath = path.join(databaseDir, "climbing_notes.db");
+  String databasePath = path.join(databaseDir, dbFileName);
   FilePickerResult? pickerResult = await FilePicker.platform.pickFiles(
       dialogTitle: "Select file to import",
       type: FileType.any,
@@ -311,7 +312,7 @@ Future<void> importDB(BuildContext context) async {
       return;
     }
 
-    await File(databsePath).writeAsBytes(databaseBytes, flush: true);
+    await File(databasePath).writeAsBytes(databaseBytes, flush: true);
     errorPopup(context, "Successfully imported .db file");
   }
 }
@@ -330,14 +331,20 @@ Future<void> exportDB(BuildContext context) async {
   }
 
   String databaseDir = await getDatabasesPath();
-  String databsePath = path.join(databaseDir, "climbing_notes.db");
-  Uint8List databaseBytes = Uint8List.fromList(await File(databsePath).openRead().single);
+  String databasePath = path.join(databaseDir, dbFileName);
+  Uint8List databaseBytes = Uint8List.fromList(await File(databasePath).openRead().single);
 
   FilePicker.platform.saveFile(
     bytes: databaseBytes,
-    fileName: "climbing_notes.db",
+    fileName: dbFileName,
     initialDirectory: downloadsDir.path,
     dialogTitle: "Select save location",
   );
   errorPopup(context, "Successfully exported .db file");
+}
+
+Future <void> prodToDebug(BuildContext context) async {
+  String databaseDir = await getDatabasesPath();
+  await File(path.join(databaseDir, prodDBFileName)).copy(path.join(databaseDir, debugDBFileName));
+  return;
 }

@@ -1,8 +1,10 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'package:climbing_notes/data_structures.dart';
+import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/import.dart';
 import 'package:climbing_notes/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'builders.dart';
 
@@ -175,6 +177,36 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: [
                           Icon(Icons.account_tree_sharp),
                           Text("Import .db"),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (kDebugMode)
+                Row(
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => {
+                      Navigator.pop(context),
+                      Navigator.push(
+                        context,
+                        cnPageTransition(const DatabaseViewPage()),
+                      ),
+                    },
+                      child: const Row(
+                        children: [
+                          Icon(Icons.account_tree_sharp),
+                          Text("DB View"),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () => (prodToDebug(context)),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.account_tree_sharp),
+                          Text("prodToDebug .db"),
                         ],
                       ),
                     ),

@@ -2,13 +2,11 @@
 import 'dart:developer';
 import 'package:climbing_notes/ascent_page.dart';
 import 'package:climbing_notes/route_page.dart';
-import 'package:climbing_notes/database_view.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:climbing_notes/data_structures.dart';
 import 'package:climbing_notes/main.dart';
 import 'package:climbing_notes/settings.dart';
 import 'package:climbing_notes/utility.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -108,20 +106,6 @@ class ClimbingNotesDrawer extends StatelessWidget {
               },
             ),
           ),
-          if (kDebugMode)
-            InkWell(
-              child: ListTile(
-                leading: const Icon(Icons.account_tree_sharp),
-                title: const Text("DB View"),
-                onTap: () => {
-                  Navigator.pop(context),
-                  Navigator.push(
-                    context,
-                    cnPageTransition(const DatabaseViewPage()),
-                  ),
-                },
-              ),
-            ),
         ],
       ),
     );
