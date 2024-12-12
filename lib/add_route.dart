@@ -14,8 +14,8 @@ class AddRoutePage extends StatefulWidget {
 }
 
 class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
-  List<DBRoute>? matchingRoutes;
-  List<DBRouteExtra>? routeExtras;
+  List<DBRouteExtra>? matchingRoutes;
+  // List<DBRouteExtra>? routeExtras;
   DBRoute route = DBRoute(0, "", "", null, null, null, null, null, null);
   DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null);
   bool addAscent = false;
@@ -50,30 +50,30 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   }
 
   void updateTableData() async {
-    List<DBRoute>? r1 = await AppServices.of(context)
+    List<DBRouteExtra>? r1 = await AppServices.of(context)
         .dbs
-        .queryRoutes(AppServices.of(context).settings.smallDateFormat, route);
+        .queryRoutesWithExtra(route, AppServices.of(context).settings.smallDateFormat);
     setState(() {
       matchingRoutes = r1;
     });
 
-    updateFinishes();
+    // updateFinishes();
   }
 
-  void updateFinishes() async {
-    if (matchingRoutes == null) {
-      return;
-    }
-    List<DBRouteExtra>? r = await AppServices.of(context)
-        .dbs
-        .queryExtra(matchingRoutes?.map((route) => (route.id)).toList() ?? [], AppServices.of(context).settings.smallDateFormat, route.date);
-    if (r == null) {
-      return;
-    }
-    setState(() {
-      routeExtras = r;
-    });
-  }
+  // void updateFinishes() async {
+  //   if (matchingRoutes == null) {
+  //     return;
+  //   }
+  //   List<DBRouteExtra>? r = await AppServices.of(context)
+  //       .dbs
+  //       .queryExtra(matchingRoutes?.map((route) => (route.id)).toList() ?? [], AppServices.of(context).settings.smallDateFormat, route.date);
+  //   if (r == null) {
+  //     return;
+  //   }
+  //   setState(() {
+  //     routeExtras = r;
+  //   });
+  // }
 
   void errorPopup(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -272,7 +272,7 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
                 ascentSection(),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: RoutesTableWithExtra(data: routeExtras ?? []),
+                  child: RoutesTableWithExtra(data: matchingRoutes ?? []),
                 ),
               ],
             ),

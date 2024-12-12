@@ -60,19 +60,52 @@ class DatabaseService {
     ).then((value) => (value.map(DBAscent.fromMap).toList()));
   }
 
-  Future<List<DBRouteExtra>?> queryExtra(List<int> routeIds, SmallDateFormat? dateFormat, String? orderByDate) async {
+  Future<List<DBRouteExtra>?> queryRoutesWithExtra(DBRoute routeInfo, SmallDateFormat dateFormat) async {
     checkDB();
-    // shows routes with 0 ascents at the top of results
-    // String queryOrderClause = "(CASE WHEN ascent_date IS NULL THEN '3000-00-00T00:00:00.000000Z' ELSE ascent_date END) DESC";
-    String queryOrderClause = "ascent_date DESC";
+    List<String> queryElements = List<String>.empty(growable: true);
+    List<Object?> queryParameters = List<Object>.empty(growable: true);
+    String queryOrderClause = """updated DESC""";
+    String? queryWhereClause;
 
-    if (orderByDate != null && dateFormat != null) {
+    if (routeInfo.date != null) {
       DateTime? likelySetDate;
-      likelySetDate = likelyTimeFromTimeDisplay(dateFormat, orderByDate);
-      if (likelySetDate != null) {
-        queryOrderClause =
-            "abs(julianday(Routes.date) - julianday('${likelySetDate.toUtc().toIso8601String()}'))";
+      String? canBePromoted = routeInfo.date;
+      if (canBePromoted != null) {
+        likelySetDate = likelyTimeFromTimeDisplay(dateFormat, canBePromoted);
+        if (likelySetDate != null) {
+          queryOrderClause =
+              "abs(julianday(date) - julianday('${likelySetDate.toUtc().toIso8601String()}'))";
+        }
       }
+    }
+
+    if (routeInfo.rope != null) {
+      queryElements.add("rope LIKE ?");
+      queryParameters.add("%${routeInfo.rope}%");
+      queryOrderClause = "CASE WHEN rope = ${routeInfo.rope} THEN 0 ELSE 1 END, $queryOrderClause";
+    }
+    if (routeInfo.gradeNum != null) {
+      queryElements.add("grade_num LIKE ?");
+      queryParameters.add("%${routeInfo.gradeNum}%");
+    }
+    String? gradeLet = routeInfo.gradeLet;
+    if (gradeLet != null) {
+      queryElements.add("grade_let = ?");
+      queryParameters.add(gradeLet);
+    }
+    String? color = routeInfo.color;
+    if (color != null) {
+      queryElements.add("color = ?");
+      queryParameters.add(color);
+    }
+    String? notes = routeInfo.notes;
+    if (notes != null) {
+      queryElements.add("notes = ?");
+      queryParameters.add("%${routeInfo.notes}%");
+    }
+
+    if (queryElements.isNotEmpty) {
+      queryWhereClause = queryElements.join(" AND ");
     }
 
     String query = """
@@ -84,11 +117,12 @@ class DatabaseService {
       FROM Routes
       LEFT JOIN Ascents
       ON Routes.id = Ascents.route
-      WHERE Routes.id IN (${List.filled(routeIds.length, "?").join(", ")})
+      ${queryWhereClause != null ? "WHERE $queryWhereClause" : ""}
       GROUP BY Routes.id
       ORDER BY $queryOrderClause
     """;
-    List<Map<String, Object?>>? res = await db?.rawQuery(query, routeIds);
+
+    List<Map<String, Object?>>? res = await db?.rawQuery(query, queryParameters);
     return res?.map(DBRouteExtra.fromMap).toList();
   }
 
