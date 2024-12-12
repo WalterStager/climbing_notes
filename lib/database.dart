@@ -64,7 +64,7 @@ class DatabaseService {
     checkDB();
     List<String> queryElements = List<String>.empty(growable: true);
     List<Object?> queryParameters = List<Object>.empty(growable: true);
-    String queryOrderClause = """updated DESC""";
+    String queryOrderClause = """CASE when Routes.updated > ascent_updated THEN Routes.updated ELSE ascent_updated END DESC""";
     String? queryWhereClause;
 
     if (routeInfo.date != null) {
@@ -113,7 +113,8 @@ class DatabaseService {
         Routes.*,
         SUM(Ascents.finished) as finished,
         MAX(Ascents.date) as ascent_date,
-        MIN(CASE WHEN Ascents.finished = 1 THEN COALESCE(Ascents.rested, 0) ELSE 1 END) AS fin_with_rest
+        MIN(CASE WHEN Ascents.finished = 1 THEN COALESCE(Ascents.rested, 0) ELSE 1 END) AS fin_with_rest,
+        MAX(Ascents.updated) as ascent_updated
       FROM Routes
       LEFT JOIN Ascents
       ON Routes.id = Ascents.route
