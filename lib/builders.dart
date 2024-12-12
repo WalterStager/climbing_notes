@@ -424,6 +424,26 @@ class RoutesTableWithExtra extends StatelessWidget {
     );
   }
 
+  Widget buildRouteFinishedIcon(BuildContext context, bool fin, bool finWithoutRest) {
+    Color iconColor = themeTextColor(context);
+    if (fin && finWithoutRest) {
+      return Stack(
+        children: [
+          Icon(Icons.check, color: iconColor),
+          Positioned(
+            left: 5,
+            child: Icon(Icons.check, color: iconColor),
+          )
+        ],
+      );
+    }
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Icon(fin ? Icons.check : null, color: iconColor),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     List<TableRow> rows = [
@@ -435,7 +455,6 @@ class RoutesTableWithExtra extends StatelessWidget {
           const Text("Grade"),
           const Text("Color"),
           const Text("Finished"),
-          const Text("Without rest?"),
           const Text("Last ascent"),
         ].map(padCell).toList(),
         decoration: BoxDecoration(color: contrastingSurface(context)),
@@ -454,10 +473,7 @@ class RoutesTableWithExtra extends StatelessWidget {
                   rowData.date))),
           buildInkwell(context, rowData, Text(rowData.grade.toString())),
           buildInkwell(context, rowData, Text(rowData.color.toString())),
-          buildInkwell(context, rowData,
-              Icon((rowData.finished ?? false) ? Icons.check : null)),
-          buildInkwell(context, rowData,
-              Icon((rowData.finWithoutRest ?? false) ? Icons.check : null)),
+          buildInkwell(context, rowData, buildRouteFinishedIcon(context, rowData.finished ?? false, rowData.finWithoutRest ?? false)),
           buildInkwell(
               context,
               rowData,

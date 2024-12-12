@@ -19,8 +19,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
     GlobalKey<InputRowState>(),
     GlobalKey<InputRowState>()
   ];
-  List<DBRoute>? matchingRoutes;
-  List<DBRouteExtra>? routeExtras;
+  List<DBRouteExtra>? matchingRoutes;
 
   _RoutesPageState();
 
@@ -48,30 +47,30 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
   }
 
   void updateTableData() async {
-    List<DBRoute>? r = await AppServices.of(context).dbs.queryRoutes(
-        AppServices.of(context).settings.smallDateFormat, queryInfo);
+    List<DBRouteExtra>? r = await AppServices.of(context).dbs.queryRoutesWithExtra(queryInfo,
+        AppServices.of(context).settings.smallDateFormat);
 
     setState(() {
       matchingRoutes = r;
     });
 
-    updateFinishes();
+    // updateFinishes();
   }
 
-  void updateFinishes() async {
-    if (matchingRoutes == null) {
-      return;
-    }
-    List<DBRouteExtra>? r = await AppServices.of(context)
-        .dbs
-        .queryExtra(matchingRoutes?.map((route) => (route.id)).toList() ?? [], AppServices.of(context).settings.smallDateFormat, queryInfo.date);
-    if (r == null) {
-      return;
-    }
-    setState(() {
-      routeExtras = r;
-    });
-  }
+  // void updateFinishes() async {
+  //   if (matchingRoutes == null) {
+  //     return;
+  //   }
+  //   List<DBRouteExtra>? r = await AppServices.of(context)
+  //       .dbs
+  //       .queryExtra(matchingRoutes?.map((route) => (route.id)).toList() ?? [], AppServices.of(context).settings.smallDateFormat, queryInfo.date);
+  //   if (r == null) {
+  //     return;
+  //   }
+  //   setState(() {
+  //     routeExtras = r;
+  //   });
+  // }
 
   void clearData() {
     setState(() {
@@ -143,7 +142,7 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: RoutesTableWithExtra(data: routeExtras ?? []),
+                  child: RoutesTableWithExtra(data: matchingRoutes ?? []),
                 ),
               ],
             ),
