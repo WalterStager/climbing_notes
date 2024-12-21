@@ -1,6 +1,7 @@
 // ignore: unused_import
 import 'dart:developer';
 import 'package:climbing_notes/data_structures.dart';
+import 'package:climbing_notes/migrations.dart';
 import 'package:climbing_notes/settings.dart';
 import 'package:climbing_notes/utility.dart';
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,8 @@ import 'package:sqflite/sqflite.dart';
 const String prodDBFileName = "climbing_notes.db";
 const String debugDBFileName ="climbing_notes_debug.db";
 const String dbFileName = kDebugMode ? debugDBFileName : prodDBFileName;
+// important: controls database schema migrations
+const int userVersion = 1;
 
 class DatabaseService {
   Database? db;
@@ -20,8 +23,14 @@ class DatabaseService {
 
   Future<void> start() async {
     startedLoad = true;
-    db = await openDatabase(dbFileName);
-    await createTables();
+    pi = await PackageInfo.fromPlatform();
+    log("db version $userVersion");
+    db = await openDatabase(dbFileName,
+      version: userVersion,
+      onCreate: createTables,
+      onUpgrade: allMigrations,
+      onDowngrade: allDowngrades,
+    );
   }
 
   void checkDB() {
@@ -329,47 +338,9 @@ class DatabaseService {
         whereArgs: ascentIds);
   }
 
-  Future<void> createTables() async {
+  Future<DatabaseTable?> getVersion() async {
     checkDB();
-    List<String> createTablesStatements = [
-      """
-    PRAGMA user_version = ${pi?.buildNumber ?? 0};
-    """,
-      """
-    CREATE TABLE IF NOT EXISTS Settings (
-      id            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-      date_format   TEXT NOT NULL,
-      export_format TEXT NOT NULL
-    );""",
-      """
-    CREATE TABLE IF NOT EXISTS Routes (
-      id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-      created   TEXT NOT NULL,
-      updated   TEXT NOT NULL,
-      rope      INT NOT NULL,
-      date      TEXT NOT NULL,
-      color     TEXT,
-      grade_num INT,
-      grade_let TEXT,
-      notes     TEXT
-    );""",
-      """
-    CREATE TABLE IF NOT EXISTS Ascents (
-      id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-      created   TEXT NOT NULL,
-      updated   TEXT NOT NULL,
-      route     INTEGER NOT NULL REFERENCES Routes(id),
-      date      TEXT,
-      finished  INT,
-      rested    INT,
-      notes     TEXT
-    );
-    """
-    ];
-
-    // ignore: avoid_function_literals_in_foreach_calls
-    createTablesStatements.forEach((statement) async {
-      await db?.execute(statement);
-    });
+    List<Map<String, Object?>>? res = await db?.rawQuery("PRAGMA user_version");
+    return res;
   }
 }
