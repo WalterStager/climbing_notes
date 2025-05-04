@@ -8,6 +8,7 @@ import 'package:climbing_notes/main.dart';
 import 'package:climbing_notes/settings.dart';
 import 'package:climbing_notes/utility.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 
 const EdgeInsetsGeometry paddingAroundInputBox =
@@ -78,11 +79,11 @@ class ClimbingNotesDrawer extends StatelessWidget {
           ),
           InkWell(
             child: ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text("Add route with image"),
+              leading: const Icon(Icons.file_copy),
+              title: const Text("Add route from file"),
               onTap: () async {
                 DBRoute? ocrRes =
-                    await AppServices.of(context).ocr.filePickerOcrAdd(context);
+                    await AppServices.of(context).ocr.filePickerOcrAdd(context, ImageSource.gallery);
                 Navigator.pop(context);
                 if (ocrRes != null) {
                   Navigator.push(
@@ -624,7 +625,7 @@ Future<T?> modalBottomPopup<T>(BuildContext context, Widget Function(BuildContex
     shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-            color: Theme.of(context).colorScheme.primary, width: 1)),
+            color: contrastingSurface(context), width: 1)),
     isDismissible: true,
     enableDrag: false,
     showDragHandle: false,

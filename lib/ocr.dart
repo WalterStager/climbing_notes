@@ -5,6 +5,7 @@ import 'package:climbing_notes/utility.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 
 class OCRService {
   TextRecognizer? textRecognizer;
@@ -53,21 +54,26 @@ class OCRService {
     );
   }
 
-  Future<DBRoute?> filePickerOcrAdd(BuildContext context) async {
-    ImageSource? pickType = await modalBottomPopup<ImageSource>(context, ocrPickerPopup);
+  Future<DBRoute?> filePickerOcrAdd(BuildContext context, ImageSource source) async {
+    // ImageSource? pickType = await modalBottomPopup<ImageSource>(context, ocrPickerPopup);
 
-    if (pickType == null) {
-      errorPopup(context, "Could not get file");
-      return null;
-    }
+    // if (pickType == null) {
+    //   errorPopup(context, "Could not get file");
+    //   return null;
+    // }
 
     ImagePicker picker = ImagePicker();
     XFile? pickResult =
-        await picker.pickImage(source: pickType, requestFullMetadata: true);
+        await picker.pickImage(source: source, requestFullMetadata: true);
 
     if (pickResult == null) {
       errorPopup(context, "Could not get file");
       return null;
+    }
+    // log(pickResult.path);
+    if (source == ImageSource.camera) {
+      SaveResult result = await SaverGallery.saveFile(fileName: pickResult.name, filePath: pickResult.path, skipIfExists: true, androidRelativePath: "Pictures/ClimbingNotes/images");
+      log(result.toString());
     }
 
     InputImage inputImage = InputImage.fromFilePath(pickResult.path);
