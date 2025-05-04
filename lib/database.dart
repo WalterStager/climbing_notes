@@ -12,7 +12,7 @@ const String prodDBFileName = "climbing_notes.db";
 const String debugDBFileName ="climbing_notes_debug.db";
 const String dbFileName = kDebugMode ? debugDBFileName : prodDBFileName;
 // important: controls database schema migrations
-const int userVersion = 1;
+const int userVersion = 3;
 
 class DatabaseService {
   Database? db;
@@ -312,13 +312,16 @@ class DatabaseService {
     if (newA.notes != oldA.notes) {
       updateElements["notes"] = newA.notes;
     }
+    if (newA.style != oldA.style) {
+      updateElements["style"] = newA.style;
+    }
 
     if (updateElements.isNotEmpty) {
       updateElements["updated"] = getTimestamp();
       return await db?.update("Ascents", updateElements,
           where: "id = ?", whereArgs: [newA.id]);
     }
-    return 0;
+    return -1; // nothing to update
   }
 
   Future<int?> deleteRoute(int routeId) async {

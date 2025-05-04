@@ -19,17 +19,18 @@ class AscentPage extends StatefulWidget {
 class _AscentPageState extends State<AscentPage> with RouteAware {
   bool lockInputs = true;
   DBRoute route = DBRoute(0, "", "", null, null, null, null, null, null);
-  DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null);
+  DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null, "toprope");
   DBAscent cancelUpdateAscent;
   List<GlobalKey<InputRowState>> inputRowKeys = [
     GlobalKey<InputRowState>(),
     GlobalKey<InputRowState>(),
   ];
 
-  _AscentPageState(DBRoute providedRoute, DBAscent providedAscent)
-      : route = providedRoute,
-        ascent = providedAscent,
-        cancelUpdateAscent = DBAscent.of(providedAscent);
+  _AscentPageState(DBRoute providedRoute, DBAscent providedAscent) : cancelUpdateAscent = DBAscent.of(providedAscent) {
+    route = providedRoute;
+    ascent = providedAscent;
+  }
+        
 
   void errorPopup(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -147,8 +148,8 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ClimbingNotesAppBar(pageTitle: "Ascent"),
+    return ClimbingNotesScaffold(
+      "Ascent",
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -217,6 +218,42 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
                     );
                   },
                 ),
+                Row(
+                  children: [
+                    IgnorePointer (
+                      ignoring: lockInputs,
+                      child: SegmentedButton<String>(
+                        style: ButtonStyle(
+                          foregroundColor: WidgetStateProperty.resolveWith((states) {
+                            if (lockInputs) {
+                              return Theme.of(context).textTheme.titleMedium?.color?.withOpacity(0.38);
+                            }
+                            return null;
+                          }),
+                          backgroundColor: WidgetStateProperty.resolveWith((states) {
+                            if (lockInputs && states.contains(WidgetState.selected)) {
+                                return Theme.of(context).textTheme.titleMedium?.color?.withOpacity(0.38);
+                            }
+                            return null;
+                          }),
+                        ),
+                        showSelectedIcon: false,
+                        segments: const [
+                          ButtonSegment(
+                              value: "toprope",
+                              label: Text("Top Rope")),
+                          ButtonSegment(
+                              value: "lead",
+                              label: Text("Lead")),
+                        ],
+                        selected: { ascent.style },
+                        onSelectionChanged: (set) => setState(() {
+                            ascent.style = set.first;
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
                 const ClimbingNotesLabel("Ascent notes:"),
                 InputRow(
                   key: inputRowKeys[0],
@@ -275,7 +312,6 @@ class _AscentPageState extends State<AscentPage> with RouteAware {
           ],
         ),
       ),
-      drawer: const ClimbingNotesDrawer(),
     );
   }
 }

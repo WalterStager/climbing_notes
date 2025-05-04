@@ -10,7 +10,8 @@ Future<void> createTables(Database db, int version) async {
       id            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
       date_format   TEXT NOT NULL,
       export_format TEXT NOT NULL,
-      theme         TEXT NOT NULL
+      theme         TEXT NOT NULL,
+      default_style TEXT NOT NULL
     );""",
       """
     CREATE TABLE IF NOT EXISTS Routes (
@@ -33,7 +34,8 @@ Future<void> createTables(Database db, int version) async {
       date      TEXT,
       finished  INT,
       rested    INT,
-      notes     TEXT
+      notes     TEXT,
+      style     TEXT NOT NULL
     );
     """
   ];
@@ -44,8 +46,47 @@ Future<void> createTables(Database db, int version) async {
   });
 }
 
-const Map<int, void Function(Database)> migrations = {
-  2:migrationToVersion2,
+Map<int, void Function(Database)> migrations = {
+  2: (Database db) {
+    log("migrationToVersion2");
+    List<String> migrationStatements = [
+      """
+      ALTER TABLE Settings
+      ADD export_format TEXT NOT NULL
+      DEFAULT 'local'
+      """,
+      """
+      ALTER TABLE Settings
+      ADD theme TEXT NOT NULL
+      DEFAULT 'Follow System'
+      """
+    ];
+
+    // ignore: avoid_function_literals_in_foreach_calls
+    migrationStatements.forEach((statement) async {
+      await db.execute(statement);
+    });
+  },
+  3: (Database db) {
+    log("migrationToVersion3");
+    List<String> migrationStatements = [
+      """
+      ALTER TABLE Ascents
+      ADD style TEXT NOT NULL
+      DEFAULT 'toprope'
+      """,
+      """
+      ALTER TABLE Settings
+      ADD default_style TEXT NOT NULL
+      DEFAULT 'toprope'
+      """
+    ];
+
+    // ignore: avoid_function_literals_in_foreach_calls
+    migrationStatements.forEach((statement) async {
+      await db.execute(statement);
+    });
+  },
 };
 
 Future<void> allMigrations(Database db, int prevVer, int curVer) async {
@@ -58,25 +99,4 @@ Future<void> allMigrations(Database db, int prevVer, int curVer) async {
 }
 Future<void> allDowngrades(Database db, int prevVer, int curVer) async {
   throw StateError("Database version is newer than app version.");
-}
-
-void migrationToVersion2(Database db) {
-  log("migrationToVersion2");
-  List<String> migrationStatements = [
-    """
-    ALTER TABLE Settings
-    ADD export_format TEXT NOT NULL
-    DEFAULT 'local'
-    """,
-    """
-    ALTER TABLE Settings
-    ADD theme TEXT NOT NULL
-    DEFAULT 'Follow System'
-    """
-  ];
-
-  // ignore: avoid_function_literals_in_foreach_calls
-  migrationStatements.forEach((statement) async {
-    await db.execute(statement);
-  });
 }

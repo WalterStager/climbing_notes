@@ -11,8 +11,8 @@ List<DBRoute> exampleRouteData = [
 
 List<DBAscent> exampleAscentData = [
   DBAscent(
-      0, getTimestamp(), getTimestamp(), 0, "01/01", 1, 0, "was very tough"),
-  DBAscent(1, getTimestamp(), getTimestamp(), 1, "02/23", 0, 1, "EZ now"),
+      0, getTimestamp(), getTimestamp(), 0, "01/01", 1, 0, "was very tough", "toprope"),
+  DBAscent(1, getTimestamp(), getTimestamp(), 1, "02/23", 0, 1, "EZ now", "toprope"),
 ];
 
 // easier to read
@@ -67,6 +67,33 @@ enum RouteColor {
   @override
   String toString() {
     return string;
+  }
+}
+
+enum AppThemeSetting {
+  light("Light"),
+  dark("Dark"),
+  followSystem("Follow System");
+
+  final String string;
+
+  const AppThemeSetting(this.string);
+
+  factory AppThemeSetting.fromString(String s) {
+    try {
+      return values.firstWhere((value) => value.string == s);
+    } on StateError catch (err) {
+      log("Error making AppThemeSetting: $err");
+      rethrow;
+    }
+  }
+}
+
+String routeStyleToString(String routeStyle) {
+  switch (routeStyle) {
+    case "toprope": return "Top Rope";
+    case "lead": return "Lead";
+    default: return "unknown";
   }
 }
 
@@ -275,9 +302,10 @@ class DBAscent {
   int? finished;
   int? rested;
   String? notes;
+  String style;
 
   DBAscent(this.id, this.created, this.updated, this.route, this.date,
-      this.finished, this.rested, this.notes);
+      this.finished, this.rested, this.notes, this.style);
 
   void clear() {
     id = 0;
@@ -289,6 +317,7 @@ class DBAscent {
     finished = null;
     rested = null;
     notes = null;
+    style = "";
   }
 
   factory DBAscent.of(DBAscent original) {
@@ -301,6 +330,7 @@ class DBAscent {
       original.finished,
       original.rested,
       original.notes,
+      original.style,
     );
   }
 
@@ -314,6 +344,7 @@ class DBAscent {
           finished,
           rested,
           notes,
+          style
         ];
     return list;
   }
@@ -328,6 +359,7 @@ class DBAscent {
       map['finished'] as int?,
       map['rested'] as int?,
       map['notes'] as String?,
+      map['style'] as String,
     );
   }
 
@@ -340,6 +372,7 @@ class DBAscent {
       'finished': finished,
       'rested': rested,
       'notes': notes,
+      'style': style,
       if (includeId ?? false) 'id': id,
     };
   }
@@ -356,6 +389,7 @@ class DBAscent {
         finished: $finished,
         rested: $rested,
         notes: $notes,
+        style: $style,
       }
     """;
   }

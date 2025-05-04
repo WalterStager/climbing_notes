@@ -90,8 +90,8 @@ class _DatabaseViewState extends State<DatabaseViewPage> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ClimbingNotesAppBar(pageTitle: "Database View"),
+    return ClimbingNotesScaffold(
+      "Database View",
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: buildDatabaseViewTables(),
@@ -119,7 +119,6 @@ class _DatabaseViewState extends State<DatabaseViewPage> with RouteAware {
           ],
         ),
       ),
-      drawer: const ClimbingNotesDrawer(),
     );
   }
 }

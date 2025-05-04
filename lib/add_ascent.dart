@@ -16,7 +16,8 @@ class AddAscentPage extends StatefulWidget {
 class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
   DBRoute route;
   List<DBAscent>? tableData;
-  DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null);
+  bool firstRender = false;
+  DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null, "toprope");
 
   _AddAscentPageState(this.route);
 
@@ -68,8 +69,14 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ClimbingNotesAppBar(pageTitle: "Add Ascent"),
+    if (!firstRender) {
+      setState(() {
+        ascent.style = AppServices.of(context).settings.defaultStyleSwitchValue;
+      });
+      firstRender = true;
+    }
+    return ClimbingNotesScaffold(
+      "Add Ascent",
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -118,6 +125,25 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
                     );
                   },
                 ),
+                Row(
+                  children: [
+                    SegmentedButton<String>(
+                      showSelectedIcon: false,
+                      segments: const [
+                        ButtonSegment(
+                            value: "toprope",
+                            label: Text("Top Rope")),
+                        ButtonSegment(
+                            value: "lead",
+                            label: Text("Lead")),
+                      ],
+                      selected: { ascent.style },
+                      onSelectionChanged: (set) => setState(() {
+                          ascent.style = set.first;
+                      }),
+                    ),
+                  ],
+                ),
                 const ClimbingNotesLabel("Ascent notes:"),
                 InputRow(
                   inputType: TextInputType.text,
@@ -164,7 +190,6 @@ class _AddAscentPageState extends State<AddAscentPage> with RouteAware {
           ],
         ),
       ),
-      drawer: const ClimbingNotesDrawer(),
     );
   }
 }
