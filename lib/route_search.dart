@@ -2,6 +2,7 @@ import 'package:climbing_notes/main.dart';
 import 'package:climbing_notes/utility.dart';
 import 'package:climbing_notes/add_route.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'builders.dart';
 import 'data_structures.dart';
 
@@ -172,6 +173,22 @@ class _RoutesPageState extends State<RoutesPage> with RouteAware {
               ),
               tooltip: 'Add route',
               child: const Icon(Icons.add),
+            ),
+            const SizedBox(height: 8),
+            FloatingActionButton(
+              heroTag: "cameraFloatBtn",
+              onPressed: () async {
+                DBRoute? ocrRes =
+                    await AppServices.of(context).ocr.filePickerOcrAdd(context, ImageSource.camera);
+                if (ocrRes != null) {
+                  Navigator.push(
+                    context,
+                    cnPageTransition(AddRoutePage(providedRoute: ocrRes)),
+                  );
+                }
+              },
+              tooltip: 'Add route from image',
+              child: const Icon(Icons.camera_alt),
             ),
           ],
         ),
