@@ -1,4 +1,5 @@
-  import 'dart:io';
+  import 'dart:developer';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:climbing_notes/builders.dart';
@@ -140,6 +141,7 @@ void importXLSX(BuildContext context) async {
       boolToInt((row[2]?.value as BoolCellValue?)?.value),
       boolToInt((row[3]?.value as BoolCellValue?)?.value),
       (row[4]?.value as TextCellValue?)?.value.text,
+      styleFromNullable((row[5]?.value as TextCellValue?)?.value.text),
     ));
   }
 
@@ -166,6 +168,15 @@ void importXLSX(BuildContext context) async {
   }
   else {
 
+  }
+}
+
+String styleFromNullable(String? style) {
+  if (style == null) {
+    return "toprope";
+  }
+  else {
+    return style;
   }
 }
 
@@ -345,6 +356,9 @@ Future<void> exportDB(BuildContext context) async {
 
 Future <void> prodToDebug(BuildContext context) async {
   String databaseDir = await getDatabasesPath();
-  await File(path.join(databaseDir, prodDBFileName)).copy(path.join(databaseDir, debugDBFileName));
+  String dbProdFN = path.join(databaseDir, prodDBFileName);
+  String dbDebugFN = path.join(databaseDir, debugDBFileName);
+  await File(dbProdFN).copy(dbDebugFN);
+  log("copied $dbProdFN to $dbDebugFN");
   return;
 }

@@ -112,7 +112,25 @@ class ClimbingNotesDrawer extends StatelessWidget {
   }
 }
 
-class ClimbingNotesAppBar extends StatelessWidget
+class ClimbingNotesScaffold extends StatelessWidget {
+  final Widget body;
+  final String pageTitle;
+  final Widget floatingActionButton;
+
+  const ClimbingNotesScaffold(this.pageTitle, {required this.body, required this.floatingActionButton, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: const ClimbingNotesDrawer(),
+      appBar: ClimbingNotesAppBar(pageTitle: pageTitle),
+      body: body,
+      floatingActionButton: floatingActionButton,
+    );
+  }
+}
+
+class ClimbingNotesAppBar extends StatefulWidget
     implements PreferredSizeWidget {
   final String pageTitle;
   @override
@@ -120,6 +138,16 @@ class ClimbingNotesAppBar extends StatelessWidget
 
   const ClimbingNotesAppBar({super.key, required this.pageTitle})
       : preferredSize = const Size.fromHeight(kToolbarHeight);
+
+  @override
+  State<ClimbingNotesAppBar> createState() => _ClimbingNotesAppBarState(pageTitle: pageTitle);
+}
+
+class _ClimbingNotesAppBarState extends State<ClimbingNotesAppBar> {
+  final String pageTitle;
+  @override
+
+  _ClimbingNotesAppBarState({required this.pageTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -130,6 +158,24 @@ class ClimbingNotesAppBar extends StatelessWidget
       iconTheme: IconThemeData(color: contrastingThemeTextColor(context)),
       title: Text(pageTitle,
           style: TextStyle(color: contrastingThemeTextColor(context))),
+      actions: [
+        SegmentedButton<String>(
+          showSelectedIcon: false,
+          segments: const [
+            ButtonSegment(
+                value: "toprope",
+                label: Text("Top Rope")),
+            ButtonSegment(
+                value: "lead",
+                label: Text("Lead")),
+          ],
+          selected: { AppServices.of(context).settings.defaultStyleSwitchValue },
+          onSelectionChanged: (set) => setState(() {
+              AppServices.of(context).settings.defaultStyleSwitchValue = set.first;
+              saveSettings(context);
+          }),
+        ),
+      ]
     );
   }
 }
@@ -181,6 +227,14 @@ Color contrastingThemeTextColor(BuildContext context) {
     return ThemeData.dark().textTheme.bodyMedium?.color ?? Colors.white;
   } else {
     return ThemeData.light().textTheme.bodyMedium?.color ?? Colors.black;
+  }
+}
+
+Color disabledThemeTextColor(BuildContext context) {
+  if (Theme.of(context).brightness == Brightness.light) {
+    return ThemeData.dark().textTheme.titleMedium?.color?.withOpacity(0.38) ?? Colors.grey;
+  } else {
+    return ThemeData.light().textTheme.titleMedium?.color?.withOpacity(0.38) ?? Colors.grey;
   }
 }
 
@@ -518,6 +572,7 @@ class AscentsTable extends StatelessWidget {
           const Text("Date"),
           const Text("Finished"),
           const Text("Rested"),
+          const Text("Style"),
           const Text("Notes"),
         ].map(padCell).toList(),
         decoration: BoxDecoration(color: contrastingSurface(context)),
@@ -540,6 +595,8 @@ class AscentsTable extends StatelessWidget {
                   (intToBool(rowData.finished) ?? false) ? Icons.check : null)),
           buildInkwell(context, rowData,
               Icon((intToBool(rowData.rested) ?? false) ? Icons.check : null)),
+          buildInkwell(context, rowData,
+              Text(routeStyleToString(rowData.style))), 
           buildInkwell(context, rowData, Text(rowData.notes ?? "")),
         ].map(padCell).toList(),
       );

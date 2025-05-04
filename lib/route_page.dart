@@ -192,8 +192,8 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ClimbingNotesAppBar(pageTitle: "Route Info"),
+    return ClimbingNotesScaffold(
+      "Route Info",
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -323,7 +323,6 @@ class _AscentsPageState extends State<AscentsPage> with RouteAware {
           ],
         ),
       ),
-      drawer: const ClimbingNotesDrawer(),
     );
   }
 }

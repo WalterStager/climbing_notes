@@ -17,8 +17,9 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   List<DBRouteExtra>? matchingRoutes;
   // List<DBRouteExtra>? routeExtras;
   DBRoute route = DBRoute(0, "", "", null, null, null, null, null, null);
-  DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null);
+  DBAscent ascent = DBAscent(0, "", "", 0, null, null, null, null, "toprope");
   bool addAscent = false;
+  bool firstRender = false;
 
   _AddRoutePageState(DBRoute? providedRoute) {
     if (providedRoute != null) {
@@ -148,6 +149,12 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
   }
 
   Widget ascentSection() {
+    if (!firstRender) {
+      setState(() {
+        ascent.style = AppServices.of(context).settings.defaultStyleSwitchValue;
+      });
+      firstRender = true;
+    }
     if (!addAscent) {
       return Row(
         children: [
@@ -182,6 +189,25 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
             );
           },
         ),
+        Row(
+          children: [
+            SegmentedButton<String>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(
+                    value: "toprope",
+                    label: Text("Top Rope")),
+                ButtonSegment(
+                    value: "lead",
+                    label: Text("Lead")),
+              ],
+              selected: { ascent.style },
+              onSelectionChanged: (set) => setState(() {
+                  ascent.style = set.first;
+              }),
+            ),
+          ],
+        ),
         const ClimbingNotesLabel("Ascent notes:"),
         InputRow(
           inputType: TextInputType.text,
@@ -199,8 +225,8 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ClimbingNotesAppBar(pageTitle: "Add Route"),
+    return ClimbingNotesScaffold(
+      "Add Route",
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -303,7 +329,6 @@ class _AddRoutePageState extends State<AddRoutePage> with RouteAware {
           ],
         ),
       ),
-      drawer: const ClimbingNotesDrawer(),
     );
   }
 }

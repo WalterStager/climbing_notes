@@ -12,16 +12,26 @@ class AppSettings {
   int id = 0;
   SmallDateFormat smallDateFormat = SmallDateFormat.mmdd;
   ExportDateFormat exportDateFormat = ExportDateFormat.local;
+  AppThemeSetting appThemeSetting = AppThemeSetting.followSystem;
+  String defaultStyleSwitchValue = "toprope";
 
   AppSettings(
       {int? idArg,
       SmallDateFormat? smallDateFormatArg,
-      ExportDateFormat? exportDateFormatArg}) {
+      ExportDateFormat? exportDateFormatArg,
+      AppThemeSetting? appThemeSettingArg,
+      String? defaultStyleSwitchValueArg}) {
     if (smallDateFormatArg != null) {
       smallDateFormat = smallDateFormatArg;
     }
     if (exportDateFormatArg != null) {
       exportDateFormat = exportDateFormatArg;
+    }
+    if (appThemeSettingArg != null) {
+      appThemeSetting = appThemeSettingArg;
+    }
+    if (defaultStyleSwitchValueArg != null) {
+      defaultStyleSwitchValue = defaultStyleSwitchValueArg;
     }
   }
 
@@ -30,6 +40,8 @@ class AppSettings {
       'id': id,
       'date_format': smallDateFormat.string,
       'export_format': exportDateFormat.string,
+      'theme': appThemeSetting.string,
+      'default_style': defaultStyleSwitchValue,
     };
   }
 
@@ -39,13 +51,18 @@ class AppSettings {
         smallDateFormatArg:
             SmallDateFormat.fromString(map['date_format'] as String),
         exportDateFormatArg:
-            ExportDateFormat.fromString(map['export_format'] as String));
+            ExportDateFormat.fromString(map['export_format'] as String),
+        appThemeSettingArg: AppThemeSetting.fromString(map['theme'] as String),
+        defaultStyleSwitchValueArg: map['default_style'] as String
+    );
   }
 
   void setTo(AppSettings newSettings) {
     id = newSettings.id;
     smallDateFormat = newSettings.smallDateFormat;
     exportDateFormat = newSettings.exportDateFormat;
+    appThemeSetting = newSettings.appThemeSetting;
+    defaultStyleSwitchValue = newSettings.defaultStyleSwitchValue;
   }
 }
 
@@ -56,36 +73,27 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
-  _SettingsPageState();
-
-  Future<void> saveSettings() async {
+  Future<void> saveSettings(BuildContext context) async {
     int? res = await AppServices.of(context)
         .dbs
         .settingsUpdate(AppServices.of(context).settings);
     if (res == null) {
-      errorPopup("Failed to save settings");
+      errorPopup(context, "Failed to save settings");
       return;
     }
     if (res < 1) {
-      errorPopup("Failed to save settings");
+      errorPopup(context, "Failed to save settings");
     }
-    errorPopup("Saved settings");
+    // errorPopup("Saved settings");
   }
 
-  void errorPopup(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
+class _SettingsPageState extends State<SettingsPage> {
+  _SettingsPageState();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ClimbingNotesAppBar(pageTitle: "Settings"),
+    return ClimbingNotesScaffold(
+      "Settings",
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
@@ -108,10 +116,38 @@ class _SettingsPageState extends State<SettingsPage> {
                       selected: {
                         AppServices.of(context).settings.smallDateFormat
                       },
-                      onSelectionChanged: (set) => (setState(() =>
-                          (AppServices.of(context).settings.smallDateFormat =
-                              set.first))),
+                      onSelectionChanged: (set) => (setState(() {
+                        AppServices.of(context).settings.smallDateFormat = set.first;
+                        saveSettings(context);
+                      })),
                     ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const ClimbingNotesLabel("Theme: "),
+                    SegmentedButton<AppThemeSetting>(
+                      segments: const [
+                        ButtonSegment(
+                            value: AppThemeSetting.light,
+                            label: Text("Light")),
+                        ButtonSegment(
+                            value: AppThemeSetting.dark,
+                            label: Text("Dark")),
+                        ButtonSegment(
+                            value: AppThemeSetting.followSystem,
+                            label: Text("System")),
+                      ],
+                      selected: {
+                        AppServices.of(context).settings.appThemeSetting
+                      },
+                      onSelectionChanged: (set) => (
+                        setState(() {
+                          AppServices.of(context).settings.appThemeSetting = set.first;
+                          saveSettings(context);
+                        })
+                      ),
+                    )
                   ],
                 ),
                 // Row(
@@ -230,17 +266,16 @@ class _SettingsPageState extends State<SettingsPage> {
               tooltip: 'Back',
               child: const Icon(Icons.arrow_back_rounded),
             ),
-            const SizedBox(height: 8),
-            FloatingActionButton(
-              heroTag: "saveFloatBtn",
-              onPressed: saveSettings,
-              tooltip: 'Save settings',
-              child: const Icon(Icons.save),
-            ),
+            // const SizedBox(height: 8),
+            // FloatingActionButton(
+            //   heroTag: "saveFloatBtn",
+            //   onPressed: saveSettings,
+            //   tooltip: 'Save settings',
+            //   child: const Icon(Icons.save),
+            // ),
           ],
         ),
       ),
-      drawer: const ClimbingNotesDrawer(),
     );
   }
 }
