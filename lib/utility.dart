@@ -77,9 +77,9 @@ String timeDisplayFromDateTime(SmallDateFormat format, DateTime? dt) {
     return "";
   }
   if (format == SmallDateFormat.ddmm) {
-    return DateFormat("dd-MM").format(dt.toLocal());
+    return DateFormat("dd-MM-yy").format(dt.toLocal());
   } else {
-    return DateFormat("MM-dd").format(dt.toLocal());
+    return DateFormat("MM-dd-yy").format(dt.toLocal());
   }
 }
 
