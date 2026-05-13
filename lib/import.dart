@@ -54,6 +54,40 @@ void errorPopup(BuildContext context, String message) {
   );
 }
 
+String? cellToString(CellValue? value) => switch (value) {
+      TextCellValue v => v.value.text,
+      IntCellValue v => v.value.toString(),
+      DoubleCellValue v => v.value.toString(),
+      DateCellValue v => v.toString(),
+      DateTimeCellValue v => v.toString(),
+      _ => null,
+    };
+
+int? cellToInt(CellValue? value) => switch (value) {
+      IntCellValue v => v.value,
+      DoubleCellValue v => v.value.round(),
+      // DateCellValue v => v.value.toString(),
+      // DateTimeCellValue v => v.value.toString(),
+      _ => null,
+    };
+
+bool? cellToBool(CellValue? value) => switch (value) {
+      BoolCellValue v => v.value,
+      _ => null,
+    };
+
+DateTime? cellToDateTime(CellValue? value) => switch (value) {
+      DateTimeCellValue v => dateTimeFromDateTimeCellValue(v),
+      DateCellValue v => dateTimeFromDateCellValue(v),
+      _ => null,
+    };
+
+DateTime? cellToDate(CellValue? value) => switch (value) {
+      DateCellValue v => dateTimeFromDateCellValue(v),
+      DateTimeCellValue v => dateTimeFromDateTimeCellValue(v),
+      _ => null,
+    };
+
 void importXLSX(BuildContext context) async {
   FilePickerResult? pickerResult = await FilePicker.platform.pickFiles(
       dialogTitle: "Select file to import",
@@ -67,7 +101,7 @@ void importXLSX(BuildContext context) async {
     return;
   }
 
-  List<int>? fileBytes = await pickerResult.files.first.readStream?.single;
+  List<int>? fileBytes = await pickerResult.files.first.readStream?.expand((x) => x).toList();
 
   if (fileBytes == null) {
     errorPopup(context, "Couldn't read file");
@@ -88,31 +122,45 @@ void importXLSX(BuildContext context) async {
 
   for (List<Data?> row in excelObj.sheets["Routes"]!.rows) {
     if (row.isEmpty) {
-      // errorPopup("Found incorrect row length");
       continue;
     }
 
     if ((row[0]?.value is! IntCellValue)) {
-      // errorPopup("route id column must be integer");
       continue;
     }
 
-    String? grade = (row[4]?.value as TextCellValue?)?.value.text;
-
+    String? grade = cellToString(row[6]?.value);
     RegExpMatch? match = strictGradeExp.firstMatch(grade ?? "");
-    String? num = match?.namedGroup("num");
-    String? let = match?.namedGroup("let");
+    String? gradeNum = match?.namedGroup("num");
+    String? gradeLet = match?.namedGroup("let");
+
+    /*
+    0 IntCellValue, int id;
+    1 DateTimeCellValue, String created;
+    2 DateTimeCellValue, String updated;
+    3 IntCellValue, int? rope;
+    4 DateCellValue, String? date;
+    5 TextCellValue, String? color;
+    6 TextCellValue, int? gradeNum; String? gradeLet;
+    7 TextCellValue String? notes;
+    */ 
+    // for (int i = 0; i < row.length; i++) {
+    //   var a = row[i]?.value.toString();
+    //   var b = row[i]?.value.runtimeType;
+    //   log("$i::$a::$b");
+    // }
+    // break;
 
     routes.add(DBRoute(
-      (row[0]?.value as IntCellValue).value,
-      timestamp,
-      timestamp,
-      (row[1]?.value as IntCellValue?)?.value,
-      dateTimeFromDateCellValue((row[2]?.value as DateCellValue?))?.toUtc().toIso8601String(),
-      RouteColor.fromStringOrNull((row[3]?.value as TextCellValue?)?.value.text)?.string,
-      stringToInt(num),
-      let,
-      (row[5]?.value as TextCellValue?)?.value.text,
+      cellToInt(row[0]?.value) ?? 0,
+      cellToDateTime(row[1]?.value)?.toUtc().toIso8601String() ?? timestamp,
+      cellToDateTime(row[2]?.value)?.toUtc().toIso8601String() ?? timestamp,
+      cellToInt(row[3]?.value),
+      cellToDate(row[4]?.value)?.toUtc().toIso8601String(),
+      RouteColor.fromStringOrNull(cellToString(row[5]?.value))?.string,
+      stringToInt(gradeNum),
+      gradeLet,
+      cellToString(row[7]?.value),
     ));
   }
 
@@ -129,19 +177,37 @@ void importXLSX(BuildContext context) async {
 
     int routeId = (row[0]?.value as IntCellValue).value;
 
+    /*
+    0 IntCellValue, int id;
+    1 DateTimeCellValue, String created;
+    2 DateTimeCellValue, String updated;
+    3 IntCellValue, int route;
+    4 DateTimeCellValue, String? date;
+    5 BoolCellValue, int? finished;
+    6 BoolCellValue, int? rested;
+    7 TextCellValue String? notes;
+    ?? String style;
+    */ 
+    // for (int i = 0; i < row.length; i++) {
+    //   var a = row[i]?.value.toString();
+    //   var b = row[i]?.value.runtimeType;
+    //   log("$i::$a::$b");
+    // }
+    // break;
+
     if (!ascents.containsKey(routeId)) {
       ascents[routeId] = [];
     }
     ascents[routeId]!.add(DBAscent(
-      0,
-      timestamp,
-      timestamp,
-      (row[0]?.value as IntCellValue).value,
-      dateTimeFromDateTimeCellValue((row[1]?.value as DateTimeCellValue?))?.toUtc().toIso8601String(),
-      boolToInt((row[2]?.value as BoolCellValue?)?.value),
-      boolToInt((row[3]?.value as BoolCellValue?)?.value),
-      (row[4]?.value as TextCellValue?)?.value.text,
-      styleFromNullable((row[5]?.value as TextCellValue?)?.value.text),
+      cellToInt(row[0]?.value) ?? 0,
+      cellToDateTime(row[1]?.value)?.toUtc().toIso8601String() ?? timestamp,
+      cellToDateTime(row[2]?.value)?.toUtc().toIso8601String() ?? timestamp,
+      cellToInt(row[3]?.value) ?? 0,
+      cellToDateTime(row[4]?.value)?.toUtc().toIso8601String(),
+      boolToInt(cellToBool(row[5]?.value)),
+      boolToInt(cellToBool(row[6]?.value)),
+      cellToString(row[7]?.value),
+      cellToString(row.elementAtOrNull(8)?.value) ?? "toprope",
     ));
   }
 
@@ -152,32 +218,23 @@ void importXLSX(BuildContext context) async {
     return;
   }
 
-  if (importType) {
-    for (DBRoute r in routes) {
-      int? id = await AppServices.of(context).dbs.routeInsert(r);
-      if (id == null) {
-        continue;
-      }
-
-      for (DBAscent a in ascents[r.id] ?? []) {
-        a.route = id;
-        await AppServices.of(context).dbs.ascentInsert(a);
-      }
+  for (DBRoute r in routes) {
+    int? id = await AppServices.of(context).dbs.routeInsert(r);
+    if (id == null) {
+      continue;
     }
-    errorPopup(context, "Successfully imported .xlsx file");
-  }
-  else {
 
+    for (DBAscent a in ascents[r.id] ?? []) {
+      a.route = id;
+      await AppServices.of(context).dbs.ascentInsert(a);
+    }
   }
-}
+  errorPopup(context, "Successfully imported .xlsx file");
+  // if (importType) {
+  // }
+  // else {
 
-String styleFromNullable(String? style) {
-  if (style == null) {
-    return "toprope";
-  }
-  else {
-    return style;
-  }
+  // }
 }
 
 void exportXLSX(BuildContext context) async {
@@ -243,6 +300,7 @@ void exportXLSX(BuildContext context) async {
       BoolCellValue(intToBool(a.finished) ?? false),
       BoolCellValue(intToBool(a.rested) ?? false),
       TextCellValue(a.notes ?? ""),
+      TextCellValue(a.style ?? "toprope"),
     ];
   }).toList();
 
@@ -317,7 +375,7 @@ Future<void> importDB(BuildContext context) async {
     errorPopup(context, "Not implemented");
   }
   else {
-    Uint8List databaseBytes = Uint8List.fromList(await pickerResult.files.first.readStream?.single ?? []);
+    Uint8List databaseBytes = Uint8List.fromList(await pickerResult.files.first.readStream?.expand((x) => x).toList() ?? []);
     if (databaseBytes.isEmpty) {
       errorPopup(context, "Couldn't open file");
       return;
@@ -343,7 +401,7 @@ Future<void> exportDB(BuildContext context) async {
 
   String databaseDir = await getDatabasesPath();
   String databasePath = path.join(databaseDir, dbFileName);
-  Uint8List databaseBytes = Uint8List.fromList(await File(databasePath).openRead().single);
+  Uint8List databaseBytes = await File(databasePath).readAsBytes();
 
   FilePicker.platform.saveFile(
     bytes: databaseBytes,
