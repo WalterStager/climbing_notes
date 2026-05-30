@@ -1,4 +1,4 @@
-package com.example.climbing_notes
+package com.wstager.climbing_notes
 
 import io.flutter.embedding.android.FlutterActivity
 
