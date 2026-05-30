@@ -218,8 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
-                if (kDebugMode)
-                Row(
+                if (kDebugMode) Row(
                   children: [
                     OutlinedButton(
                       onPressed: () => {
@@ -248,6 +247,20 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
+                if (kDebugMode) Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () => (clearDB(context)),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.warning),
+                          Text("clearDB"),
+                        ],
+                      ),
+                    ),
+                  ]
+                )
               ],
             ),
           ],

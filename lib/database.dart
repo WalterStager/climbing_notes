@@ -246,9 +246,9 @@ class DatabaseService {
     return await db?.insert("Routes", route.toMap());
   }
 
-  Future<void> ascentInsert(DBAscent ascent) async {
+  Future<int?> ascentInsert(DBAscent ascent) async {
     checkDB();
-    await db?.insert("Ascents", ascent.toMap());
+    return await db?.insert("Ascents", ascent.toMap());
   }
 
   Future<int?> routeUpdate(DBRoute newR) async {
@@ -339,6 +339,12 @@ class DatabaseService {
     return await db?.delete("Ascents",
         where: "id IN (${List.filled(ascentIds.length, "?").join(", ")})",
         whereArgs: ascentIds);
+  }
+
+  Future<void> clearAllData() async {
+    checkDB();
+    await db?.delete("Ascents");
+    await db?.delete("Routes");
   }
 
   Future<DatabaseTable?> getVersion() async {

@@ -45,11 +45,11 @@ Widget importTypePopup(BuildContext context) {
   );
 }
 
-void errorPopup(BuildContext context, String message) {
+void errorPopup(BuildContext context, String message, {int duration = 3}) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(message),
-      duration: const Duration(seconds: 3),
+      duration: Duration(seconds: duration),
     ),
   );
 }
@@ -119,13 +119,17 @@ void importXLSX(BuildContext context) async {
   Map<int, List<DBAscent>> ascents = {};
 
   String timestamp = getTimestamp();
+  int numRoutes = excelObj.sheets["Routes"]!.rows.length;
+  int numAscents = excelObj.sheets["Ascents"]!.rows.length;
 
   for (List<Data?> row in excelObj.sheets["Routes"]!.rows) {
     if (row.isEmpty) {
+      log("failed to import route - row is empty");
       continue;
     }
 
     if ((row[0]?.value is! IntCellValue)) {
+      log("failed to import route - id is not int ${row[0]?.value.toString()}");
       continue;
     }
 
@@ -166,16 +170,16 @@ void importXLSX(BuildContext context) async {
 
   for (List<Data?> row in excelObj.sheets["Ascents"]!.rows) {
     if (row.isEmpty) {
-      // errorPopup("Found incorrect row length");
+      log("failed to import ascent - row is empty");
       continue;
     }
 
     if ((row[0]?.value is! IntCellValue)) {
-      // errorPopup("route id column must be integer");
+      log("failed to import ascent - id is not int ${row[0]?.value.toString()}");
       continue;
     }
 
-    int routeId = (row[0]?.value as IntCellValue).value;
+    int routeId = (row[3]?.value as IntCellValue).value;
 
     /*
     0 IntCellValue, int id;
@@ -211,30 +215,47 @@ void importXLSX(BuildContext context) async {
     ));
   }
 
-  bool? importType = await modalBottomPopup<bool>(context, importTypePopup);
+  log("lengths routes ${numRoutes}/${routes.length}");
+  log("lengths ascents ${numAscents}/${ascents.values.fold(0, (sum, list) => sum + list.length)}");
 
-  if (importType == null) {
-    errorPopup(context, "Didn't get import type");
-    return;
-  }
+  int successfullyImportedRoutes = 0;
+  int successfullyImportedAscents = 0;
+  int attemtedAscentImports = 0;
+  Map<int, int> oldIDToNewID = {};
 
   for (DBRoute r in routes) {
     int? id = await AppServices.of(context).dbs.routeInsert(r);
     if (id == null) {
+      log("failed to import route ${r.id}");
+      continue;
+    }
+    successfullyImportedRoutes++;
+    oldIDToNewID[r.id] = id;
+  }
+
+  for (MapEntry<int, List<DBAscent>> ascentEntry in ascents.entries) {
+    int? newRouteID = oldIDToNewID[ascentEntry.key];
+    if (newRouteID == null) {
+      log("Failed to get new route for r:${ascentEntry.key}");
       continue;
     }
 
-    for (DBAscent a in ascents[r.id] ?? []) {
-      a.route = id;
-      await AppServices.of(context).dbs.ascentInsert(a);
+    for (DBAscent a in ascentEntry.value) {
+      a.route = newRouteID;
+      attemtedAscentImports++;
+      int? ascentid = await AppServices.of(context).dbs.ascentInsert(a);
+      if (ascentid == null) {
+        log("failed to import ascent ${a.id}");
+        continue;
+      }
+      successfullyImportedAscents++;
     }
   }
-  errorPopup(context, "Successfully imported .xlsx file");
-  // if (importType) {
-  // }
-  // else {
 
-  // }
+  log("routes $successfullyImportedRoutes of $numRoutes");
+  log("ascents $successfullyImportedAscents of $numAscents");
+  log("ascent attempts $attemtedAscentImports of $numAscents");
+  errorPopup(context, "Successfully imported .xlsx file", duration: 15);
 }
 
 void exportXLSX(BuildContext context) async {
@@ -419,4 +440,9 @@ Future <void> prodToDebug(BuildContext context) async {
   await File(dbProdFN).copy(dbDebugFN);
   log("copied $dbProdFN to $dbDebugFN");
   return;
+}
+
+Future<void> clearDB(BuildContext context) async {
+  await AppServices.of(context).dbs.clearAllData();
+  errorPopup(context, "Cleared database");
 }
