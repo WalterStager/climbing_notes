@@ -25,6 +25,7 @@
         pkgs.jdk21_headless
         pkgs.git
         androidSdk
+        pkgs.apksigner
       ];
       ANDROID_HOME = "${androidSdk}/libexec/android-sdk";
       ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
